@@ -24,10 +24,15 @@ public class CsvQuestionDao implements QuestionDao {
         // Использовать QuestionReadException
         // Про ресурсы: https://mkyong.com/java/java-read-a-file-from-resources-folder/
 
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileNameProvider.getTestFileName())) {
+        try (InputStream inputStream = getClass().getClassLoader()
+                .getResourceAsStream(fileNameProvider.getTestFileName())) {
             assert inputStream != null;
             InputStreamReader reader = new InputStreamReader(inputStream);
-            CsvToBean<QuestionDto> csvToBean = new CsvToBeanBuilder<QuestionDto>(reader).withType(QuestionDto.class).withSkipLines(1).withSeparator(';').build();
+            CsvToBean<QuestionDto> csvToBean = new CsvToBeanBuilder<QuestionDto>(reader)
+                    .withType(QuestionDto.class)
+                    .withSkipLines(1)
+                    .withSeparator(';')
+                    .build();
             List<QuestionDto> questions = csvToBean.parse();
             return questions.stream().map(QuestionDto::toDomainObject).toList();
         } catch (IOException e) {
