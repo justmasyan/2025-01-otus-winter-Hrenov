@@ -19,17 +19,19 @@ public class TestServiceImpl implements TestService {
         ioService.printLine("");
         ioService.printFormattedLine("Please answer the questions below%n");
         List<Question> questions = questionDao.findAll();
-        questions.forEach(question -> {
-            ioService.printLine(question.text());
-            if (question.answers() != null) {
-                StringBuilder template = new StringBuilder();
-                for (int i = 0; i < question.answers().size(); i++) {
-                    template.append(i + 1).append(") %s; ");
-                }
-                Object[] variantsAnswers = question.answers().stream().map(Answer::text).toArray();
-                ioService.printFormattedLine(template.toString(), variantsAnswers);
+        questions.forEach(this::printQuestion);
+    }
+
+    private void printQuestion(Question question) {
+        ioService.printLine(question.text());
+        if (question.answers() != null) {
+            StringBuilder template = new StringBuilder();
+            for (int i = 0; i < question.answers().size(); i++) {
+                template.append(i + 1).append(") %s; ");
             }
-            ioService.printLine("");
-        });
+            Object[] variantsAnswers = question.answers().stream().map(Answer::text).toArray();
+            ioService.printFormattedLine(template.toString(), variantsAnswers);
+        }
+        ioService.printLine("");
     }
 }
