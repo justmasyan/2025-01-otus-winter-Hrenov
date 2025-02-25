@@ -3,4 +3,5 @@
 *.class
 *.mvn
 
-/tardet
+*/tardet
+hw01/target
