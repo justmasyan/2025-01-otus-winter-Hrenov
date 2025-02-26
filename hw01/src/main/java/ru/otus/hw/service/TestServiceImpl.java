@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import ru.otus.hw.dao.QuestionDao;
 import ru.otus.hw.domain.Answer;
 import ru.otus.hw.domain.Question;
+import ru.otus.hw.exceptions.QuestionReadException;
 
 import java.util.List;
 
@@ -18,8 +19,12 @@ public class TestServiceImpl implements TestService {
     public void executeTest() {
         ioService.printLine("");
         ioService.printFormattedLine("Please answer the questions below%n");
-        List<Question> questions = questionDao.findAll();
-        questions.forEach(this::printQuestion);
+        try {
+            List<Question> questions = questionDao.findAll();
+            questions.forEach(this::printQuestion);
+        } catch (QuestionReadException e){
+            ioService.printFormattedLine("Ошибка при чтении вопросов");
+        }
     }
 
     private void printQuestion(Question question) {
