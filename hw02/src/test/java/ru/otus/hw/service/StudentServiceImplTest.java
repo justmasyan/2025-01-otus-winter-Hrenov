@@ -21,7 +21,7 @@ class StudentServiceImplTest {
     }
 
     @Test
-    void determineCurrentStudent() {
+    void simpleUnitTestDetermineCurrentStudent() {
         Student expectedStudent = new Student("Maksim", "Hrenov");
 
         when(ioService.readStringWithPrompt("Please input your first name")).thenReturn(expectedStudent.firstName());
