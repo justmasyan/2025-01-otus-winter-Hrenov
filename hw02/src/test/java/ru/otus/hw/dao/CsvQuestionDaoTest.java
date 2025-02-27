@@ -2,6 +2,7 @@ package ru.otus.hw.dao;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.otus.hw.config.AppProperties;
 import ru.otus.hw.config.TestFileNameProvider;
 import ru.otus.hw.domain.Answer;
 import ru.otus.hw.domain.Question;
@@ -9,8 +10,6 @@ import ru.otus.hw.domain.Question;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 class CsvQuestionDaoTest {
 
@@ -20,15 +19,12 @@ class CsvQuestionDaoTest {
 
     @BeforeEach
     void setUp() {
-        fileNameProvider = mock(TestFileNameProvider.class);
+        fileNameProvider = new AppProperties(3, "questions.csv");
         csvQuestionDao = new CsvQuestionDao(fileNameProvider);
     }
 
     @Test
-    void simpleUnitTestFindAll() {
-        String csvFileName = "questions.csv";
-        given(fileNameProvider.getTestFileName()).willReturn(csvFileName);
-
+    void simpleIntegrationTestFindAll() {
         List<Question> expectedQuestions = List.of(
                 new Question("Is there life on Mars?", List.of(
                         new Answer("Science doesn't know this yet", true),
