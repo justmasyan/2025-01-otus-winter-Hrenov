@@ -2,7 +2,6 @@ package ru.otus.hw.dao;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.otus.hw.config.AppProperties;
 import ru.otus.hw.config.TestFileNameProvider;
 import ru.otus.hw.domain.Answer;
 import ru.otus.hw.domain.Question;
@@ -10,6 +9,8 @@ import ru.otus.hw.domain.Question;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class CsvQuestionDaoTest {
 
@@ -19,7 +20,7 @@ class CsvQuestionDaoTest {
 
     @BeforeEach
     void setUp() {
-        fileNameProvider = new AppProperties(3, "questions.csv");
+        fileNameProvider = mock(TestFileNameProvider.class);
         csvQuestionDao = new CsvQuestionDao(fileNameProvider);
     }
 
@@ -53,6 +54,8 @@ class CsvQuestionDaoTest {
                         new Answer("9", false)
                 ))
         );
+
+        when(fileNameProvider.getTestFileName()).thenReturn("questions.csv");
 
         assertThat(csvQuestionDao.findAll()).isEqualTo(expectedQuestions);
     }

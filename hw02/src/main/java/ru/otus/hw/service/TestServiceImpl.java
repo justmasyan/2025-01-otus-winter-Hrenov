@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.otus.hw.dao.QuestionDao;
 import ru.otus.hw.domain.Answer;
+import ru.otus.hw.domain.Question;
 import ru.otus.hw.domain.Student;
 import ru.otus.hw.domain.TestResult;
 
@@ -25,21 +26,34 @@ public class TestServiceImpl implements TestService {
         var testResult = new TestResult(student);
 
         for (var question : questions) {
-            String studentAnswer = ioService.readStringWithPrompt(question.text());
-
-            boolean isAnswerValid;
-            if (question.answers() != null) {
-                Optional<Answer> correctAnswer = question.answers()
-                        .stream()
-                        .filter(answer -> answer.text().equals(studentAnswer) && answer.isCorrect())
-                        .findFirst();
-                isAnswerValid = correctAnswer.isPresent();
-            } else {
-                isAnswerValid = true;
-            }
-
-            testResult.applyAnswer(question, isAnswerValid);
+            String studentAnswer = ioService.readStringWithPrompt(getFullText(question));
+            testResult.applyAnswer(question, isCorrectAnswer(question, studentAnswer));
         }
         return testResult;
+    }
+
+    private String getFullText(Question question) {
+        StringBuilder questionWithAnswers = new StringBuilder("\n").append(question.text());
+        if (question.answers() != null) {
+            StringBuilder templateAnswer = new StringBuilder("\n");
+            for (int i = 0; i < question.answers().size(); i++) {
+                templateAnswer.append(i + 1).append(") %s; ");
+            }
+            Object[] variantsAnswers = question.answers().stream().map(Answer::text).toArray();
+            questionWithAnswers.append(String.format(templateAnswer.toString(), variantsAnswers));
+        }
+        return questionWithAnswers.toString();
+    }
+
+    private Boolean isCorrectAnswer(Question question, String studentAnswer) {
+        if (question.answers() == null) {
+            return true;
+        }
+
+        Optional<Answer> correctAnswer = question.answers()
+                .stream()
+                .filter(answer -> answer.text().equals(studentAnswer) && answer.isCorrect())
+                .findFirst();
+        return correctAnswer.isPresent();
     }
 }
