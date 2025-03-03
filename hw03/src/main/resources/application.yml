@@ -4,10 +4,15 @@ spring:
     encoding: UTF-8
     # Не дает свалиться в системную локаль если не найден файл для переданной в MessageSource
     # Если false то будут браться сообщения из дефолтного файла, если true, то из файла соответствующего системной локали
-    fallbackToSystemLocale: false
+    fallbackToSystemLocale: true
+  output:
+    ansi:
+      enabled: always
+
 test:
   rightAnswersCountToPass: 3
-  locale: en-US
+  locale: fr-FR
   fileNameByLocaleTag:
-    ru-RU: questions_ru.csv
     en-US: questions.csv
+    ru-RU: questions_ru.csv
+    fr-FR: questions_fr.csv
