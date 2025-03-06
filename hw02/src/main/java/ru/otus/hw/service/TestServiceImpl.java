@@ -33,9 +33,9 @@ public class TestServiceImpl implements TestService {
     }
 
     private String getFullText(Question question) {
-        StringBuilder questionWithAnswers = new StringBuilder("\n").append(question.text());
+        StringBuilder questionWithAnswers = new StringBuilder(System.lineSeparator()).append(question.text());
         if (question.answers() != null) {
-            StringBuilder templateAnswer = new StringBuilder("\n");
+            StringBuilder templateAnswer = new StringBuilder(System.lineSeparator());
             for (int i = 0; i < question.answers().size(); i++) {
                 templateAnswer.append(i + 1).append(") %s; ");
             }
