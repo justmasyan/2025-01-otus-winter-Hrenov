@@ -1,0 +1,6 @@
+# Ajouter vos questions ici. Cette ligne doit être ignorée lors de la configuration de CsvToBean (withSkipLines)
+Y a-t-il de la vie sur mars?;Cette science n'est pas encore connue%true|Bien sûr. Les rouges (OVNIS) viennent de mars. Un vert (OVNI) de Vénus%false|Certainement pas%false
+Comment dois-je charger une ressource à partir d'un jar en Java?;ClassLoader#geResourceAsStream ou ClassPathResource#getInputStream%true|ClassLoader#geResource#getFile + FileReader%false|Wingardium Leviosa%false
+Quelle est la façon préférée de réagir aux exceptions?;@SneakyThrow%false|e.printStackTrace()%false|Aller plus loin avec un pré-enveloppement dans une exception métier (par exemple QuestionReadException)%true|Ignorer l'exception%false
+Quel est le sens de la vie?
+Quel est le nombre que j'ai fait??;0%false|1%false|2%false|3%false|4%false|5%false|6%false|7%false|8%false|9%false|
