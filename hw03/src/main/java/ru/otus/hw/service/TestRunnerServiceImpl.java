@@ -23,7 +23,7 @@ public class TestRunnerServiceImpl implements TestRunnerService {
             var testResult = testService.executeTestFor(student);
             resultService.showResult(testResult);
         } catch (QuestionReadException e) {
-            ioService.printFormattedLine(e.getMessage());
+            ioService.printFormattedLine("Error reading the questions");
         }
     }
 }
