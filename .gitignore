@@ -3,4 +3,4 @@
 *.class
 *.mvn
 
-/tardet
+*/target
