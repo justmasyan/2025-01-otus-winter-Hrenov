@@ -1,0 +1,8 @@
+${AnsiBackground.237}${AnsiColor.RED}oooo    oooo oooooo   oooo    ${AnsiColor.BLUE}     oooo    oooo oooooo   oooo
+${AnsiBackground.237}${AnsiColor.RED}`888   .8P'   `888.   .8'     ${AnsiColor.BLUE}     `888   .8P'   `888.   .8'
+${AnsiBackground.237}${AnsiColor.RED} 888  d8'      `888. .8'      ${AnsiColor.BLUE}      888  d8'      `888. .8'
+${AnsiBackground.237}${AnsiColor.RED} 88888         `888.8'       ${AnsiColor.BLUE}      88888[         `888.8'
+${AnsiBackground.237}${AnsiColor.RED} 888`88b.        `888'     888${AnsiColor.BLUE}8888  888`88b.        `888'
+${AnsiBackground.237}${AnsiColor.RED} 888  `88b.       888         ${AnsiColor.BLUE}      888  `88b.       888
+${AnsiBackground.237}${AnsiColor.RED}o888o  o888o     o888o        ${AnsiColor.BLUE}     o888o  o888o     o888o
+${AnsiBackground.DEFAULT}${AnsiColor.DEFAULT}
