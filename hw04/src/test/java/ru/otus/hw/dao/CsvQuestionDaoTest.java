@@ -3,8 +3,6 @@ package ru.otus.hw.dao;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.otus.hw.config.TestFileNameProvider;
 import ru.otus.hw.domain.Answer;
@@ -15,17 +13,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@SpringBootTest(classes = CsvQuestionDao.class)
 class CsvQuestionDaoTest {
-
-    @Configuration
-    static class TestConfiguration {
-
-        @Bean
-        CsvQuestionDao csvQuestionDao(TestFileNameProvider fileNameProvider){
-            return new CsvQuestionDao(fileNameProvider);
-        }
-    }
 
     @Autowired
     private CsvQuestionDao csvQuestionDao;

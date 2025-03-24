@@ -15,7 +15,7 @@ public class ApplicationCommands {
     private final LocalizedIOService ioService;
 
     @ShellMethod(value = "Start Test Service", key = {"s", "start"})
-    public String startApplication() {
+    public String startTest() {
         testRunnerService.run();
         ioService.printLineLocalized("ApplicationCommands.application.finished");
         return "";
