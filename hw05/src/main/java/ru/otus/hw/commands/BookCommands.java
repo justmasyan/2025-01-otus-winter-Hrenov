@@ -4,6 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import ru.otus.hw.converters.BookConverter;
+import ru.otus.hw.exceptions.AuthorNotFoundException;
+import ru.otus.hw.exceptions.GenreNotFoundException;
+import ru.otus.hw.exceptions.GenresIsEmptyException;
+import ru.otus.hw.exceptions.BookForUpdateNotFoundException;
+import ru.otus.hw.exceptions.BookNothingUpdateException;
 import ru.otus.hw.services.BookService;
 
 import java.util.Set;
@@ -35,15 +40,35 @@ public class BookCommands {
     // bins newBook 1 1,6
     @ShellMethod(value = "Insert book", key = "bins")
     public String insertBook(String title, long authorId, Set<Long> genresIds) {
-        var savedBook = bookService.insert(title, authorId, genresIds);
-        return bookConverter.bookToString(savedBook);
+        try {
+            var savedBook = bookService.insert(title, authorId, genresIds);
+            return bookConverter.bookToString(savedBook);
+        } catch (GenresIsEmptyException e) {
+            return "Список жанров не должен быть пустым";
+        } catch (GenreNotFoundException e) {
+            return "Один из жанров не был найден";
+        } catch (AuthorNotFoundException e) {
+            return "Автор не был найден";
+        }
     }
 
     // bupd 4 editedBook 3 2,5
     @ShellMethod(value = "Update book", key = "bupd")
     public String updateBook(long id, String title, long authorId, Set<Long> genresIds) {
-        var savedBook = bookService.update(id, title, authorId, genresIds);
-        return bookConverter.bookToString(savedBook);
+        try {
+            var savedBook = bookService.update(id, title, authorId, genresIds);
+            return bookConverter.bookToString(savedBook);
+        } catch (GenresIsEmptyException e) {
+            return "Список жанров не должен быть пустым";
+        } catch (GenreNotFoundException e) {
+            return "Один из жанров не был найден";
+        } catch (AuthorNotFoundException e) {
+            return "Автор не был найден";
+        } catch (BookForUpdateNotFoundException e) {
+            return "Книга для обновления не была найдена";
+        } catch (BookNothingUpdateException e) {
+            return "Исходная книга совпадает с новой";
+        }
     }
 
     // bdel 4
