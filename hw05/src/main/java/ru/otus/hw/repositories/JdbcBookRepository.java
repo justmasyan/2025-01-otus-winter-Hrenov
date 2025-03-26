@@ -10,6 +10,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.otus.hw.exceptions.BookForUpdateNotFoundException;
+import ru.otus.hw.exceptions.BookNothingUpdateException;
 import ru.otus.hw.models.Author;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Genre;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class JdbcBookRepository implements BookRepository {
@@ -87,18 +90,18 @@ public class JdbcBookRepository implements BookRepository {
 
     private void mergeBooksInfo(List<Book> booksWithoutGenres, List<Genre> genres,
                                 List<BookGenreRelation> relations) {
-        booksWithoutGenres.forEach(book -> {
-            List<Long> idGenreBook = relations.stream()
-                    .filter(relation -> book.getId() == relation.bookId)
-                    .map(BookGenreRelation::genreId)
-                    .toList();
 
-            List<Genre> bookGenres = genres.stream()
-                    .filter(genre -> idGenreBook.contains(genre.getId()))
-                    .toList();
+        Map<Long, Book> booksMap = booksWithoutGenres.stream().collect(
+                Collectors.toMap(Book::getId, book -> {
+                    book.setGenres(new ArrayList<>());
+                    return book;
+                })
+        );
 
-            book.setGenres(bookGenres);
-        });
+        Map<Long, Genre> genreMap = genres.stream().collect(Collectors.toMap(Genre::getId, genre -> genre));
+        relations.forEach(relation ->
+                booksMap.get(relation.bookId).getGenres().add(genreMap.get(relation.genreId))
+        );
     }
 
     private Book insert(Book book) {
@@ -117,6 +120,13 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     private Book update(Book book) {
+        Book oldBook = findById(book.getId()).orElseThrow(
+                () -> new BookForUpdateNotFoundException("Not found book with id %d".formatted(book.getId()))
+        );
+        if (oldBook.equals(book)) {
+            throw new BookNothingUpdateException("No changes to update the book with id %d".formatted(book.getId()));
+        }
+
         Map<String, Object> params = Map.of(
                 "title", book.getTitle(),
                 "author_id", book.getAuthor().getId(),
@@ -130,10 +140,14 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     private void batchInsertGenresRelationsFor(Book book) {
-        List<Object[]> params = book.getGenres().stream()
-                .map(genre -> new Object[]{book.getId(), genre.getId()})
-                .toList();
-        jdbcOperations.batchUpdate("INSERT INTO books_genres VALUES (?, ?)", params);
+        MapSqlParameterSource[] params = book.getGenres().stream()
+                .map(genre -> {
+                    MapSqlParameterSource param = new MapSqlParameterSource();
+                    param.addValue("book_id", book.getId());
+                    param.addValue("genre_id", genre.getId());
+                    return param;
+                }).toArray(MapSqlParameterSource[]::new);
+        namedParameterJdbcOperations.batchUpdate("INSERT INTO books_genres VALUES (:book_id, :genre_id)", params);
     }
 
     private void removeGenresRelationsFor(Book book) {

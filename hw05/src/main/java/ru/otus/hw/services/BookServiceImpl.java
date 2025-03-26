@@ -5,8 +5,6 @@ import org.springframework.stereotype.Service;
 import ru.otus.hw.exceptions.AuthorNotFoundException;
 import ru.otus.hw.exceptions.GenreNotFoundException;
 import ru.otus.hw.exceptions.GenresIsEmptyException;
-import ru.otus.hw.exceptions.BookForUpdateNotFoundException;
-import ru.otus.hw.exceptions.BookNothingUpdateException;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.repositories.BookRepository;
@@ -64,16 +62,6 @@ public class BookServiceImpl implements BookService {
             throw new GenreNotFoundException("One or all genres with ids %s not found".formatted(genresIds));
         }
 
-        var book = new Book(id, title, author, genres);
-
-        if (id != 0) {
-            Book oldBook = bookRepository.findById(id)
-                    .orElseThrow(() -> new BookForUpdateNotFoundException("Not found book with id %d".formatted(id)));
-            if (oldBook.equals(book)) {
-                throw new BookNothingUpdateException("No changes to update the book with id %d".formatted(id));
-            }
-        }
-
-        return bookRepository.save(book);
+        return bookRepository.save(new Book(id, title, author, genres));
     }
 }
