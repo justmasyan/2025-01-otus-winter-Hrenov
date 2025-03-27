@@ -10,8 +10,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.otus.hw.exceptions.BookForUpdateNotFoundException;
-import ru.otus.hw.exceptions.BookNothingUpdateException;
+import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.models.Author;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Genre;
@@ -120,20 +119,18 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     private Book update(Book book) {
-        Book oldBook = findById(book.getId()).orElseThrow(
-                () -> new BookForUpdateNotFoundException("Not found book with id %d".formatted(book.getId()))
-        );
-        if (oldBook.equals(book)) {
-            throw new BookNothingUpdateException("No changes to update the book with id %d".formatted(book.getId()));
-        }
-
         Map<String, Object> params = Map.of(
                 "title", book.getTitle(),
                 "author_id", book.getAuthor().getId(),
                 "id", book.getId()
         );
-        namedParameterJdbcOperations.update("UPDATE books SET title = :title, author_id = :author_id WHERE id = :id",
-                params);
+
+        int numUpdatedRows = namedParameterJdbcOperations.update(
+                "UPDATE books SET title = :title, author_id = :author_id WHERE id = :id", params
+        );
+        if (numUpdatedRows == 0) {
+            throw new EntityNotFoundException("Entity for update not found");
+        }
         removeGenresRelationsFor(book);
         batchInsertGenresRelationsFor(book);
         return book;

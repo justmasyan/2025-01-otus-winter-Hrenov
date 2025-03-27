@@ -5,10 +5,9 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import ru.otus.hw.converters.BookConverter;
 import ru.otus.hw.exceptions.AuthorNotFoundException;
+import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.exceptions.GenreNotFoundException;
 import ru.otus.hw.exceptions.GenresIsEmptyException;
-import ru.otus.hw.exceptions.BookForUpdateNotFoundException;
-import ru.otus.hw.exceptions.BookNothingUpdateException;
 import ru.otus.hw.services.BookService;
 
 import java.util.Set;
@@ -64,10 +63,8 @@ public class BookCommands {
             return "Один из жанров не был найден";
         } catch (AuthorNotFoundException e) {
             return "Автор не был найден";
-        } catch (BookForUpdateNotFoundException e) {
-            return "Книга для обновления не была найдена";
-        } catch (BookNothingUpdateException e) {
-            return "Исходная книга совпадает с новой";
+        } catch (EntityNotFoundException e) {
+            return "Обновление книги не произошло";
         }
     }
 
