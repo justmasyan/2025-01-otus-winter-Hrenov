@@ -4,3 +4,4 @@
 *.mvn
 
 */target
+*/spring-shell.log
