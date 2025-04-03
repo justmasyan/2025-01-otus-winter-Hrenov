@@ -11,16 +11,23 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "genres")
+@AllArgsConstructor
+@Table(name = "commentaries")
 @Entity
-public class Genre {
+public class Commentary {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "name", nullable = false)
-    private String name;
+    @Column(name = "book_id", nullable = false)
+    private long bookId;
+
+    @Column(name = "text", nullable = false)
+    private String text;
+
+    public Commentary(String text) {
+        this.text = text;
+    }
 }

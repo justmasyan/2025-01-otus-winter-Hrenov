@@ -5,11 +5,11 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import ru.otus.hw.converters.BookConverter;
 import ru.otus.hw.exceptions.AuthorNotFoundException;
-import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.exceptions.GenreNotFoundException;
 import ru.otus.hw.exceptions.GenresIsEmptyException;
 import ru.otus.hw.services.BookService;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -25,23 +25,23 @@ public class BookCommands {
     @ShellMethod(value = "Find all books", key = "ab")
     public String findAllBooks() {
         return bookService.findAll().stream()
-                .map(bookConverter::bookToString)
+                .map(bookConverter::bookDtoToString)
                 .collect(Collectors.joining("," + System.lineSeparator()));
     }
 
     @ShellMethod(value = "Find book by id", key = "bbid")
     public String findBookById(long id) {
         return bookService.findById(id)
-                .map(bookConverter::bookToString)
+                .map(bookConverter::bookDtoToString)
                 .orElse("Book with id %d not found".formatted(id));
     }
 
     // bins newBook 1 1,6
     @ShellMethod(value = "Insert book", key = "bins")
-    public String insertBook(String title, long authorId, Set<Long> genresIds) {
+    public String insertBook(String title, long authorId, Set<Long> genresIds, List<String> commentaries) {
         try {
-            var savedBook = bookService.insert(title, authorId, genresIds);
-            return bookConverter.bookToString(savedBook);
+            var savedBook = bookService.insert(title, authorId, genresIds, commentaries);
+            return bookConverter.bookDtoToString(savedBook);
         } catch (GenresIsEmptyException e) {
             return "Список жанров не должен быть пустым";
         } catch (GenreNotFoundException e) {
@@ -53,18 +53,16 @@ public class BookCommands {
 
     // bupd 4 editedBook 3 2,5
     @ShellMethod(value = "Update book", key = "bupd")
-    public String updateBook(long id, String title, long authorId, Set<Long> genresIds) {
+    public String updateBook(long id, String title, long authorId, Set<Long> genresIds, List<String> commentaries) {
         try {
-            var savedBook = bookService.update(id, title, authorId, genresIds);
-            return bookConverter.bookToString(savedBook);
+            var savedBook = bookService.update(id, title, authorId, genresIds, commentaries);
+            return bookConverter.bookDtoToString(savedBook);
         } catch (GenresIsEmptyException e) {
             return "Список жанров не должен быть пустым";
         } catch (GenreNotFoundException e) {
             return "Один из жанров не был найден";
         } catch (AuthorNotFoundException e) {
             return "Автор не был найден";
-        } catch (EntityNotFoundException e) {
-            return "Обновление книги не произошло";
         }
     }
 
