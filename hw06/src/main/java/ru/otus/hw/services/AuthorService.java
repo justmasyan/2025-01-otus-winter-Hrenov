@@ -1,6 +1,6 @@
 package ru.otus.hw.services;
 
-import ru.otus.hw.entities.AuthorDto;
+import ru.otus.hw.dto.AuthorDto;
 
 import java.util.List;
 

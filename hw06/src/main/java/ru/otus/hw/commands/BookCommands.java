@@ -9,7 +9,6 @@ import ru.otus.hw.exceptions.GenreNotFoundException;
 import ru.otus.hw.exceptions.GenresIsEmptyException;
 import ru.otus.hw.services.BookService;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,9 +37,9 @@ public class BookCommands {
 
     // bins newBook 1 1,6
     @ShellMethod(value = "Insert book", key = "bins")
-    public String insertBook(String title, long authorId, Set<Long> genresIds, List<String> commentaries) {
+    public String insertBook(String title, long authorId, Set<Long> genresIds) {
         try {
-            var savedBook = bookService.insert(title, authorId, genresIds, commentaries);
+            var savedBook = bookService.insert(title, authorId, genresIds);
             return bookConverter.bookDtoToString(savedBook);
         } catch (GenresIsEmptyException e) {
             return "Список жанров не должен быть пустым";
@@ -53,9 +52,9 @@ public class BookCommands {
 
     // bupd 4 editedBook 3 2,5
     @ShellMethod(value = "Update book", key = "bupd")
-    public String updateBook(long id, String title, long authorId, Set<Long> genresIds, List<String> commentaries) {
+    public String updateBook(long id, String title, long authorId, Set<Long> genresIds) {
         try {
-            var savedBook = bookService.update(id, title, authorId, genresIds, commentaries);
+            var savedBook = bookService.update(id, title, authorId, genresIds);
             return bookConverter.bookDtoToString(savedBook);
         } catch (GenresIsEmptyException e) {
             return "Список жанров не должен быть пустым";

@@ -1,20 +1,28 @@
 package ru.otus.hw.converters;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.otus.hw.entities.CommentaryDto;
+import ru.otus.hw.dto.BookDto;
+import ru.otus.hw.dto.CommentaryDto;
 import ru.otus.hw.models.Commentary;
 
 @Component
+@AllArgsConstructor
 public class CommentaryConverter {
 
+    private final BookConverter bookConverter;
+
     public CommentaryDto commentaryToDto(Commentary commentary) {
-        return new CommentaryDto(commentary.getId(), commentary.getBookId(), commentary.getText());
+        BookDto bookDto = bookConverter.bookToDto(commentary.getBook());
+        return new CommentaryDto(commentary.getId(), bookDto, commentary.getText());
     }
 
     public String commentaryDtoToString(CommentaryDto commentary) {
-        return "Id: %d, BookId: %d, Text: %s".formatted(
+
+        String bookString = bookConverter.bookDtoToString(commentary.getBook());
+        return "Id: %d, Book: %s, Text: %s".formatted(
                 commentary.getId(),
-                commentary.getBookId(),
+                bookString,
                 commentary.getText()
         );
     }

@@ -4,12 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.converters.BookConverter;
-import ru.otus.hw.entities.BookDto;
+import ru.otus.hw.dto.BookDto;
 import ru.otus.hw.exceptions.AuthorNotFoundException;
 import ru.otus.hw.exceptions.GenreNotFoundException;
 import ru.otus.hw.exceptions.GenresIsEmptyException;
 import ru.otus.hw.models.Book;
-import ru.otus.hw.models.Commentary;
 import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.repositories.BookRepository;
 import ru.otus.hw.repositories.GenreRepository;
@@ -47,17 +46,17 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public BookDto insert(String title, long authorId, Set<Long> genresIds, List<String> commentaries) {
-        return save(0, title, authorId, genresIds, commentaries);
+    public BookDto insert(String title, long authorId, Set<Long> genresIds) {
+        return save(0, title, authorId, genresIds);
     }
 
     @Override
     @Transactional
-    public BookDto update(long id, String title, long authorId, Set<Long> genresIds, List<String> commentaries) {
+    public BookDto update(long id, String title, long authorId, Set<Long> genresIds) {
         if (findById(id).isEmpty()) {
-            save(0, title, authorId, genresIds, commentaries);
+            save(0, title, authorId, genresIds);
         }
-        return save(id, title, authorId, genresIds, commentaries);
+        return save(id, title, authorId, genresIds);
     }
 
     @Override
@@ -66,7 +65,7 @@ public class BookServiceImpl implements BookService {
         bookRepository.deleteById(id);
     }
 
-    private BookDto save(long id, String title, long authorId, Set<Long> genresIds, List<String> commentaries) {
+    private BookDto save(long id, String title, long authorId, Set<Long> genresIds) {
         if (isEmpty(genresIds)) {
             throw new GenresIsEmptyException("Genres ids must not be null");
         }
@@ -77,11 +76,7 @@ public class BookServiceImpl implements BookService {
         if (isEmpty(genres) || genresIds.size() != genres.size()) {
             throw new GenreNotFoundException("One or all genres with ids %s not found".formatted(genresIds));
         }
-
-        List<Commentary> comments = commentaries.stream()
-                .map(comment -> new Commentary(0L, id, comment))
-                .toList();
-        Book book = bookRepository.save(new Book(id, title, author, genres, comments));
+        Book book = bookRepository.save(new Book(id, title, author, genres));
         return bookConverter.bookToDto(book);
     }
 }

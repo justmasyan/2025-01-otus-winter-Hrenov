@@ -1,6 +1,6 @@
 package ru.otus.hw.services;
 
-import ru.otus.hw.entities.CommentaryDto;
+import ru.otus.hw.dto.CommentaryDto;
 
 import java.util.List;
 import java.util.Optional;

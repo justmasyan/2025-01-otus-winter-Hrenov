@@ -7,7 +7,6 @@ import jakarta.persistence.TypedQuery;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 import ru.otus.hw.models.Book;
-import ru.otus.hw.models.Commentary;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,12 +37,6 @@ public class JpaBookRepository implements BookRepository {
     @Override
     public Book save(Book book) {
         if (book.getId() == 0) {
-            List<Commentary> commentaries = book.getCommentaries();
-            book.setCommentaries(null);
-            em.persist(book);
-
-            commentaries.forEach(commentary -> commentary.setBookId(book.getId()));
-            book.setCommentaries(commentaries);
             em.persist(book);
             return book;
         }

@@ -13,8 +13,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.JoinTable;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.CascadeType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,8 +30,7 @@ import java.util.Objects;
 @Table(name = "books")
 @Entity
 @NamedEntityGraph(name = "book-entity-graph",
-        attributeNodes = {@NamedAttributeNode("author"), @NamedAttributeNode("commentaries")
-        })
+        attributeNodes = {@NamedAttributeNode("author")})
 public class Book {
 
     @Id
@@ -52,10 +49,6 @@ public class Book {
     @JoinTable(name = "books_genres", joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id"))
     private List<Genre> genres;
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "book_id")
-    private List<Commentary> commentaries;
 
     @Override
     public boolean equals(Object o) {

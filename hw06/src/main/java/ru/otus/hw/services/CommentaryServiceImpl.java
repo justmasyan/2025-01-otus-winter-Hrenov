@@ -4,8 +4,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.converters.CommentaryConverter;
-import ru.otus.hw.entities.CommentaryDto;
+import ru.otus.hw.dto.CommentaryDto;
 import ru.otus.hw.exceptions.BookNotFoundException;
+import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Commentary;
 import ru.otus.hw.repositories.BookRepository;
 import ru.otus.hw.repositories.CommentaryRepository;
@@ -58,10 +59,10 @@ public class CommentaryServiceImpl implements CommentaryService {
     }
 
     private CommentaryDto save(long id, long bookId, String text) {
-        bookRepository.findById(bookId).orElseThrow(
+        Book book = bookRepository.findById(bookId).orElseThrow(
                 () -> new BookNotFoundException("Book with id %d not found".formatted(bookId))
         );
-        Commentary savedCommentary = commentaryRepository.save(new Commentary(id, bookId, text));
+        Commentary savedCommentary = commentaryRepository.save(new Commentary(id, book, text));
         return commentaryConverter.commentaryToDto(savedCommentary);
     }
 }

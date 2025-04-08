@@ -1,4 +1,4 @@
-package ru.otus.hw.entities;
+package ru.otus.hw.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,6 +16,4 @@ public class BookDto {
     private AuthorDto author;
 
     private List<GenreDto> genres;
-
-    private List<CommentaryDto> commentaries;
 }
