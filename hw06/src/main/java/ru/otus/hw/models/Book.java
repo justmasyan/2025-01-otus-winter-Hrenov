@@ -6,8 +6,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.NamedEntityGraph;
-import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -29,8 +27,6 @@ import java.util.Objects;
 @Setter
 @Table(name = "books")
 @Entity
-@NamedEntityGraph(name = "book-entity-graph",
-        attributeNodes = {@NamedAttributeNode("author")})
 public class Book {
 
     @Id

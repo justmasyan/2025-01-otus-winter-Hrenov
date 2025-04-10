@@ -98,9 +98,9 @@ class JpaBookRepositoryTest {
     @DisplayName("должен удалять книгу по id ")
     @Test
     void shouldDeleteBook() {
-        assertThat(jpaBookRepository.findById(1L)).isPresent();
+        assertThat(em.find(Book.class, 1L)).isNotNull();
         jpaBookRepository.deleteById(1L);
-        assertThat(jpaBookRepository.findById(1L)).isEmpty();
+        assertThat(em.find(Book.class, 1L)).isNull();
     }
 
     private static List<Author> getDbAuthors() {

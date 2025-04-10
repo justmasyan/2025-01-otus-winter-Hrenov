@@ -6,8 +6,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.NamedEntityGraph;
-import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -20,8 +18,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name = "commentaries")
 @Entity
-@NamedEntityGraph(name = "commentary-entity-graph",
-        attributeNodes = {@NamedAttributeNode("book")})
 public class Commentary {
 
     @Id
