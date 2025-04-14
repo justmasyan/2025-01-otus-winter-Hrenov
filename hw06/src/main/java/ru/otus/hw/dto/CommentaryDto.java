@@ -9,7 +9,5 @@ public class CommentaryDto {
 
     private long id;
 
-    private BookDto book;
-
     private String text;
 }

@@ -62,8 +62,7 @@ class CommentaryServiceImplTest {
     @Test
     void resultShouldNoHaveLazyFieldsFindByBookId() {
         long bookId = 1L;
-        List<Integer> expectedHashCodes = dbCommentaries.stream()
-                .filter(comment -> comment.getBook().getId() == bookId)
+        List<Integer> expectedHashCodes = dbCommentaries.subList(0, 2).stream()
                 .map(CommentaryDto::hashCode)
                 .toList();
 
@@ -77,8 +76,9 @@ class CommentaryServiceImplTest {
     @Test
     @Transactional
     void resultShouldNoHaveLazyFieldsInsert() {
-        CommentaryDto expectedDto = new CommentaryDto(7, dbBooks.get(0), "WOW");
-        CommentaryDto actualDto = commentaryService.insert(expectedDto.getBook().getId(), expectedDto.getText());
+        BookDto bookDto = dbBooks.get(0);
+        CommentaryDto expectedDto = new CommentaryDto(7, "WOW");
+        CommentaryDto actualDto = commentaryService.insert(bookDto.getId(), expectedDto.getText());
         assertThat(actualDto.hashCode()).isEqualTo(expectedDto.hashCode());
     }
 
@@ -88,7 +88,8 @@ class CommentaryServiceImplTest {
     void resultShouldNoHaveLazyFieldsUpdate() {
         String newText = "NEW_TEXT";
         CommentaryDto oldCommentary = dbCommentaries.get(2);
-        CommentaryDto updatedCommentary = commentaryService.update(oldCommentary.getId(), oldCommentary.getBook().getId(), newText);
+        BookDto book = dbBooks.get(0);
+        CommentaryDto updatedCommentary = commentaryService.update(oldCommentary.getId(), book.getId(), newText);
         assertThat(updatedCommentary.getText()).isNotEqualTo(oldCommentary.getText()).isEqualTo(newText);
 
         oldCommentary.setText(newText);
@@ -111,13 +112,8 @@ class CommentaryServiceImplTest {
     }
 
     private static List<CommentaryDto> getDbCommentaries() {
-        var dbBooks = getDbBooks();
-        return getDbCommentaries(dbBooks);
-    }
-
-    private static List<CommentaryDto> getDbCommentaries(List<BookDto> dbBooks) {
         return IntStream.range(1, 7).boxed()
-                .map(id -> new CommentaryDto(id, dbBooks.get((id - 1) / 2), "Comment_" + id))
+                .map(id -> new CommentaryDto(id, "Comment_" + id))
                 .toList();
     }
 

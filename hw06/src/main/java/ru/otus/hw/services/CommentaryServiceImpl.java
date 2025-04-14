@@ -46,9 +46,6 @@ public class CommentaryServiceImpl implements CommentaryService {
     @Override
     @Transactional
     public CommentaryDto update(long id, long bookId, String text) {
-        if (bookRepository.findById(id).isEmpty()) {
-            return save(0, bookId, text);
-        }
         return save(id, bookId, text);
     }
 

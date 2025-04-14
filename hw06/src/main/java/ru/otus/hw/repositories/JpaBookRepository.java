@@ -1,5 +1,6 @@
 package ru.otus.hw.repositories;
 
+import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -8,7 +9,10 @@ import org.springframework.stereotype.Repository;
 import ru.otus.hw.models.Book;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import static org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.FETCH;
 
 @AllArgsConstructor
 @Repository
@@ -19,12 +23,19 @@ public class JpaBookRepository implements BookRepository {
 
     @Override
     public Optional<Book> findById(long id) {
-        return Optional.ofNullable(em.find(Book.class, id));
+        Map<String, Object> params = Map.of(
+                FETCH.getKey(), em.getEntityGraph("book-entity-graph")
+        );
+
+        return Optional.ofNullable(em.find(Book.class, id, params));
     }
 
     @Override
     public List<Book> findAll() {
+        EntityGraph<?> entityGraph = em.getEntityGraph("book-entity-graph");
+
         TypedQuery<Book> query = em.createQuery("SELECT b FROM Book b", Book.class);
+        query.setHint(FETCH.getKey(), entityGraph);
         return query.getResultList();
     }
 
