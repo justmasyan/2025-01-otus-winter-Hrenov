@@ -10,16 +10,11 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.otus.hw.converters.AuthorConverter;
-import ru.otus.hw.converters.BookConverter;
 import ru.otus.hw.converters.CommentaryConverter;
-import ru.otus.hw.converters.GenreConverter;
 import ru.otus.hw.dto.AuthorDto;
 import ru.otus.hw.dto.BookDto;
 import ru.otus.hw.dto.CommentaryDto;
 import ru.otus.hw.dto.GenreDto;
-import ru.otus.hw.repositories.JpaBookRepository;
-import ru.otus.hw.repositories.JpaCommentaryRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,9 +23,7 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import({CommentaryServiceImpl.class, CommentaryConverter.class,
-        JpaCommentaryRepository.class, JpaBookRepository.class,
-        BookConverter.class, AuthorConverter.class, GenreConverter.class})
+@Import({CommentaryServiceImpl.class, CommentaryConverter.class})
 @Transactional(propagation = Propagation.NEVER)
 class CommentaryServiceImplTest {
 

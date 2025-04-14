@@ -53,9 +53,6 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public BookDto update(long id, String title, long authorId, Set<Long> genresIds) {
-        if (findById(id).isEmpty()) {
-            save(0, title, authorId, genresIds);
-        }
         return save(id, title, authorId, genresIds);
     }
 
@@ -72,7 +69,7 @@ public class BookServiceImpl implements BookService {
 
         var author = authorRepository.findById(authorId)
                 .orElseThrow(() -> new AuthorNotFoundException("Author with id %d not found".formatted(authorId)));
-        var genres = genreRepository.findAllByIds(genresIds);
+        var genres = genreRepository.findAllById(genresIds);
         if (isEmpty(genres) || genresIds.size() != genres.size()) {
             throw new GenreNotFoundException("One or all genres with ids %s not found".formatted(genresIds));
         }

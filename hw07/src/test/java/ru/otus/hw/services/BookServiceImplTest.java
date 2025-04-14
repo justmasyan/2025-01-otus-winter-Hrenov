@@ -6,7 +6,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,10 +16,6 @@ import ru.otus.hw.converters.GenreConverter;
 import ru.otus.hw.dto.AuthorDto;
 import ru.otus.hw.dto.BookDto;
 import ru.otus.hw.dto.GenreDto;
-import ru.otus.hw.models.Book;
-import ru.otus.hw.repositories.JpaAuthorRepository;
-import ru.otus.hw.repositories.JpaBookRepository;
-import ru.otus.hw.repositories.JpaGenreRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,11 +25,8 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import({BookServiceImpl.class, JpaAuthorRepository.class,
-        JpaGenreRepository.class, JpaBookRepository.class,
-        BookConverter.class, AuthorConverter.class,
-        GenreConverter.class, CommentaryConverter.class
-})
+@Import({BookServiceImpl.class, BookConverter.class,
+        AuthorConverter.class, GenreConverter.class, CommentaryConverter.class})
 @Transactional(propagation = Propagation.NEVER)
 class BookServiceImplTest {
 
