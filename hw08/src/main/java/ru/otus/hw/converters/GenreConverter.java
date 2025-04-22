@@ -12,6 +12,6 @@ public class GenreConverter {
     }
 
     public String genreDtoToString(GenreDto genre) {
-        return "Id: %d, Name: %s".formatted(genre.getId(), genre.getName());
+        return "Id: %s, Name: %s".formatted(genre.getId(), genre.getName());
     }
 }

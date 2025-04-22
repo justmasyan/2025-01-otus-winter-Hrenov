@@ -1,11 +1,14 @@
 package ru.otus.hw.repositories;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ru.otus.hw.models.Commentary;
 
 import java.util.List;
 
-public interface CommentaryRepository extends JpaRepository<Commentary, Long> {
+public interface CommentaryRepository extends MongoRepository<Commentary, Long> {
 
-    List<Commentary> findAllByBookId(Long bookId);
+    @Query("{ 'book.$id': :#{#bookId} }")
+    List<Commentary> findAllByBookId(@Param("bookId") Long bookId);
 }

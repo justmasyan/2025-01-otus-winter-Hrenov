@@ -14,7 +14,7 @@ public class CommentaryConverter {
     }
 
     public String commentaryDtoToString(CommentaryDto commentary) {
-        return "Id: %d, Text: %s".formatted(
+        return "Id: %s, Text: %s".formatted(
                 commentary.getId(),
                 commentary.getText()
         );

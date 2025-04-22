@@ -47,7 +47,7 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public BookDto insert(String title, long authorId, Set<Long> genresIds) {
-        return save(0, title, authorId, genresIds);
+        return save(System.currentTimeMillis(), title, authorId, genresIds);
     }
 
     @Override

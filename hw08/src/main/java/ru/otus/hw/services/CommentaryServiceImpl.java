@@ -40,7 +40,7 @@ public class CommentaryServiceImpl implements CommentaryService {
     @Override
     @Transactional
     public CommentaryDto insert(long bookId, String text) {
-        return save(0, bookId, text);
+        return save(System.currentTimeMillis(), bookId, text);
     }
 
     @Override
