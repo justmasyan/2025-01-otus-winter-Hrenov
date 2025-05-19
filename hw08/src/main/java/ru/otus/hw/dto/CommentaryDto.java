@@ -7,7 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class CommentaryDto {
 
-    private long id;
+    private String id;
 
     private String text;
 }

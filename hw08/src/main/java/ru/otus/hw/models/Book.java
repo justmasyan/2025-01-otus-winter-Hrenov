@@ -16,7 +16,7 @@ import java.util.List;
 public class Book {
 
     @Id
-    private long id;
+    private String id;
 
     private String title;
 

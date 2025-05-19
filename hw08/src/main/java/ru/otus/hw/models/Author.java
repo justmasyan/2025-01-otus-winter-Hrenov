@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Author {
 
     @Id
-    private long id;
+    private String id;
 
     @Indexed(unique = true)
     private String fullName;

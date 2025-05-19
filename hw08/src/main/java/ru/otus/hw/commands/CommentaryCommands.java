@@ -19,21 +19,21 @@ public class CommentaryCommands {
     private final CommentaryConverter commentaryConverter;
 
     @ShellMethod(value = "Find commentary by id", key = "cbid")
-    public String findCommentary(Long id) {
+    public String findCommentary(String id) {
         return commentaryService.findById(id)
                 .map(commentaryConverter::commentaryDtoToString)
-                .orElse("Commentary with id %d not found".formatted(id));
+                .orElse("Commentary with id %s not found".formatted(id));
     }
 
     @ShellMethod(value = "Find all Comments by Book Id", key = "acbid")
-    public String findAllCommentariesByBookId(Long bookId) {
+    public String findAllCommentariesByBookId(String bookId) {
         return commentaryService.findAllByBookId(bookId).stream()
                 .map(commentaryConverter::commentaryDtoToString)
                 .collect(Collectors.joining("," + System.lineSeparator()));
     }
 
     @ShellMethod(value = "Insert commentary", key = "cins")
-    public String insertComment(Long bookId, String text) {
+    public String insertComment(String bookId, String text) {
         try {
             var commentary = commentaryService.insert(bookId, text);
             return commentaryConverter.commentaryDtoToString(commentary);
@@ -43,7 +43,7 @@ public class CommentaryCommands {
     }
 
     @ShellMethod(value = "Update commentary", key = "cupd")
-    public String updateComment(Long id, Long bookId, String text) {
+    public String updateComment(String id, String bookId, String text) {
         try {
             var commentary = commentaryService.update(id, bookId, text);
             return commentaryConverter.commentaryDtoToString(commentary);
@@ -53,7 +53,7 @@ public class CommentaryCommands {
     }
 
     @ShellMethod(value = "Delete commentary by Id", key = "cdel")
-    public void deleteCommentById(Long id) {
+    public void deleteCommentById(String id) {
         commentaryService.deleteById(id);
     }
 }

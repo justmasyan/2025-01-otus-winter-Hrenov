@@ -2,7 +2,6 @@ package ru.otus.hw.services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.converters.CommentaryConverter;
 import ru.otus.hw.dto.CommentaryDto;
 import ru.otus.hw.exceptions.BookNotFoundException;
@@ -25,39 +24,34 @@ public class CommentaryServiceImpl implements CommentaryService {
     private final BookRepository bookRepository;
 
     @Override
-    @Transactional(readOnly = true)
-    public Optional<CommentaryDto> findById(long id) {
+    public Optional<CommentaryDto> findById(String id) {
         return commentaryRepository.findById(id).map(commentaryConverter::commentaryToDto);
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<CommentaryDto> findAllByBookId(long bookId) {
+    public List<CommentaryDto> findAllByBookId(String bookId) {
         return commentaryRepository.findAllByBookId(bookId).stream()
                 .map(commentaryConverter::commentaryToDto).toList();
     }
 
     @Override
-    @Transactional
-    public CommentaryDto insert(long bookId, String text) {
-        return save(System.currentTimeMillis(), bookId, text);
+    public CommentaryDto insert(String bookId, String text) {
+        return save(null, bookId, text);
     }
 
     @Override
-    @Transactional
-    public CommentaryDto update(long id, long bookId, String text) {
+    public CommentaryDto update(String id, String bookId, String text) {
         return save(id, bookId, text);
     }
 
     @Override
-    @Transactional
-    public void deleteById(long id) {
+    public void deleteById(String id) {
         commentaryRepository.deleteById(id);
     }
 
-    private CommentaryDto save(long id, long bookId, String text) {
+    private CommentaryDto save(String id, String bookId, String text) {
         Book book = bookRepository.findById(bookId).orElseThrow(
-                () -> new BookNotFoundException("Book with id %d not found".formatted(bookId))
+                () -> new BookNotFoundException("Book with id %s not found".formatted(bookId))
         );
         Commentary savedCommentary = commentaryRepository.save(new Commentary(id, book, text));
         return commentaryConverter.commentaryToDto(savedCommentary);

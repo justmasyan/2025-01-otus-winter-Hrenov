@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Commentary {
 
     @Id
-    private long id;
+    private String id;
 
     @DBRef
     private Book book;
