@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import ru.otus.hw.dto.CommentaryDto;
-import ru.otus.hw.exceptions.BookNotFoundException;
 import ru.otus.hw.services.CommentaryService;
 
 import java.util.List;
@@ -47,24 +46,16 @@ public class CommentaryController {
     @PostMapping("/comments")
     public String insertComment(@RequestParam Long bookId,
                                 @RequestParam String text) {
-        try {
-            commentaryService.insert(bookId, text);
-            return "redirect:/comments?bookId=%d".formatted(bookId);
-        } catch (BookNotFoundException e) {
-            return "Not found book for Commentary";
-        }
+        commentaryService.insert(bookId, text);
+        return "redirect:/comments?bookId=%d".formatted(bookId);
     }
 
     @PutMapping("/comments/{id}")
     public String updateComment(@PathVariable Long id,
                                 @RequestParam Long bookId,
                                 @RequestParam String text) {
-        try {
-            commentaryService.update(id, bookId, text);
-            return "redirect:/comments?bookId=%d".formatted(bookId);
-        } catch (BookNotFoundException e) {
-            return "Not found book for Commentary";
-        }
+        commentaryService.update(id, bookId, text);
+        return "redirect:/comments?bookId=%d".formatted(bookId);
     }
 
     @DeleteMapping("/comments/{id}")
