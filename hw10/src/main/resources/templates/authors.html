@@ -3,34 +3,38 @@
 <head>
     <meta charset="UTF-8"/>
     <title>List of all authors</title>
-    <style type="text/css">
-        body {
-            padding: 50px;
-        }
 
-        .authors {
-            border: 1px solid steelblue;
-            width: 300px;
-            border-collapse: collapse;
-        }
+    <script>
+        function findAllAuthors() {
+            const authorsContainer = document.getElementById("authorsContainer")
 
-        .authors tr td, th {
-            padding: 5px;
-            border: 1px solid steelblue;
-        }
+            fetch("/authors")
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                var authorsHeader = '<h3>All authors:</h3><h3>'
+                json.forEach(function(author){
+                    authorsHeader += 'Id: ' + author.id + ' FullName: ' + author.fullName + ', '
+                })
 
-        .authors td:last-child, td:first-child {
-            width: 50px;
+                authorsHeader += '</h3>'
+                authorsContainer.innerHTML = authorsHeader
+            })
         }
-    </style>
+    </script>
+
+    <script>
+        function hideAuthors() {
+            document.getElementById("authorsContainer").innerHTML = ''
+        }
+    </script>
 </head>
 <body>
 
-<h3>Authors:</h3>
-<ul th:each="author : ${authors}" th:object="${author}">
-    <li th:text="'ID: ' + *{id} + ' FullName: ' + *{fullName}">1</li>
-</ul>
+<h3>Authors Api:</h3>
 
+<pre id="authorsContainer"></pre>
+<button type="button" onclick="findAllAuthors()">All authors</button>
+<button type="button" onclick="hideAuthors()">Hide authors</button>
 <a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
 
 </body>

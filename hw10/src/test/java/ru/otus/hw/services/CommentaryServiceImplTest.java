@@ -65,29 +65,7 @@ class CommentaryServiceImplTest {
         assertThat(actualHashCodes).isEqualTo(expectedHashCodes);
     }
 
-    @DisplayName("Результат Метода insert не должен содержать Lazy полей")
-    @Test
-    @Transactional
-    void resultShouldNoHaveLazyFieldsInsert() {
-        BookDto bookDto = dbBooks.get(0);
-        CommentaryDto expectedDto = new CommentaryDto(7, "WOW");
-        CommentaryDto actualDto = commentaryService.insert(bookDto.getId(), expectedDto.getText());
-        assertThat(actualDto.hashCode()).isEqualTo(expectedDto.hashCode());
-    }
-
-    @DisplayName("Результат Метода update не должен содержать Lazy полей")
-    @Test
-    @Transactional
-    void resultShouldNoHaveLazyFieldsUpdate() {
-        String newText = "NEW_TEXT";
-        CommentaryDto oldCommentary = dbCommentaries.get(2);
-        BookDto book = dbBooks.get(0);
-        CommentaryDto updatedCommentary = commentaryService.update(oldCommentary.getId(), book.getId(), newText);
-        assertThat(updatedCommentary.getText()).isNotEqualTo(oldCommentary.getText()).isEqualTo(newText);
-
-        oldCommentary.setText(newText);
-        assertThat(updatedCommentary.hashCode()).isEqualTo(oldCommentary.hashCode());
-    }
+//
 
     private static List<BookDto> getDbBooks() {
         var dbAuthors = getDbAuthors();

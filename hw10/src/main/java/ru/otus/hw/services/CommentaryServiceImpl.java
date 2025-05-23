@@ -27,26 +27,14 @@ public class CommentaryServiceImpl implements CommentaryService {
     @Override
     @Transactional(readOnly = true)
     public Optional<CommentaryDto> findById(long id) {
-        return commentaryRepository.findById(id).map(commentaryConverter::commentaryToDto);
+        return commentaryRepository.findById(id).map(commentaryConverter::commentaryToDtoWithoutBook);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<CommentaryDto> findAllByBookId(long bookId) {
         return commentaryRepository.findAllByBookId(bookId).stream()
-                .map(commentaryConverter::commentaryToDto).toList();
-    }
-
-    @Override
-    @Transactional
-    public CommentaryDto insert(long bookId, String text) {
-        return save(0, bookId, text);
-    }
-
-    @Override
-    @Transactional
-    public CommentaryDto update(long id, long bookId, String text) {
-        return save(id, bookId, text);
+                .map(commentaryConverter::commentaryToDtoWithoutBook).toList();
     }
 
     @Override
@@ -55,11 +43,17 @@ public class CommentaryServiceImpl implements CommentaryService {
         commentaryRepository.deleteById(id);
     }
 
-    private CommentaryDto save(long id, long bookId, String text) {
+    @Override
+    @Transactional
+    public CommentaryDto save(CommentaryDto commentaryDto) {
+        long bookId = commentaryDto.getBook().getId();
+
         Book book = bookRepository.findById(bookId).orElseThrow(
                 () -> new BookNotFoundException("Book with id %d not found".formatted(bookId))
         );
-        Commentary savedCommentary = commentaryRepository.save(new Commentary(id, book, text));
-        return commentaryConverter.commentaryToDto(savedCommentary);
+
+        Commentary commentaryForSave = new Commentary(commentaryDto.getId(), book, commentaryDto.getText());
+        Commentary savedCommentary = commentaryRepository.save(commentaryForSave);
+        return commentaryConverter.commentaryToDtoWithoutBook(savedCommentary);
     }
 }

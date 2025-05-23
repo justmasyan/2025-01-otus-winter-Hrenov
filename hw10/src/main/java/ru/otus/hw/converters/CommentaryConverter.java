@@ -9,7 +9,7 @@ import ru.otus.hw.models.Commentary;
 @AllArgsConstructor
 public class CommentaryConverter {
 
-    public CommentaryDto commentaryToDto(Commentary commentary) {
+    public CommentaryDto commentaryToDtoWithoutBook(Commentary commentary) {
         return new CommentaryDto(commentary.getId(), commentary.getText());
     }
 

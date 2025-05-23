@@ -11,5 +11,12 @@ public class CommentaryDto {
 
     private long id;
 
+    BookDto book;
+
     private String text;
+
+    public CommentaryDto(long id, String text) {
+        this.id = id;
+        this.text = text;
+    }
 }
