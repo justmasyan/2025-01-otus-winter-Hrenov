@@ -11,7 +11,7 @@ public class CommentaryDto {
 
     private long id;
 
-    BookDto book;
+    private BookDto book;
 
     private String text;
 

@@ -11,7 +11,9 @@ public interface CommentaryService {
 
     List<CommentaryDto> findAllByBookId(long bookId);
 
-    CommentaryDto save(CommentaryDto commentaryDto);
+    CommentaryDto insert(CommentaryDto commentaryDto);
+
+    CommentaryDto update(CommentaryDto commentaryDto);
 
     void deleteById(long id);
 }

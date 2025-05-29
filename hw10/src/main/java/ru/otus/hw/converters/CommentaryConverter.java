@@ -12,11 +12,4 @@ public class CommentaryConverter {
     public CommentaryDto commentaryToDtoWithoutBook(Commentary commentary) {
         return new CommentaryDto(commentary.getId(), commentary.getText());
     }
-
-    public String commentaryDtoToString(CommentaryDto commentary) {
-        return "Id: %d, Text: %s".formatted(
-                commentary.getId(),
-                commentary.getText()
-        );
-    }
 }

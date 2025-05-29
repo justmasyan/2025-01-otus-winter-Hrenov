@@ -5,9 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.converters.BookConverter;
 import ru.otus.hw.dto.BookDto;
+import ru.otus.hw.dto.GenreDto;
 import ru.otus.hw.exceptions.AuthorNotFoundException;
 import ru.otus.hw.exceptions.GenreNotFoundException;
 import ru.otus.hw.exceptions.GenresIsEmptyException;
+import ru.otus.hw.exceptions.NotEmptyIdInInsert;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.repositories.BookRepository;
@@ -16,6 +18,7 @@ import ru.otus.hw.repositories.GenreRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -46,14 +49,17 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public BookDto insert(String title, long authorId, Set<Long> genresIds) {
-        return save(0, title, authorId, genresIds);
+    public BookDto insert(BookDto bookDto) {
+        if (bookDto.getId() != 0) {
+            throw new NotEmptyIdInInsert("Not empty id when insert book");
+        }
+        return save(bookDto);
     }
 
     @Override
     @Transactional
-    public BookDto update(long id, String title, long authorId, Set<Long> genresIds) {
-        return save(id, title, authorId, genresIds);
+    public BookDto update(BookDto bookDto) {
+        return save(bookDto);
     }
 
     @Override
@@ -62,18 +68,23 @@ public class BookServiceImpl implements BookService {
         bookRepository.deleteById(id);
     }
 
-    private BookDto save(long id, String title, long authorId, Set<Long> genresIds) {
+    private BookDto save(BookDto bookDto) {
+        Set<Long> genresIds = bookDto.getGenres().stream()
+                .map(GenreDto::getId)
+                .collect(Collectors.toSet());
+
         if (isEmpty(genresIds)) {
             throw new GenresIsEmptyException("Genres ids must not be null");
         }
 
+        Long authorId = bookDto.getAuthor().getId();
         var author = authorRepository.findById(authorId)
                 .orElseThrow(() -> new AuthorNotFoundException("Author with id %d not found".formatted(authorId)));
         var genres = genreRepository.findAllById(genresIds);
         if (isEmpty(genres) || genresIds.size() != genres.size()) {
             throw new GenreNotFoundException("One or all genres with ids %s not found".formatted(genresIds));
         }
-        Book book = bookRepository.save(new Book(id, title, author, genres));
+        Book book = bookRepository.save(new Book(bookDto.getId(), bookDto.getTitle(), author, genres));
         return bookConverter.bookToDto(book);
     }
 }

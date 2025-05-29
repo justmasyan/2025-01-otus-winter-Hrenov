@@ -1,62 +1,234 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Books</title>
-    <style type="text/css">
+  <meta charset="UTF-8">
+  <title>Books</title>
 
-        .genres {
-            display:inline-block;
-            font-size: 18.72px;
-            font-weight:bold;
-        }
+  <script>
+    function findBook() {
+        const booksContainer = document.getElementById("booksContainer")
+        const idInput = document.getElementById("bid-book-input")
 
-    </style>
+        fetch('/books/' + idInput.value)
+        .then(rawResponse => rawResponse.json())
+        .then(json => {
+            var booksHeader = 'Id: ' + json.id + ', Title: ' + json.title + ', Author: ' + json.author.fullName + ', Genres: '
+
+            json.genres.forEach(function(genre) {
+                booksHeader += genre.name + ', '
+            })
+
+            booksHeader += '</h3>'
+            booksContainer.innerHTML = booksHeader
+        })
+    }
+  </script>
+
+  <script>
+    function findAllBooks() {
+        const booksContainer = document.getElementById("booksContainer")
+
+        fetch('/books')
+        .then(rawResponse => rawResponse.json())
+        .then(json => {
+            var booksHeader = '<h3>All books</h3><h3>'
+
+            json.forEach(function(book) {
+                booksHeader += '{'
+                booksHeader += 'Id: ' + book.id + ', Title: ' + book.title + ', Author: ' + book.author.fullName + ', Genres: '
+
+                book.genres.forEach(function(genre) {
+                    booksHeader += genre.name + ', '
+                })
+                booksHeader += '},'
+            })
+            booksHeader += '</h3>'
+            booksContainer.innerHTML = booksHeader
+        })
+    }
+  </script>
+
+  <script>
+    function insertBook() {
+
+        const booksContainer = document.getElementById("booksContainer")
+
+        const titleInput = document.getElementById("insert-book-title-input")
+        const authorIdInput = document.getElementById("insert-book-author-id-input")
+        const genresIdInput = document.getElementById("insert-book-genres-id-input")
+        const genresIdArray = genresIdInput.value.split(",").map(strId => ({ id: Number(strId) }))
+        const book = { title: titleInput.value, author: { id: authorIdInput.value}, genres: genresIdArray }
+
+        fetch("/books", {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(book)})
+        .then(rawResponse => rawResponse.json())
+        .then(json => {
+            var booksHeader = '<h3>Inserted Book:</h3><h3>' +
+                'Id: ' + json.id + ', Title: ' + json.title + ', Author: ' + json.author.fullName + ', Genres: '
+
+            json.genres.forEach(function(genre) {
+                booksHeader += genre.name + ', '
+            })
+
+            booksHeader += '</h3>'
+            booksContainer.innerHTML = booksHeader
+        })
+    }
+  </script>
+
+  <script>
+    function updateBook() {
+        const booksContainer = document.getElementById("booksContainer")
+
+        const idInput = document.getElementById("update-book-id-input")
+        const titleInput = document.getElementById("update-book-title-input")
+        const authorIdInput = document.getElementById("update-book-author-id-input")
+        const genresIdInput = document.getElementById("update-book-genres-id-input")
+        const genresIdArray = genresIdInput.value.split(",").map(strId => ({ id: Number(strId) }))
+        const book = { id: idInput.value, title: titleInput.value, author: { id: authorIdInput.value}, genres: genresIdArray }
+
+        fetch("/books/" + idInput.value, {
+            method: 'PUT',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(book)})
+        .then(rawResponse => rawResponse.json())
+        .then(json => {
+            var booksHeader = '<h3>Updated Book:</h3><h3>' +
+                'Id: ' + json.id + ', Title: ' + json.title + ', Author: ' + json.author.fullName + ', Genres: '
+
+            json.genres.forEach(function(genre) {
+                booksHeader += genre.name + ', '
+            })
+
+            booksHeader += '</h3>'
+            booksContainer.innerHTML = booksHeader
+        })
+    }
+  </script>
+
+  <script>
+    function deleteBook() {
+        const booksContainer = document.getElementById("booksContainer")
+        const idInput = document.getElementById("del-book-input")
+
+        fetch('/books/' + idInput.value, {method : 'DELETE'})
+        .then(rawResponse => {
+            var booksHeader = ''
+            booksContainer.innerHTML = booksHeader
+        })
+    }
+  </script>
+
+  <script>
+    function hideBooks() {
+        document.getElementById("booksContainer").innerHTML = ''
+    }
+  </script>
 </head>
+
 <body>
 
-<h3>Books</h3>
+<h3>Books Api:</h3>
+<pre id="booksContainer"></pre>
 
-<ul th:each="book : ${books}" th:object="${book}">
-    <li>
-        <h3 th:text="'ID: ' + *{id} + ', Title: ' + *{title} + ', Author: ' + *{author.fullName} + ', Genres: '">book</h3>
-        <div class = "genres" th:each="genre : *{genres}" th:text="${genre.name} + ', '">Default Genres</div>
+<p>
+<form id="bid-book-form" action="books.html" th:method="get">
+  <h3>Find Book:</h3>
 
-        <form id="update-book-form" action="books.html" th:action="@{/books/{id}(id = *{id})}" th:method="put">
-            <h3>Change book:</h3>
+  <div class="row">
+    <label for="bid-book-input">Id:</label>
+    <input id="bid-book-input" name="id" type="text"/>
+  </div>
 
-            <div class="row">
-                <label for="update-book-title-input">Title:</label>
-                <input id="update-book-title-input" name="title" type="text"/>
-            </div>
+  <div class="row">
+    <button type="button" onclick="findBook()" >Find</button>
+    <button type="button" onclick="findAllBooks()" >Find All</button>
+  </div>
+</form>
+</p>
 
-            <div class="row">
-                <label for="update-book-author-input">Author:</label>
-                <input id="update-book-author-input" name="authorId" type="text"/>
-            </div>
+<p>
+<form id="insert-book-form" action="books.html" th:method="post">
+  <h3>Add book:</h3>
 
-            <div class="row">
-                <label for="update-book-genres-input">Genres</label>
-                <input id="update-book-genres-input" name="genresIds" type="text"/>
-            </div>
+  <div class="row">
+    <label for="insert-book-title-input">Title:</label>
+    <input id="insert-book-title-input" name="title" type="text"/>
+  </div>
 
-            <div class="row">
-                <button type="submit">Save</button>
-            </div>
-        </form>
+  <div class="row">
+    <label for="insert-book-author-id-input">Id author:</label>
+    <input id="insert-book-author-id-input" name="authorId" type="text"/>
+  </div>
 
-        <form th:action="@{/comments}" th:method="get">
-            <button type="submit" th:name="bookId" th:value="*{id}">Show comments</button>
-        </form>
+  <div class="row">
+    <label for="insert-book-genres-id-input">Ids Genres:</label>
+    <input id="insert-book-genres-id-input" name="genresId" type="text"/>
+  </div>
 
-        <form th:action="@{/books/{id}(id = *{id})}" th:method="delete">
-            <button type="submit">Delete</button>
-        </form>
-    </li>
-</ul>
+  <div class="row">
+    <button type="button" onclick="insertBook()" >Save</button>
+  </div>
+</form>
+</p>
 
-<a href="main_page.html" th:href="@{/}">
-    <button type="button">Back</button>
-</a>
+<p>
+<form id="update-book-form" action="books.html" th:method="update">
+  <h3>Update book:</h3>
+
+  <div class="row">
+    <label for="update-book-id-input">Id:</label>
+    <input id="update-book-id-input" name="id" type="text"/>
+  </div>
+
+  <div class="row">
+    <label for="update-book-title-input">Title:</label>
+    <input id="update-book-title-input" name="title" type="text"/>
+  </div>
+
+  <div class="row">
+    <label for="update-book-author-id-input">Id author:</label>
+    <input id="update-book-author-id-input" name="authorId" type="text"/>
+  </div>
+
+  <div class="row">
+    <label for="update-book-genres-id-input">Ids Genres:</label>
+    <input id="update-book-genres-id-input" name="genresId" type="text"/>
+  </div>
+
+  <div class="row">
+    <button type="button" onclick="updateBook()" >Save</button>
+  </div>
+</form>
+</p>
+
+<p>
+<form id="del-book-form" action="books.html" th:method="delete">
+  <h3>Delete Book:</h3>
+
+  <div class="row">
+    <label for="del-book-input">Id:</label>
+    <input id="del-book-input" name="id" type="text"/>
+  </div>
+
+  <div class="row">
+    <button type="button" onclick="deleteBook()" >Delete</button>
+  </div>
+</form>
+</p>
+
+<p>
+  <button type="button" onclick="hideBooks()">Hide books</button>
+  <a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
+</p>
+
 </body>
 </html>

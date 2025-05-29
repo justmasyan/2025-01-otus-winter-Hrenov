@@ -2,40 +2,209 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Commentaries</title>
+    <title>Comments</title>
+    <script>
+        function findComment() {
+            const commentsContainer = document.getElementById("commentsContainer")
+            const idInput = document.getElementById("bid-comment-input")
+
+            fetch('/comments/' + idInput.value)
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                var commentsHeader = '<h3>Comment Id: ' + json.id + ', Text: ' + json.text + '.</h3>'
+                commentsContainer.innerHTML = commentsHeader
+            })
+        }
+    </script>
+
+    <script>
+        function findAllCommentsByBookId() {
+            const commentsContainer = document.getElementById("commentsContainer")
+            const bookIdInput = document.getElementById("cbid-comment-input")
+
+            fetch('/comments/book/'+ bookIdInput.value)
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                var commentsHeader = '<h3>All comments by book: ' + bookIdInput.value + '</h3><h3>'
+
+                json.forEach(function(comment) {
+                    commentsHeader += 'Id: ' + comment.id + ', Text: ' + comment.text + '. '
+                })
+                commentsHeader += '</h3>'
+                commentsContainer.innerHTML = commentsHeader
+            })
+        }
+    </script>
+
+    <script>
+        function insertComment() {
+
+            const commentsContainer = document.getElementById("commentsContainer")
+
+            const bookIdInput = document.getElementById("insert-comment-book-id-input")
+            const textInput = document.getElementById("insert-comment-text-input")
+            const comment = { book: { id: bookIdInput.value}, text: textInput.value}
+
+            fetch("/comments", {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(comment)})
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                var commentsHeader = '<h3>Inserted comment:</h3><h3>' +
+                    'Id: ' + json.id + ', Text: ' + json.text +
+                    '</h3>'
+                commentsContainer.innerHTML = commentsHeader
+            })
+        }
+    </script>
+
+    <script>
+        function updateComment() {
+            const commentsContainer = document.getElementById("commentsContainer")
+
+            const idInput = document.getElementById("update-comment-id-input")
+            const bookIdInput = document.getElementById("update-comment-book-id-input")
+            const textInput = document.getElementById("update-comment-text-input")
+            const comment = { id: idInput.value, book: { id: bookIdInput.value }, text: textInput.value}
+            fetch("/comments/" + idInput.value, {
+                method: 'PUT',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(comment)})
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                var commentsHeader = '<h3>Updated comment:</h3><h3>' +
+                    'Id: ' + json.id + ', Text: ' + json.text + '</h3>'
+                commentsContainer.innerHTML = commentsHeader
+            })
+        }
+    </script>
+
+    <script>
+        function deleteComment() {
+            const commentsContainer = document.getElementById("commentsContainer")
+            const idInput = document.getElementById("del-comment-input")
+
+            fetch('/comments/' + idInput.value, {method : 'DELETE'})
+            .then(rawResponse => {
+                var commentsHeader = ''
+                commentsContainer.innerHTML = commentsHeader
+            })
+        }
+    </script>
+
+    <script>
+        function hideComments() {
+            document.getElementById("commentsContainer").innerHTML = ''
+        }
+    </script>
 </head>
+
 <body>
 
-<h3 th:text="'Comments for book with ID: ' + ${bookId}">Title</h3>
+<h3>Comments Api:</h3>
+<pre id="commentsContainer"></pre>
 
-<ul th:each="comment : ${comments}" th:object="${comment}">
-    <li >
-        <h3 th:text="'ID: ' + *{id} + ' Text: ' + *{Text}">Comment</h3>
-        <form id="update-comment-form" action="comments.html" th:action="@{/comments/{id}(id = *{id})}" th:method="put">
-            <h3>Change commentary:</h3>
+<p>
+<form id="bid-comment-form" action="comments.html" th:method="get">
+    <h3>Find commentary by Id:</h3>
 
-            <div class="row">
-                <label for="update-comment-book-id-input">Id Book:</label>
-                <input id="update-comment-book-id-input" name="bookId" type="text"/>
-            </div>
+    <div class="row">
+        <label for="bid-comment-input">Id:</label>
+        <input id="bid-comment-input" name="id" type="text"/>
+    </div>
 
-            <div class="row">
-                <label for="update-comment-text-input">Text:</label>
-                <input id="update-comment-text-input" name="text" type="text"/>
-            </div>
+    <div class="row">
+        <button type="button" onclick="findComment()" >Find</button>
+    </div>
+</form>
+</p>
 
-            <div class="row">
-                <button type="submit">Save</button>
-            </div>
-        </form>
+<p>
+<form id="cbid-comment-form" action="comments.html" th:method="get">
+    <h3>Find commentaries by Book:</h3>
 
-        <form th:action="@{/comments/{id}(id = *{id})}" th:method="delete">
-            <button type="submit">Delete</button>
-        </form>
-    </li>
-</ul>
+    <div class="row">
+        <label for="cbid-comment-input">Id Book:</label>
+        <input id="cbid-comment-input" name="bookId" type="text"/>
+    </div>
 
-<a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
+    <div class="row">
+        <button type="button" onclick="findAllCommentsByBookId()" >Find</button>
+    </div>
+</form>
+</p>
+
+<p>
+    <form id="insert-comment-form" action="comments.html" th:method="post">
+        <h3>Add commentary:</h3>
+
+        <div class="row">
+            <label for="insert-comment-book-id-input">Id Book:</label>
+            <input id="insert-comment-book-id-input" name="bookId" type="text"/>
+        </div>
+
+        <div class="row">
+            <label for="insert-comment-text-input">Text:</label>
+            <input id="insert-comment-text-input" name="text" type="text"/>
+        </div>
+
+        <div class="row">
+            <button type="button" onclick="insertComment()" >Save</button>
+        </div>
+    </form>
+</p>
+
+<p>
+    <form id="update-comment-form" action="comments.html" th:method="update">
+        <h3>Update commentary:</h3>
+
+        <div class="row">
+            <label for="update-comment-id-input">Id:</label>
+            <input id="update-comment-id-input" name="id" type="text"/>
+        </div>
+
+        <div class="row">
+            <label for="update-comment-book-id-input">Id Book:</label>
+            <input id="update-comment-book-id-input" name="bookId" type="text"/>
+        </div>
+
+        <div class="row">
+            <label for="update-comment-text-input">Text:</label>
+            <input id="update-comment-text-input" name="text" type="text"/>
+        </div>
+
+        <div class="row">
+            <button type="button" onclick="updateComment()" >Save</button>
+        </div>
+    </form>
+</p>
+
+<p>
+    <form id="del-comment-form" action="comments.html" th:method="delete">
+        <h3>Delete commentary by Id:</h3>
+
+        <div class="row">
+            <label for="del-comment-input">Id:</label>
+            <input id="del-comment-input" name="id" type="text"/>
+        </div>
+
+        <div class="row">
+            <button type="button" onclick="deleteComment()" >Delete</button>
+        </div>
+    </form>
+</p>
+
+<p>
+    <button type="button" onclick="hideComments()">Hide comments</button>
+    <a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
+</p>
 
 </body>
 </html>

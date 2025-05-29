@@ -5,8 +5,6 @@ import org.springframework.stereotype.Component;
 import ru.otus.hw.dto.BookDto;
 import ru.otus.hw.models.Book;
 
-import java.util.stream.Collectors;
-
 @RequiredArgsConstructor
 @Component
 public class BookConverter {
@@ -19,18 +17,5 @@ public class BookConverter {
                 authorConverter.authorToDto(book.getAuthor()),
                 book.getGenres().stream().map(genreConverter::genreToDto).toList()
         );
-    }
-
-    public String bookDtoToString(BookDto book) {
-        var genresString = book.getGenres().stream()
-                .map(genreConverter::genreDtoToString)
-                .map("{%s}"::formatted)
-                .collect(Collectors.joining(", "));
-
-        return "Id: %d, title: %s, author: {%s}, genres: [%s]".formatted(
-                book.getId(),
-                book.getTitle(),
-                authorConverter.authorDtoToString(book.getAuthor()),
-                genresString);
     }
 }

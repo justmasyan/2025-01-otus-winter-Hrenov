@@ -18,37 +18,12 @@
 
 <p>
     <h3>Comments Page:</h3>
-    <a href="comments_new.html" th:href="@{/api/comments}"><button type="button">Comments Page</button></a>
+    <a href="comments.html" th:href="@{/api/comments}"><button type="button">Comments Page</button></a>
 </p>
 
 <p>
-    <h3>All Books:</h3>
-    <a href="books.html" th:href="@{/books}"><button type="button">All Books</button></a>
-</p>
-
-<p>
-<form id="insert-book-form" action="main_page.html" th:action="@{/books}" th:method="post">
-    <h3>Add Book:</h3>
-
-    <div class="row">
-        <label for="insert-book-title-input">Title:</label>
-        <input id="insert-book-title-input" name="title" type="text"/>
-    </div>
-
-    <div class="row">
-        <label for="insert-book-author-id-input">Author:</label>
-        <input id="insert-book-author-id-input" name="authorId" type="text"/>
-    </div>
-
-    <div class="row">
-        <label for="insert-book-genres-id-input">Genres:</label>
-        <input id="insert-book-genres-id-input" name="genresIds" type="text"/>
-    </div>
-
-    <div class="row">
-        <button type="submit">Add</button>
-    </div>
-</form>
+    <h3>Books Page:</h3>
+    <a href="books.html" th:href="@{/api/books}"><button type="button">Books Page</button></a>
 </p>
 
 </body>

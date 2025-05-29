@@ -29,6 +29,6 @@ public class PageController {
 
     @GetMapping("/api/comments")
     public String showCommentPage() {
-        return "comments_new";
+        return "comments";
     }
 }

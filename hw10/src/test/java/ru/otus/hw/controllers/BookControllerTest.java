@@ -1,5 +1,6 @@
 package ru.otus.hw.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,23 +14,28 @@ import ru.otus.hw.services.BookService;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BookController.class)
 class BookControllerTest {
 
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private ObjectMapper mapper;
 
     @MockitoBean
     private BookService bookService;
@@ -52,8 +58,8 @@ class BookControllerTest {
         List<BookDto> exceptedBooks = dbBooks;
         when(bookService.findAll()).thenReturn(exceptedBooks);
         mvc.perform(get("/books"))
-                .andExpect(view().name("books"))
-                .andExpect(model().attribute("books", exceptedBooks));
+                .andExpect(status().isOk())
+                .andExpect(content().json(mapper.writeValueAsString(exceptedBooks)));
     }
 
     @Test
@@ -61,55 +67,38 @@ class BookControllerTest {
         BookDto exceptedBook = dbBooks.get(0);
         when(bookService.findById(1L)).thenReturn(Optional.ofNullable(exceptedBook));
         mvc.perform(get("/books/%d".formatted(1L)))
-                .andExpect(view().name("book"))
-                .andExpect(model().attribute("book", exceptedBook));
+                .andExpect(status().isOk())
+                .andExpect(content().json(mapper.writeValueAsString(exceptedBook)));
     }
 
     @Test
     void insertBook() throws Exception {
-        BookDto exceptedBook = new BookDto(0L, "NEW_BOOK", dbAuthors.get(0), dbGenres.subList(0, 1));
-        Set<Long> genresIds = exceptedBook.getGenres().stream()
-                .map(GenreDto::getId).collect(Collectors.toSet());
+        BookDto exceptedBook = new BookDto(7L, "NEW_BOOK", dbAuthors.get(0), dbGenres.subList(0, 1));
+        String exceptedBookJson = mapper.writeValueAsString(exceptedBook);
+        when(bookService.insert(any())).thenReturn(exceptedBook);
 
-        String genresParam = genresIds.stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(","));
-
-        mvc.perform(post("/books")
-                .param("title", exceptedBook.getTitle())
-                .param("authorId", String.valueOf(exceptedBook.getAuthor().getId()))
-                .param("genresIds", genresParam)
-        ).andExpect(view().name("redirect:/books"));
-
-        verify(bookService, times(1))
-                .insert(exceptedBook.getTitle(), exceptedBook.getAuthor().getId(), genresIds);
+        mvc.perform(post("/books").contentType(APPLICATION_JSON).content(exceptedBookJson))
+                .andExpect(status().isOk())
+                .andExpect(content().json(exceptedBookJson));
     }
 
     @Test
     void updateBook() throws Exception {
         BookDto exceptedBook = new BookDto(1L, "NEW_BOOK", dbAuthors.get(1), dbGenres.subList(4, 5));
-        Set<Long> genresIds = exceptedBook.getGenres().stream()
-                .map(GenreDto::getId).collect(Collectors.toSet());
-
-        String genresParam = genresIds.stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(","));
+        String exceptedBookJson = mapper.writeValueAsString(exceptedBook);
+        when(bookService.update(any())).thenReturn(exceptedBook);
 
         mvc.perform(put("/books/%d".formatted(exceptedBook.getId()))
-                .param("title", exceptedBook.getTitle())
-                .param("authorId", String.valueOf(exceptedBook.getAuthor().getId()))
-                .param("genresIds", genresParam)
-        ).andExpect(view().name("redirect:/books"));
-
-        verify(bookService, times(1))
-                .update(exceptedBook.getId(), exceptedBook.getTitle(), exceptedBook.getAuthor().getId(), genresIds);
+                        .contentType(APPLICATION_JSON).content(exceptedBookJson))
+                .andExpect(status().isOk())
+                .andExpect(content().json(exceptedBookJson));
     }
 
     @Test
     void deleteBook() throws Exception {
         BookDto expectedBook = dbBooks.get(0);
         mvc.perform(delete("/books/%d".formatted(expectedBook.getId())))
-                .andExpect(view().name("redirect:/"));
+                .andExpect(status().isOk());
 
         verify(bookService, times(1))
                 .deleteById(expectedBook.getId());
