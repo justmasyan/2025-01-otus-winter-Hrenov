@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>List of all genres</title>
+
+    <script>
+        function findAllGenres() {
+            const genresContainer = document.getElementById("genresContainer")
+
+            fetch("/genres")
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                var genresHeader = '<h3>All Genres:</h3><h3>'
+                json.forEach(function(genre){
+                    genresHeader += 'Id: ' + genre.id + ' Name: ' + genre.name + ', '
+                })
+                genresHeader += '</h3>'
+                genresContainer.innerHTML = genresHeader
+            })
+        }
+    </script>
+
+    <script>
+        function hideGenres() {
+            document.getElementById("genresContainer").innerHTML = ''
+        }
+    </script>
+</head>
+<body>
+
+<h3>Genres Api:</h3>
+
+<pre id="genresContainer"></pre>
+<button type="button" onclick="findAllGenres()">All genres</button>
+<button type="button" onclick="hideGenres()">Hide genres</button>
+<a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
+
+</body>
+</html>
+
