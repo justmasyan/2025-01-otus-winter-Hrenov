@@ -2,11 +2,13 @@ package ru.otus.hw.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class BookDto {
 
     private long id;
@@ -16,4 +18,9 @@ public class BookDto {
     private AuthorDto author;
 
     private List<GenreDto> genres;
+
+    public BookDto(long id, String title) {
+        this.id = id;
+        this.title = title;
+    }
 }

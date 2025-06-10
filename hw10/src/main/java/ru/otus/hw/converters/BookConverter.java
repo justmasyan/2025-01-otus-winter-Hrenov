@@ -18,4 +18,8 @@ public class BookConverter {
                 book.getGenres().stream().map(genreConverter::genreToDto).toList()
         );
     }
+
+    public BookDto bookToBaseInfoDto(Book book) {
+        return new BookDto(book.getId(), book.getTitle());
+    }
 }

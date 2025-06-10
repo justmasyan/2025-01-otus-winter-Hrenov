@@ -12,14 +12,7 @@
         fetch('/books/' + idInput.value)
         .then(rawResponse => rawResponse.json())
         .then(json => {
-            var booksHeader = 'Id: ' + json.id + ', Title: ' + json.title + ', Author: ' + json.author.fullName + ', Genres: '
-
-            json.genres.forEach(function(genre) {
-                booksHeader += genre.name + ', '
-            })
-
-            booksHeader += '</h3>'
-            booksContainer.innerHTML = booksHeader
+            booksContainer.innerHTML = generateTableForBook(json)
         })
     }
   </script>
@@ -31,18 +24,8 @@
         fetch('/books')
         .then(rawResponse => rawResponse.json())
         .then(json => {
-            var booksHeader = '<h3>All books</h3><h3>'
 
-            json.forEach(function(book) {
-                booksHeader += '{'
-                booksHeader += 'Id: ' + book.id + ', Title: ' + book.title + ', Author: ' + book.author.fullName + ', Genres: '
-
-                book.genres.forEach(function(genre) {
-                    booksHeader += genre.name + ', '
-                })
-                booksHeader += '},'
-            })
-            booksHeader += '</h3>'
+            booksContainer.innerHTML = generateTableForBooks(json)
             booksContainer.innerHTML = booksHeader
         })
     }
@@ -56,7 +39,7 @@
         const titleInput = document.getElementById("insert-book-title-input")
         const authorIdInput = document.getElementById("insert-book-author-id-input")
         const genresIdInput = document.getElementById("insert-book-genres-id-input")
-        const genresIdArray = genresIdInput.value.split(",").map(strId => ({ id: Number(strId) }))
+        const genresIdArray = Array.from(genresIdInput.selectedOptions).map(option => ({id: option.value}))
         const book = { title: titleInput.value, author: { id: authorIdInput.value}, genres: genresIdArray }
 
         fetch("/books", {
@@ -68,16 +51,9 @@
             body: JSON.stringify(book)})
         .then(rawResponse => rawResponse.json())
         .then(json => {
-            var booksHeader = '<h3>Inserted Book:</h3><h3>' +
-                'Id: ' + json.id + ', Title: ' + json.title + ', Author: ' + json.author.fullName + ', Genres: '
-
-            json.genres.forEach(function(genre) {
-                booksHeader += genre.name + ', '
-            })
-
-            booksHeader += '</h3>'
-            booksContainer.innerHTML = booksHeader
+            booksContainer.innerHTML = generateTableForBook(json)
         })
+
     }
   </script>
 
@@ -89,7 +65,7 @@
         const titleInput = document.getElementById("update-book-title-input")
         const authorIdInput = document.getElementById("update-book-author-id-input")
         const genresIdInput = document.getElementById("update-book-genres-id-input")
-        const genresIdArray = genresIdInput.value.split(",").map(strId => ({ id: Number(strId) }))
+        const genresIdArray = Array.from(genresIdInput.selectedOptions).map(option => ({id: option.value}))
         const book = { id: idInput.value, title: titleInput.value, author: { id: authorIdInput.value}, genres: genresIdArray }
 
         fetch("/books/" + idInput.value, {
@@ -101,15 +77,7 @@
             body: JSON.stringify(book)})
         .then(rawResponse => rawResponse.json())
         .then(json => {
-            var booksHeader = '<h3>Updated Book:</h3><h3>' +
-                'Id: ' + json.id + ', Title: ' + json.title + ', Author: ' + json.author.fullName + ', Genres: '
-
-            json.genres.forEach(function(genre) {
-                booksHeader += genre.name + ', '
-            })
-
-            booksHeader += '</h3>'
-            booksContainer.innerHTML = booksHeader
+            booksContainer.innerHTML = generateTableForBook(json)
         })
     }
   </script>
@@ -132,12 +100,78 @@
         document.getElementById("booksContainer").innerHTML = ''
     }
   </script>
+
+  <script>
+    function generateTableForBook(book) {
+        var genresNamesStr = ''
+        book.genres.forEach(function(genre) {
+            genresNamesStr += genre.name + ', '
+        })
+
+        return `
+            <table border="1">
+              <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Genres</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td>${book.id}</td>
+                <td>${book.title}</td>
+                <td>${book.author.fullName}</td>
+                <td>${genresNamesStr}</td>
+              </tr>
+              </tbody>
+            </table>`
+    }
+  </script>
+
+  <script>
+    function generateTableForBooks(books) {
+        var allBookRows = ''
+        books.forEach(function(book) {
+            var genresNamesStr = ''
+            book.genres.forEach(function(genre) {
+                genresNamesStr += genre.name + ', '
+            })
+
+            var bookRow = `
+            <tr>
+              <td>${book.id}</td>
+              <td>${book.title}</td>
+              <td>${book.author.fullName}</td>
+              <td>${genresNamesStr}</td>
+            </tr>
+            `
+            allBookRows += bookRow
+        })
+
+        return `
+            <table border="1">
+              <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Genres</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>${allBookRows}</tr>
+              </tbody>
+            </table>`
+    }
+  </script>
 </head>
 
 <body>
 
 <h3>Books Api:</h3>
-<pre id="booksContainer"></pre>
+<p id="booksContainer"></p>
 
 <p>
 <form id="bid-book-form" action="books.html" th:method="get">
@@ -165,13 +199,17 @@
   </div>
 
   <div class="row">
-    <label for="insert-book-author-id-input">Id author:</label>
-    <input id="insert-book-author-id-input" name="authorId" type="text"/>
+    <label for="insert-book-author-id-input">Author:</label>
+    <select id="insert-book-author-id-input">
+      <option th:each="author : ${authors}" th:value="${author.id}" th:text="${author.fullName}"></option>
+    </select>
   </div>
 
   <div class="row">
     <label for="insert-book-genres-id-input">Ids Genres:</label>
-    <input id="insert-book-genres-id-input" name="genresId" type="text"/>
+    <select id="insert-book-genres-id-input" multiple="multiple">
+      <option th:each="genre : ${genres}" th:value="${genre.id}" th:text="${genre.name}"></option>
+    </select>
   </div>
 
   <div class="row">
@@ -185,8 +223,10 @@
   <h3>Update book:</h3>
 
   <div class="row">
-    <label for="update-book-id-input">Id:</label>
-    <input id="update-book-id-input" name="id" type="text"/>
+    <label for="update-book-id-input">Book:</label>
+    <select id="update-book-id-input">
+      <option th:each="book : ${books}" th:value="${book.id}" th:text="${book.title}"></option>
+    </select>
   </div>
 
   <div class="row">
@@ -195,13 +235,17 @@
   </div>
 
   <div class="row">
-    <label for="update-book-author-id-input">Id author:</label>
-    <input id="update-book-author-id-input" name="authorId" type="text"/>
+    <label for="update-book-author-id-input">Author:</label>
+    <select id="update-book-author-id-input">
+      <option th:each="author : ${authors}" th:value="${author.id}" th:text="${author.fullName}"></option>
+    </select>
   </div>
 
   <div class="row">
     <label for="update-book-genres-id-input">Ids Genres:</label>
-    <input id="update-book-genres-id-input" name="genresId" type="text"/>
+    <select id="update-book-genres-id-input" multiple="multiple">
+      <option th:each="genre : ${genres}" th:value="${genre.id}" th:text="${genre.name}"></option>
+    </select>
   </div>
 
   <div class="row">
@@ -227,6 +271,7 @@
 
 <p>
   <button type="button" onclick="hideBooks()">Hide books</button>
+  <a href="books.html" th:href="@{/api/books}"><button type="button">Refresh</button></a>
   <a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
 </p>
 

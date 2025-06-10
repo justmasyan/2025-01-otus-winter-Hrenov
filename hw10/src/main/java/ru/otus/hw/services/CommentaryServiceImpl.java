@@ -33,6 +33,13 @@ public class CommentaryServiceImpl implements CommentaryService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<CommentaryDto> findAll() {
+        return commentaryRepository.findAll().stream()
+                .map(commentaryConverter::commentaryToDtoWithoutBook).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<CommentaryDto> findAllByBookId(long bookId) {
         return commentaryRepository.findAllByBookId(bookId).stream()
                 .map(commentaryConverter::commentaryToDtoWithoutBook).toList();

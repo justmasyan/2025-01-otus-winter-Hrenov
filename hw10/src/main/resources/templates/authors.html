@@ -11,13 +11,7 @@
             fetch("/authors")
             .then(rawResponse => rawResponse.json())
             .then(json => {
-                var authorsHeader = '<h3>All authors:</h3><h3>'
-                json.forEach(function(author){
-                    authorsHeader += 'Id: ' + author.id + ' FullName: ' + author.fullName + ', '
-                })
-
-                authorsHeader += '</h3>'
-                authorsContainer.innerHTML = authorsHeader
+                authorsContainer.innerHTML = generateTableForAuthors(json)
             })
         }
     </script>
@@ -27,12 +21,40 @@
             document.getElementById("authorsContainer").innerHTML = ''
         }
     </script>
+
+    <script>
+        function generateTableForAuthors(authors) {
+            var allAuthorRows = ''
+            authors.forEach(function(author) {
+                var authorRow = `
+                <tr>
+                  <td>${author.id}</td>
+                  <td>${author.fullName}</td>
+                </tr>
+                `
+                allAuthorRows += authorRow
+            })
+
+            return `
+                <table border="1">
+                  <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>FullName</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr>${allAuthorRows}</tr>
+                  </tbody>
+                </table>`
+        }
+    </script>
 </head>
 <body>
 
 <h3>Authors Api:</h3>
 
-<pre id="authorsContainer"></pre>
+<p id="authorsContainer"></p>
 <button type="button" onclick="findAllAuthors()">All authors</button>
 <button type="button" onclick="hideAuthors()">Hide authors</button>
 <a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>

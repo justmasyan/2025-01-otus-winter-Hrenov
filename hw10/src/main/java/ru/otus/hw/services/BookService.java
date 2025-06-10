@@ -10,6 +10,8 @@ public interface BookService {
 
     List<BookDto> findAll();
 
+    List<BookDto> findAllBaseInfo();
+
     BookDto insert(BookDto bookDto);
 
     BookDto update(BookDto bookDto);

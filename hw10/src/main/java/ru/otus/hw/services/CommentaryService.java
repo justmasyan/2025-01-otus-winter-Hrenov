@@ -9,6 +9,8 @@ public interface CommentaryService {
 
     Optional<CommentaryDto> findById(long id);
 
+    List<CommentaryDto> findAll();
+
     List<CommentaryDto> findAllByBookId(long bookId);
 
     CommentaryDto insert(CommentaryDto commentaryDto);

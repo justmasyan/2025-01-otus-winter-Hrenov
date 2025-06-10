@@ -48,6 +48,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<BookDto> findAllBaseInfo() {
+        return bookRepository.findAll().stream()
+                .map(bookConverter::bookToBaseInfoDto).toList();
+    }
+
+    @Override
     @Transactional
     public BookDto insert(BookDto bookDto) {
         if (bookDto.getId() != 0) {

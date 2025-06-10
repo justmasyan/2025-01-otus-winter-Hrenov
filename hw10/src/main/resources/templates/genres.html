@@ -11,12 +11,7 @@
             fetch("/genres")
             .then(rawResponse => rawResponse.json())
             .then(json => {
-                var genresHeader = '<h3>All Genres:</h3><h3>'
-                json.forEach(function(genre){
-                    genresHeader += 'Id: ' + genre.id + ' Name: ' + genre.name + ', '
-                })
-                genresHeader += '</h3>'
-                genresContainer.innerHTML = genresHeader
+                genresContainer.innerHTML = generateTableForGenres(json)
             })
         }
     </script>
@@ -26,12 +21,40 @@
             document.getElementById("genresContainer").innerHTML = ''
         }
     </script>
+
+    <script>
+        function generateTableForGenres(genres) {
+            var allGenreRows = ''
+            genres.forEach(function(genre) {
+                var genreRow = `
+                <tr>
+                  <td>${genre.id}</td>
+                  <td>${genre.name}</td>
+                </tr>
+                `
+                allGenreRows += genreRow
+            })
+
+            return `
+                <table border="1">
+                  <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr>${allGenreRows}</tr>
+                  </tbody>
+                </table>`
+        }
+    </script>
 </head>
 <body>
 
 <h3>Genres Api:</h3>
 
-<pre id="genresContainer"></pre>
+<p id="genresContainer"></p>
 <button type="button" onclick="findAllGenres()">All genres</button>
 <button type="button" onclick="hideGenres()">Hide genres</button>
 <a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>

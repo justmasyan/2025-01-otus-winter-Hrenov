@@ -11,8 +11,7 @@
             fetch('/comments/' + idInput.value)
             .then(rawResponse => rawResponse.json())
             .then(json => {
-                var commentsHeader = '<h3>Comment Id: ' + json.id + ', Text: ' + json.text + '.</h3>'
-                commentsContainer.innerHTML = commentsHeader
+                commentsContainer.innerHTML = generateTableForComment(json)
             })
         }
     </script>
@@ -25,13 +24,7 @@
             fetch('/comments/book/'+ bookIdInput.value)
             .then(rawResponse => rawResponse.json())
             .then(json => {
-                var commentsHeader = '<h3>All comments by book: ' + bookIdInput.value + '</h3><h3>'
-
-                json.forEach(function(comment) {
-                    commentsHeader += 'Id: ' + comment.id + ', Text: ' + comment.text + '. '
-                })
-                commentsHeader += '</h3>'
-                commentsContainer.innerHTML = commentsHeader
+                commentsContainer.innerHTML = generateTableForComments(json)
             })
         }
     </script>
@@ -54,10 +47,7 @@
                 body: JSON.stringify(comment)})
             .then(rawResponse => rawResponse.json())
             .then(json => {
-                var commentsHeader = '<h3>Inserted comment:</h3><h3>' +
-                    'Id: ' + json.id + ', Text: ' + json.text +
-                    '</h3>'
-                commentsContainer.innerHTML = commentsHeader
+                commentsContainer.innerHTML = generateTableForComment(json)
             })
         }
     </script>
@@ -79,9 +69,7 @@
                 body: JSON.stringify(comment)})
             .then(rawResponse => rawResponse.json())
             .then(json => {
-                var commentsHeader = '<h3>Updated comment:</h3><h3>' +
-                    'Id: ' + json.id + ', Text: ' + json.text + '</h3>'
-                commentsContainer.innerHTML = commentsHeader
+                commentsContainer.innerHTML = generateTableForComment(json)
             })
         }
     </script>
@@ -104,12 +92,60 @@
             document.getElementById("commentsContainer").innerHTML = ''
         }
     </script>
+
+    <script>
+        function generateTableForComment(comment) {
+            return `
+                <table border="1">
+                  <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Text</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr>
+                    <td>${comment.id}</td>
+                    <td>${comment.text}</td>
+                  </tr>
+                  </tbody>
+                </table>`
+        }
+    </script>
+
+    <script>
+        function generateTableForComments(comments) {
+            var allCommentRows = ''
+            comments.forEach(function(comment) {
+                var commentRow = `
+                <tr>
+                  <td>${comment.id}</td>
+                  <td>${comment.text}</td>
+                </tr>
+                `
+                allCommentRows += commentRow
+            })
+
+            return `
+                <table border="1">
+                  <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Text</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr>${allCommentRows}</tr>
+                  </tbody>
+                </table>`
+        }
+    </script>
 </head>
 
 <body>
 
 <h3>Comments Api:</h3>
-<pre id="commentsContainer"></pre>
+<p id="commentsContainer"></p>
 
 <p>
 <form id="bid-comment-form" action="comments.html" th:method="get">
@@ -131,8 +167,10 @@
     <h3>Find commentaries by Book:</h3>
 
     <div class="row">
-        <label for="cbid-comment-input">Id Book:</label>
-        <input id="cbid-comment-input" name="bookId" type="text"/>
+        <label for="cbid-comment-input">Book:</label>
+        <select id="cbid-comment-input">
+            <option th:each="book : ${books}" th:value="${book.id}" th:text="${book.title}"></option>
+        </select>
     </div>
 
     <div class="row">
@@ -146,8 +184,10 @@
         <h3>Add commentary:</h3>
 
         <div class="row">
-            <label for="insert-comment-book-id-input">Id Book:</label>
-            <input id="insert-comment-book-id-input" name="bookId" type="text"/>
+            <label for="insert-comment-book-id-input">Book:</label>
+            <select id="insert-comment-book-id-input">
+                <option th:each="book : ${books}" th:value="${book.id}" th:text="${book.title}"></option>
+            </select>
         </div>
 
         <div class="row">
@@ -166,13 +206,17 @@
         <h3>Update commentary:</h3>
 
         <div class="row">
-            <label for="update-comment-id-input">Id:</label>
-            <input id="update-comment-id-input" name="id" type="text"/>
+            <label for="update-comment-id-input">Comment:</label>
+            <select id="update-comment-id-input">
+                <option th:each="comment : ${comments}" th:value="${comment.id}" th:text="${comment.text}"></option>
+            </select>
         </div>
 
         <div class="row">
-            <label for="update-comment-book-id-input">Id Book:</label>
-            <input id="update-comment-book-id-input" name="bookId" type="text"/>
+            <label for="update-comment-book-id-input">Book:</label>
+            <select id="update-comment-book-id-input">
+                <option th:each="book : ${books}" th:value="${book.id}" th:text="${book.title}"></option>
+            </select>
         </div>
 
         <div class="row">
@@ -203,6 +247,7 @@
 
 <p>
     <button type="button" onclick="hideComments()">Hide comments</button>
+    <a href="comments.html" th:href="@{/api/comments}"><button type="button">Refresh</button></a>
     <a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
 </p>
 
