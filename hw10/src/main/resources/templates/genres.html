@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>List of all genres</title>
+
+    <script>
+        function findAllGenres() {
+            const genresContainer = document.getElementById("genresContainer")
+
+            fetch("/genres")
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                genresContainer.innerHTML = generateTableForGenres(json)
+            })
+        }
+    </script>
+
+    <script>
+        function hideGenres() {
+            document.getElementById("genresContainer").innerHTML = ''
+        }
+    </script>
+
+    <script>
+        function generateTableForGenres(genres) {
+            var allGenreRows = ''
+            genres.forEach(function(genre) {
+                var genreRow = `
+                <tr>
+                  <td>${genre.id}</td>
+                  <td>${genre.name}</td>
+                </tr>
+                `
+                allGenreRows += genreRow
+            })
+
+            return `
+                <table border="1">
+                  <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr>${allGenreRows}</tr>
+                  </tbody>
+                </table>`
+        }
+    </script>
+</head>
+<body>
+
+<h3>Genres Api:</h3>
+
+<p id="genresContainer"></p>
+<button type="button" onclick="findAllGenres()">All genres</button>
+<button type="button" onclick="hideGenres()">Hide genres</button>
+<a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
+
+</body>
+</html>
+
