@@ -17,3 +17,6 @@ insert into commentaries(book_id, text)
 values (1, 'Comment_1'), (1, 'Comment_2'),
        (2, 'Comment_3'), (2, 'Comment_4'),
        (3, 'Comment_5'), (3, 'Comment_6');
+
+insert into users(login, password)
+values ('user','$2a$10$/Df3OzUvDbndggyFNSF74OfnMjbewfq4K882/w/Z8YoX35LvfPSF2')

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.otus.hw.dto.AuthorDto;
@@ -17,11 +18,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -47,6 +51,7 @@ class BookControllerTest {
         dbBooks = getDbBooks();
     }
 
+    @WithMockUser(username = "admin")
     @Test
     void findAllBooks() throws Exception {
         List<BookDto> exceptedBooks = dbBooks;
@@ -56,6 +61,7 @@ class BookControllerTest {
                 .andExpect(model().attribute("books", exceptedBooks));
     }
 
+    @WithMockUser(username = "admin")
     @Test
     void findBookById() throws Exception {
         BookDto exceptedBook = dbBooks.get(0);
@@ -65,9 +71,10 @@ class BookControllerTest {
                 .andExpect(model().attribute("book", exceptedBook));
     }
 
+    @WithMockUser(username = "user", password = "user")
     @Test
     void insertBook() throws Exception {
-        BookDto exceptedBook = new BookDto(0L, "NEW_BOOK", dbAuthors.get(0), dbGenres.subList(0, 1));
+        BookDto exceptedBook = new BookDto(0L, "NEW_BOOK", dbAuthors.get(0), dbGenres.subList(0, 2));
         Set<Long> genresIds = exceptedBook.getGenres().stream()
                 .map(GenreDto::getId).collect(Collectors.toSet());
 
@@ -75,7 +82,7 @@ class BookControllerTest {
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
 
-        mvc.perform(post("/books")
+        mvc.perform(post("/books").with(csrf())
                 .param("title", exceptedBook.getTitle())
                 .param("authorId", String.valueOf(exceptedBook.getAuthor().getId()))
                 .param("genresIds", genresParam)
@@ -85,6 +92,7 @@ class BookControllerTest {
                 .insert(exceptedBook.getTitle(), exceptedBook.getAuthor().getId(), genresIds);
     }
 
+    @WithMockUser(username = "admin")
     @Test
     void updateBook() throws Exception {
         BookDto exceptedBook = new BookDto(1L, "NEW_BOOK", dbAuthors.get(1), dbGenres.subList(4, 5));
@@ -96,6 +104,7 @@ class BookControllerTest {
                 .collect(Collectors.joining(","));
 
         mvc.perform(put("/books/%d".formatted(exceptedBook.getId()))
+                .with(csrf())
                 .param("title", exceptedBook.getTitle())
                 .param("authorId", String.valueOf(exceptedBook.getAuthor().getId()))
                 .param("genresIds", genresParam)
@@ -105,10 +114,11 @@ class BookControllerTest {
                 .update(exceptedBook.getId(), exceptedBook.getTitle(), exceptedBook.getAuthor().getId(), genresIds);
     }
 
+    @WithMockUser(username = "admin")
     @Test
     void deleteBook() throws Exception {
         BookDto expectedBook = dbBooks.get(0);
-        mvc.perform(delete("/books/%d".formatted(expectedBook.getId())))
+        mvc.perform(delete("/books/%d".formatted(expectedBook.getId())).with(csrf()))
                 .andExpect(view().name("redirect:/"));
 
         verify(bookService, times(1))
