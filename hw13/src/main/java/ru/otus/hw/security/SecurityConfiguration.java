@@ -27,8 +27,8 @@ public class SecurityConfiguration {
                 )
 
                 .formLogin(Customizer.withDefaults())
-                .rememberMe(rm -> rm.key("AnyKey")
-                        .tokenValiditySeconds(600))
+//                .rememberMe(rm -> rm.key("AnyKey")
+//                        .tokenValiditySeconds(600))
         ;
         return http.build();
     }

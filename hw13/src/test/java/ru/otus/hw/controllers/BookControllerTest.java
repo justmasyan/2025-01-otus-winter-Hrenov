@@ -3,8 +3,8 @@ package ru.otus.hw.controllers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.otus.hw.dto.AuthorDto;
@@ -29,7 +29,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@WebMvcTest(BookController.class)
+@WebMvcTest(value = BookController.class,
+        excludeAutoConfiguration = SecurityAutoConfiguration.class)
 class BookControllerTest {
 
     @Autowired
@@ -51,7 +52,6 @@ class BookControllerTest {
         dbBooks = getDbBooks();
     }
 
-    @WithMockUser(username = "admin")
     @Test
     void findAllBooks() throws Exception {
         List<BookDto> exceptedBooks = dbBooks;
@@ -61,7 +61,6 @@ class BookControllerTest {
                 .andExpect(model().attribute("books", exceptedBooks));
     }
 
-    @WithMockUser(username = "admin")
     @Test
     void findBookById() throws Exception {
         BookDto exceptedBook = dbBooks.get(0);
@@ -71,7 +70,6 @@ class BookControllerTest {
                 .andExpect(model().attribute("book", exceptedBook));
     }
 
-    @WithMockUser(username = "user", password = "user")
     @Test
     void insertBook() throws Exception {
         BookDto exceptedBook = new BookDto(0L, "NEW_BOOK", dbAuthors.get(0), dbGenres.subList(0, 2));
@@ -92,7 +90,6 @@ class BookControllerTest {
                 .insert(exceptedBook.getTitle(), exceptedBook.getAuthor().getId(), genresIds);
     }
 
-    @WithMockUser(username = "admin")
     @Test
     void updateBook() throws Exception {
         BookDto exceptedBook = new BookDto(1L, "NEW_BOOK", dbAuthors.get(1), dbGenres.subList(4, 5));
@@ -114,7 +111,6 @@ class BookControllerTest {
                 .update(exceptedBook.getId(), exceptedBook.getTitle(), exceptedBook.getAuthor().getId(), genresIds);
     }
 
-    @WithMockUser(username = "admin")
     @Test
     void deleteBook() throws Exception {
         BookDto expectedBook = dbBooks.get(0);

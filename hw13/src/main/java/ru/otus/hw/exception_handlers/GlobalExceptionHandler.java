@@ -1,5 +1,6 @@
 package ru.otus.hw.exception_handlers;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
@@ -11,6 +12,12 @@ import ru.otus.hw.exceptions.GenresIsEmptyException;
 @SuppressWarnings("unused")
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ModelAndView accessDenied() {
+        return new ModelAndView("error_page","errorText",
+                "Access Denied");
+    }
 
     @ExceptionHandler(AuthorNotFoundException.class)
     public ModelAndView authorNotFound() {

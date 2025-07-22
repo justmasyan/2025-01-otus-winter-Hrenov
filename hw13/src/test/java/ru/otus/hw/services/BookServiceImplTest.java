@@ -7,6 +7,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.converters.AuthorConverter;
@@ -25,8 +26,9 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import({BookServiceImpl.class, BookConverter.class,
-        AuthorConverter.class, GenreConverter.class, CommentaryConverter.class})
+@Import({BookServiceImpl.class, BookConverter.class, CommentaryConverter.class,
+        AuthorConverter.class, GenreConverter.class})
+@MockitoBean(types = {PermissionService.class})
 @Transactional(propagation = Propagation.NEVER)
 class BookServiceImplTest {
 

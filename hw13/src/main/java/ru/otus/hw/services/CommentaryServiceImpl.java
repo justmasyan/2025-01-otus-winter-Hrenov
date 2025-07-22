@@ -1,6 +1,9 @@
 package ru.otus.hw.services;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.converters.CommentaryConverter;
@@ -15,23 +18,27 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CommentaryServiceImpl implements CommentaryService {
 
     private final CommentaryRepository commentaryRepository;
 
     private final CommentaryConverter commentaryConverter;
 
+    private final PermissionService permissionService;
+
     private final BookRepository bookRepository;
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasPermission(#id, 'ru.otus.hw.dto.CommentaryDto', 'READ')")
     public Optional<CommentaryDto> findById(long id) {
         return commentaryRepository.findById(id).map(commentaryConverter::commentaryToDto);
     }
 
     @Override
     @Transactional(readOnly = true)
+    @PostFilter("hasPermission(filterObject, 'READ')")
     public List<CommentaryDto> findAllByBookId(long bookId) {
         return commentaryRepository.findAllByBookId(bookId).stream()
                 .map(commentaryConverter::commentaryToDto).toList();
@@ -39,20 +46,28 @@ public class CommentaryServiceImpl implements CommentaryService {
 
     @Override
     @Transactional
+    @Secured({"ROLE_ADMIN"})
     public CommentaryDto insert(long bookId, String text) {
-        return save(0, bookId, text);
+        CommentaryDto commentaryDto = save(0, bookId, text);
+        permissionService.createDefaultPermissions(commentaryDto);
+        return commentaryDto;
     }
 
     @Override
     @Transactional
+    @PreAuthorize("hasPermission(#id, 'ru.otus.hw.dto.CommentaryDto', 'WRITE')")
     public CommentaryDto update(long id, long bookId, String text) {
         return save(id, bookId, text);
     }
 
     @Override
     @Transactional
+    @PreAuthorize("hasPermission(#id, 'ru.otus.hw.dto.CommentaryDto', 'DELETE')")
     public void deleteById(long id) {
-        commentaryRepository.deleteById(id);
+        commentaryRepository.findById(id).ifPresent(comment -> {
+            commentaryRepository.delete(comment);
+            permissionService.deletePermissions(comment);
+        });
     }
 
     private CommentaryDto save(long id, long bookId, String text) {
