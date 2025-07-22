@@ -23,7 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         var dbUser = userRepository.findByLogin(username);
         return dbUser.map(user ->
-                new User(user.getLogin(), user.getPassword(), List.of(new SimpleGrantedAuthority("USER")))
+                new User(user.getLogin(), user.getPassword(), List.of(new SimpleGrantedAuthority("ROLE_USER")))
         ).orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
     }
 }

@@ -1,20 +1,26 @@
 package ru.otus.hw.security;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.otus.hw.controllers.BookController;
 import ru.otus.hw.services.BookService;
 
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -28,72 +34,56 @@ class BookControllerSecurityTest {
 
     private final static String URL = "http://localhost/%s";
 
-    @Test
-    void findAllBooks() throws Exception {
-        mvc.perform(get("/books").with(anonymous()))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrl(URL.formatted("login")));
+    @ParameterizedTest
+    @MethodSource("getTestData")
+    void shouldReturnExpectedStatusAndExpectedRedirect(String url, String method, Boolean withParams, Boolean isAuthorised, Integer expectedStatus, String expectedRedirectedUrl) throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = method2RequestBuilder(url, method, withParams);
+        requestBuilder = isAuthorised ? requestBuilder.with(user("user"))
+                : requestBuilder.with(anonymous());
 
-        mvc.perform(get("/books").with(user("user")))
-                .andExpect(status().isOk());
+        ResultActions result = mvc.perform(requestBuilder)
+                .andExpect(status().is(expectedStatus));
+
+        if (expectedStatus == HttpStatus.FOUND.value()) {
+            result.andExpect(redirectedUrl(expectedRedirectedUrl));
+        }
     }
 
-    @Test
-    void findBookById() throws Exception {
-        mvc.perform(get("/books/{id}", 1).with(anonymous()))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrl(URL.formatted("login")));
+    private MockHttpServletRequestBuilder method2RequestBuilder(String url, String method, Boolean withParams) {
+        Map<String, Function<String, MockHttpServletRequestBuilder>> methodMap = Map.of(
+                "get", MockMvcRequestBuilders::get,
+                "post", MockMvcRequestBuilders::post,
+                "put", MockMvcRequestBuilders::put,
+                "delete", MockMvcRequestBuilders::delete
+        );
+        MockHttpServletRequestBuilder request = methodMap.get(method).apply(url);
 
-        mvc.perform(get("/books/{id}", 1).with(user("user")))
-                .andExpect(status().isOk());
+        if (withParams) {
+            request.param("title", "MY_TITLE")
+                    .param("authorId", "1")
+                    .param("genresIds", "1,2,3");
+        }
+        return request;
     }
 
-    @Test
-    void insertBook() throws Exception {
-        mvc.perform(post("/books")
-                        .param("title", "MY_TITLE")
-                        .param("authorId", "1")
-                        .param("genresIds", "1,2,3")
-                        .with(anonymous()))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrl(URL.formatted("login")));
+    static private Stream<Arguments> getTestData() {
+        Integer bookId = 1;
+        return Stream.of(
+                //String url, String method, Boolean withParams, Boolean isAuthorised, Integer expectedStatus, String redirectedUrl
+                Arguments.of("/books/%d".formatted(bookId), "get", false, true, 200, null),
+                Arguments.of("/books/%d".formatted(bookId), "get", false, false, 302, URL.formatted("login")),
 
-        mvc.perform(post("/books")
-                        .param("title", "MY_TITLE")
-                        .param("authorId", "1")
-                        .param("genresIds", "1,2,3")
-                        .with(user("user")))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrl("/books"));
-    }
+                Arguments.of("/books", "get", false, true, 200, null),
+                Arguments.of("/books", "get", false, false, 302, URL.formatted("login")),
 
-    @Test
-    void updateBook() throws Exception {
-        mvc.perform(put("/books/{id}",1L)
-                        .param("title", "MY_TITLE")
-                        .param("authorId", "1")
-                        .param("genresIds", "1,2,3")
-                        .with(anonymous()))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrl(URL.formatted("login")));
+                Arguments.of("/books", "post", true, true, 302, "/books"),
+                Arguments.of("/books", "post", true, false, 302, URL.formatted("login")),
 
-        mvc.perform(put("/books/{id}", 1L)
-                        .param("title", "MY_TITLE")
-                        .param("authorId", "1")
-                        .param("genresIds", "1,2,3")
-                        .with(user("user")))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrl("/books"));
-    }
+                Arguments.of("/books/%d".formatted(bookId), "put", true, true, 302, "/books"),
+                Arguments.of("/books/%d".formatted(bookId), "put", true, false, 302, URL.formatted("login")),
 
-    @Test
-    void deleteBook() throws Exception {
-        mvc.perform(delete("/books/{id}", 1L).with(anonymous()))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrl(URL.formatted("login")));
-
-        mvc.perform(delete("/books/{id}", 1L).with(user("user")))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrl("/"));
+                Arguments.of("/books/%d".formatted(bookId), "delete", false, true, 302, "/"),
+                Arguments.of("/books/%d".formatted(bookId), "delete", false, false, 302, URL.formatted("login"))
+        );
     }
 }
