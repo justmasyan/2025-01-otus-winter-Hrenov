@@ -36,7 +36,7 @@ class BookControllerSecurityTest {
 
     @ParameterizedTest
     @MethodSource("getTestData")
-    void shouldReturnExpectedStatusAndExpectedRedirect(String url, String method, Boolean withParams, Boolean isAuthorised, Integer expectedStatus, String expectedRedirectedUrl) throws Exception {
+    void shouldReturnExpectedParams(String url, String method, Boolean withParams, Boolean isAuthorised, Integer expectedStatus, String expectedRedirectedUrl) throws Exception {
         MockHttpServletRequestBuilder requestBuilder = method2RequestBuilder(url, method, withParams);
         requestBuilder = isAuthorised ? requestBuilder.with(user("user"))
                 : requestBuilder.with(anonymous());
