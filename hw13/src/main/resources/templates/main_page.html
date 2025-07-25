@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Application action</title>
+</head>
+<body>
+<p>
+    <h3>All authors:</h3>
+    <a href="authors.html" th:href="@{/authors}"><button type="button">All authors</button></a>
+</p>
+
+<p>
+    <h3>All Genres:</h3>
+    <a href="genres.html" th:href="@{/genres}"><button type="button">All Genres</button></a>
+</p>
+
+<p>
+    <h3>All Books:</h3>
+    <a href="books.html" th:href="@{/books}"><button type="button">All Books</button></a>
+</p>
+
+<p>
+<form id="insert-book-form" action="main_page.html" th:action="@{/books}" th:method="post">
+    <h3>Add Book:</h3>
+
+    <div class="row">
+        <label for="insert-book-title-input">Title:</label>
+        <input id="insert-book-title-input" name="title" type="text"/>
+    </div>
+
+    <div class="row">
+        <label for="insert-book-author-id-input">Author:</label>
+        <input id="insert-book-author-id-input" name="authorId" type="text"/>
+    </div>
+
+    <div class="row">
+        <label for="insert-book-genres-id-input">Genres:</label>
+        <input id="insert-book-genres-id-input" name="genresIds" type="text"/>
+    </div>
+
+    <div class="row">
+        <button type="submit">Add</button>
+    </div>
+</form>
+</p>
+
+<p>
+<form id="acbbid-comment-form" action="main_page.html" th:action="@{/comments}" th:method="get">
+    <h3>All commentaries by Book:</h3>
+
+    <div class="row">
+        <label for="acbbid-comment-book-id-input">Id Book:</label>
+        <input id="acbbid-comment-book-id-input" name="bookId" type="text"/>
+    </div>
+
+    <div class="row">
+        <button type="submit">All</button>
+    </div>
+</form>
+</p>
+
+<p>
+    <form id="insert-comment-form" action="main_page.html" th:action="@{/comments}" th:method="post">
+        <h3>Add commentary:</h3>
+
+        <div class="row">
+            <label for="insert-comment-book-id-input">Id Book:</label>
+            <input id="insert-comment-book-id-input" name="bookId" type="text"/>
+        </div>
+
+        <div class="row">
+            <label for="insert-comment-text-input">Text:</label>
+            <input id="insert-comment-text-input" name="text" type="text"/>
+        </div>
+
+        <div class="row">
+            <button type="submit">Add</button>
+        </div>
+    </form>
+</p>
+
+</body>
+</html>

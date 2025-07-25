@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Commentaries</title>
+</head>
+<body>
+
+<h3 th:text="'Comments for book with ID: ' + ${bookId}">Title</h3>
+
+<ul th:each="comment : ${comments}" th:object="${comment}">
+    <li >
+        <h3 th:text="'ID: ' + *{id} + ' Text: ' + *{Text}">Comment</h3>
+        <form id="update-comment-form" action="comments.html" th:action="@{/comments/{id}(id = *{id})}" th:method="put">
+            <h3>Change commentary:</h3>
+
+            <div class="row">
+                <label for="update-comment-book-id-input">Id Book:</label>
+                <input id="update-comment-book-id-input" name="bookId" type="text"/>
+            </div>
+
+            <div class="row">
+                <label for="update-comment-text-input">Text:</label>
+                <input id="update-comment-text-input" name="text" type="text"/>
+            </div>
+
+            <div class="row">
+                <button type="submit">Save</button>
+            </div>
+        </form>
+
+        <form th:action="@{/comments/{id}(id = *{id})}" th:method="delete">
+            <button type="submit">Delete</button>
+        </form>
+    </li>
+</ul>
+
+<a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
+
+</body>
+</html>
