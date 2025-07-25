@@ -17,7 +17,7 @@ public class GenreServiceImpl implements GenreService {
     private final GenreConverter genreConverter;
 
     @Override
-    @PostFilter("hasPermission(filterObject, 'READ')")
+    @PostFilter("hasPermission(filterObject.getId(),'ru.otus.hw.models.Genre', 'READ')")
     public List<GenreDto> findAll() {
         return genreRepository.findAll().stream()
                 .map(genreConverter::genreToDto).toList();

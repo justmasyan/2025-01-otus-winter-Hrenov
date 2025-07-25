@@ -18,7 +18,7 @@ public class AuthorServiceImpl implements AuthorService {
     private final AuthorConverter authorConverter;
 
     @Override
-    @PostFilter("hasPermission(filterObject, 'READ')")
+    @PostFilter("hasPermission(filterObject.getId(),'ru.otus.hw.models.Author', 'READ')")
     public List<AuthorDto> findAll() {
         return authorRepository.findAll().stream()
                 .map(authorConverter::authorToDto).toList();

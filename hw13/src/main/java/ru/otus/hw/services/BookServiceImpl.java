@@ -1,7 +1,6 @@
 package ru.otus.hw.services;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasPermission(#id, 'ru.otus.hw.dto.BookDto', 'READ')")
+    @PreAuthorize("hasPermission(#id, 'ru.otus.hw.models.Book', 'READ')")
     public Optional<BookDto> findById(long id) {
         Optional<Book> bookOptional = bookRepository.findById(id);
         return bookOptional.map(bookConverter::bookToDto);
@@ -45,7 +44,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
-    @PostFilter("hasPermission(filterObject, 'READ')")
+    @PostFilter("hasPermission(filterObject.getId(),'ru.otus.hw.models.Book', 'READ')")
     public List<BookDto> findAll() {
         return bookRepository.findAll().stream()
                 .map(bookConverter::bookToDto).toList();
@@ -53,27 +52,26 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    @Secured({"ROLE_ADMIN"})
     public BookDto insert(String title, long authorId, Set<Long> genresIds) {
         BookDto bookDto = save(0, title, authorId, genresIds);
-        permissionService.createDefaultPermissions(bookDto);
+        permissionService.createDefaultPermissions(Book.class, bookDto.getId());
         return bookDto;
     }
 
     @Override
     @Transactional
-    @PreAuthorize("hasPermission(#id, 'ru.otus.hw.dto.BookDto', 'WRITE')")
+    @PreAuthorize("hasPermission(#id, 'ru.otus.hw.models.Book', 'WRITE')")
     public BookDto update(long id, String title, long authorId, Set<Long> genresIds) {
         return save(id, title, authorId, genresIds);
     }
 
     @Override
     @Transactional
-    @PreAuthorize("hasPermission(#id, 'ru.otus.hw.dto.BookDto', 'DELETE')")
+    @PreAuthorize("hasPermission(#id, 'ru.otus.hw.models.Book', 'DELETE')")
     public void deleteById(long id) {
         bookRepository.findById(id).ifPresent(book -> {
             bookRepository.delete(book);
-            permissionService.deletePermissions(bookConverter.bookToDto(book));
+            permissionService.deletePermissions(Book.class, id);
         });
     }
 

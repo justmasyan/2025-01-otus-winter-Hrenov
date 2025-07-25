@@ -24,8 +24,8 @@ values ('user','$2a$10$NOZCt5QWt3jxrSYZIK31YuEP43IoypN57OUuYsJAPLJn/AptaiSGi', 2
        ('admin','$2a$10$rWQmDyUPS2r.fHzl24S8dOLYq7uLO.142u7/.THZ.BlQfC6rl83s6', 0);
 
 insert into acl_class(class)
-values ('ru.otus.hw.dto.AuthorDto'), ('ru.otus.hw.dto.GenreDto'),
-       ('ru.otus.hw.dto.CommentaryDto'), ('ru.otus.hw.dto.BookDto');
+values ('ru.otus.hw.models.Author'), ('ru.otus.hw.models.Genre'),
+       ('ru.otus.hw.models.Commentary'), ('ru.otus.hw.models.Book');
 
 insert into acl_sid(principal, sid)
 values (0, 'ROLE_USER'), (0, 'ROLE_MANAGER'), (0, 'ROLE_ADMIN'),

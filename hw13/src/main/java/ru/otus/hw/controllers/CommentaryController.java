@@ -1,6 +1,7 @@
 package ru.otus.hw.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,6 +45,7 @@ public class CommentaryController {
     }
 
     @PostMapping("/comments")
+    @Secured({"ROLE_ADMIN"})
     public String insertComment(@RequestParam Long bookId,
                                 @RequestParam String text) {
         commentaryService.insert(bookId, text);

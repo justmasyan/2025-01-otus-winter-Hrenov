@@ -2,7 +2,7 @@ package ru.otus.hw.services;
 
 public interface PermissionService {
 
-    void createDefaultPermissions(Object object);
+    void createDefaultPermissions(Class<?> clazz, Long id);
 
-    void deletePermissions(Object object);
+    void deletePermissions(Class<?> clazz, Long id);
 }

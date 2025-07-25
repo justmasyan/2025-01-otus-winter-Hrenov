@@ -1,6 +1,7 @@
 package ru.otus.hw.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
@@ -45,6 +46,7 @@ public class BookController {
     }
 
     @PostMapping("/books")
+    @Secured({"ROLE_ADMIN"})
     public String insertBook(@RequestParam String title,
                              @RequestParam long authorId,
                              @RequestParam Set<Long> genresIds) {
