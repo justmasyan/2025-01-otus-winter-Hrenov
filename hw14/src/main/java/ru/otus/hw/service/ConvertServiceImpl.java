@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class ImportServiceImpl implements ImportService {
+public class ConvertServiceImpl implements ConvertService {
 
     private final Map<Class<?>, Map<ObjectId, Long>> mapDbId = Map.of(
             BookMongo.class, new HashMap<>(),
@@ -26,28 +26,28 @@ public class ImportServiceImpl implements ImportService {
     );
 
     @Override
-    public BookJpa convertBookfromMongoToJpa(BookMongo bookMongo) {
-        AuthorJpa authorJpa = convertAuthorFromMongoToJpa(bookMongo.getAuthor());
+    public BookJpa convertBook(BookMongo bookMongo) {
+        AuthorJpa authorJpa = convertAuthor(bookMongo.getAuthor());
         List<GenreJpa> genresJpa = bookMongo.getGenres().stream()
-                .map(this::convertGenreFromMongoToJpa)
+                .map(this::convertGenre)
                 .toList();
         return new BookJpa(getJpaId(bookMongo.getClass(), bookMongo.getId()),
                 bookMongo.getTitle(), authorJpa, genresJpa);
     }
 
     @Override
-    public AuthorJpa convertAuthorFromMongoToJpa(AuthorMongo authorMongo) {
+    public AuthorJpa convertAuthor(AuthorMongo authorMongo) {
         return new AuthorJpa(getJpaId(authorMongo.getClass(), authorMongo.getId()), authorMongo.getFullName());
     }
 
     @Override
-    public GenreJpa convertGenreFromMongoToJpa(GenreMongo genreMongo) {
+    public GenreJpa convertGenre(GenreMongo genreMongo) {
         return new GenreJpa(getJpaId(genreMongo.getClass(), genreMongo.getId()), genreMongo.getName());
     }
 
     @Override
-    public CommentaryJpa convertCommentFromMongoToJpa(CommentaryMongo commentaryMongo) {
-        BookJpa bookJpa = convertBookfromMongoToJpa(commentaryMongo.getBook());
+    public CommentaryJpa convertComment(CommentaryMongo commentaryMongo) {
+        BookJpa bookJpa = convertBook(commentaryMongo.getBook());
         return new CommentaryJpa(getJpaId(commentaryMongo.getClass(), commentaryMongo.getId()),
                 bookJpa, commentaryMongo.getText());
     }

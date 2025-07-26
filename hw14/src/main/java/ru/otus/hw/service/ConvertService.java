@@ -9,13 +9,13 @@ import ru.otus.hw.domain_mongo.BookMongo;
 import ru.otus.hw.domain_mongo.CommentaryMongo;
 import ru.otus.hw.domain_mongo.GenreMongo;
 
-public interface ImportService {
+public interface ConvertService {
 
-    BookJpa convertBookfromMongoToJpa(BookMongo bookMongo);
+    BookJpa convertBook(BookMongo bookMongo);
 
-    AuthorJpa convertAuthorFromMongoToJpa(AuthorMongo authorMongo);
+    AuthorJpa convertAuthor(AuthorMongo authorMongo);
 
-    GenreJpa convertGenreFromMongoToJpa(GenreMongo genreMongo);
+    GenreJpa convertGenre(GenreMongo genreMongo);
 
-    CommentaryJpa convertCommentFromMongoToJpa(CommentaryMongo commentaryMongo);
+    CommentaryJpa convertComment(CommentaryMongo commentaryMongo);
 }

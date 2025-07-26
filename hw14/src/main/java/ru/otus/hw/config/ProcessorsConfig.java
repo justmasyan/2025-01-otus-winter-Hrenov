@@ -12,32 +12,32 @@ import ru.otus.hw.domain_mongo.AuthorMongo;
 import ru.otus.hw.domain_mongo.BookMongo;
 import ru.otus.hw.domain_mongo.CommentaryMongo;
 import ru.otus.hw.domain_mongo.GenreMongo;
-import ru.otus.hw.service.ImportServiceImpl;
+import ru.otus.hw.service.ConvertServiceImpl;
 
 @Configuration
 public class ProcessorsConfig {
 
     @Bean
     @StepScope
-    public ItemProcessor<BookMongo, BookJpa> bookProcessor(ImportServiceImpl importService) {
-        return importService::convertBookfromMongoToJpa;
+    public ItemProcessor<BookMongo, BookJpa> bookProcessor(ConvertServiceImpl importService) {
+        return importService::convertBook;
     }
 
     @Bean
     @StepScope
-    public ItemProcessor<AuthorMongo, AuthorJpa> authorProcessor(ImportServiceImpl importService) {
-        return importService::convertAuthorFromMongoToJpa;
+    public ItemProcessor<AuthorMongo, AuthorJpa> authorProcessor(ConvertServiceImpl importService) {
+        return importService::convertAuthor;
     }
 
     @Bean
     @StepScope
-    public ItemProcessor<GenreMongo, GenreJpa> genreProcessor(ImportServiceImpl importService) {
-        return importService::convertGenreFromMongoToJpa;
+    public ItemProcessor<GenreMongo, GenreJpa> genreProcessor(ConvertServiceImpl importService) {
+        return importService::convertGenre;
     }
 
     @Bean
     @StepScope
-    public ItemProcessor<CommentaryMongo, CommentaryJpa> commentProcessor(ImportServiceImpl importService) {
-        return importService::convertCommentFromMongoToJpa;
+    public ItemProcessor<CommentaryMongo, CommentaryJpa> commentProcessor(ConvertServiceImpl importService) {
+        return importService::convertComment;
     }
 }

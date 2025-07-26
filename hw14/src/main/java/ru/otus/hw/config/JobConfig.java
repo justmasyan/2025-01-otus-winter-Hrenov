@@ -44,17 +44,17 @@ public class JobConfig {
 
     @Bean
     public Job importJob(Step cleanUpStep,
-                         Step convertAuthorsStep,
-                         Step convertGenresStep,
-                         Step convertBooksStep,
-                         Step convertCommentsStep) {
+                         Step importAuthorsStep,
+                         Step importGenresStep,
+                         Step importBooksStep,
+                         Step importCommentsStep) {
         return new JobBuilder(IMPORT_JOB_NAME, jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .flow(cleanUpStep)
-                .next(convertAuthorsStep)
-                .next(convertGenresStep)
-                .next(convertBooksStep)
-                .next(convertCommentsStep)
+                .next(importAuthorsStep)
+                .next(importGenresStep)
+                .next(importBooksStep)
+                .next(importCommentsStep)
                 .end()
                 .build();
     }
@@ -77,30 +77,30 @@ public class JobConfig {
     }
 
     @Bean
-    public Step convertAuthorsStep(ItemReader<AuthorMongo> authorReader,
-                                   ItemProcessor<AuthorMongo, AuthorJpa> authorProcessor,
-                                   ItemWriter<AuthorJpa> authorWriter) {
+    public Step importAuthorsStep(ItemReader<AuthorMongo> authorReader,
+                                  ItemProcessor<AuthorMongo, AuthorJpa> authorProcessor,
+                                  ItemWriter<AuthorJpa> authorWriter) {
         return getImportStep(authorReader, authorProcessor, authorWriter);
     }
 
     @Bean
-    public Step convertGenresStep(ItemReader<GenreMongo> genreReader,
-                                  ItemProcessor<GenreMongo, GenreJpa> genreProcessor,
-                                  ItemWriter<GenreJpa> genreWriter) {
+    public Step importGenresStep(ItemReader<GenreMongo> genreReader,
+                                 ItemProcessor<GenreMongo, GenreJpa> genreProcessor,
+                                 ItemWriter<GenreJpa> genreWriter) {
         return getImportStep(genreReader, genreProcessor, genreWriter);
     }
 
     @Bean
-    public Step convertBooksStep(ItemReader<BookMongo> bookReader,
-                                 ItemProcessor<BookMongo, BookJpa> bookProcessor,
-                                 ItemWriter<BookJpa> bookWriter) {
+    public Step importBooksStep(ItemReader<BookMongo> bookReader,
+                                ItemProcessor<BookMongo, BookJpa> bookProcessor,
+                                ItemWriter<BookJpa> bookWriter) {
         return getImportStep(bookReader, bookProcessor, bookWriter);
     }
 
     @Bean
-    public Step convertCommentsStep(ItemReader<CommentaryMongo> commentReader,
-                                    ItemProcessor<CommentaryMongo, CommentaryJpa> commentProcessor,
-                                    ItemWriter<CommentaryJpa> commentWriter) {
+    public Step importCommentsStep(ItemReader<CommentaryMongo> commentReader,
+                                   ItemProcessor<CommentaryMongo, CommentaryJpa> commentProcessor,
+                                   ItemWriter<CommentaryJpa> commentWriter) {
         return getImportStep(commentReader, commentProcessor, commentWriter);
     }
 
