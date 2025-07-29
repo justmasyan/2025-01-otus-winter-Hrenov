@@ -23,7 +23,7 @@ import ru.otus.hw.domain_mongo.AuthorMongo;
 import ru.otus.hw.domain_mongo.BookMongo;
 import ru.otus.hw.domain_mongo.CommentaryMongo;
 import ru.otus.hw.domain_mongo.GenreMongo;
-import ru.otus.hw.service.CleanUpServiceImpl;
+import ru.otus.hw.service.CleanUpService;
 
 @Configuration
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ public class JobConfig {
     private static final int CHUNK_SIZE = 3;
 
     @Autowired
-    private CleanUpServiceImpl cleanUpService;
+    private CleanUpService cleanUpService;
 
     @Autowired
     private JobRepository jobRepository;
@@ -80,35 +80,35 @@ public class JobConfig {
     public Step importAuthorsStep(ItemReader<AuthorMongo> authorReader,
                                   ItemProcessor<AuthorMongo, AuthorJpa> authorProcessor,
                                   ItemWriter<AuthorJpa> authorWriter) {
-        return getImportStep(authorReader, authorProcessor, authorWriter);
+        return getImportStep("importAuthorsStep", authorReader, authorProcessor, authorWriter);
     }
 
     @Bean
     public Step importGenresStep(ItemReader<GenreMongo> genreReader,
                                  ItemProcessor<GenreMongo, GenreJpa> genreProcessor,
                                  ItemWriter<GenreJpa> genreWriter) {
-        return getImportStep(genreReader, genreProcessor, genreWriter);
+        return getImportStep("importGenresStep", genreReader, genreProcessor, genreWriter);
     }
 
     @Bean
     public Step importBooksStep(ItemReader<BookMongo> bookReader,
                                 ItemProcessor<BookMongo, BookJpa> bookProcessor,
                                 ItemWriter<BookJpa> bookWriter) {
-        return getImportStep(bookReader, bookProcessor, bookWriter);
+        return getImportStep("importBooksStep", bookReader, bookProcessor, bookWriter);
     }
 
     @Bean
     public Step importCommentsStep(ItemReader<CommentaryMongo> commentReader,
                                    ItemProcessor<CommentaryMongo, CommentaryJpa> commentProcessor,
                                    ItemWriter<CommentaryJpa> commentWriter) {
-        return getImportStep(commentReader, commentProcessor, commentWriter);
+        return getImportStep("importCommentsStep", commentReader, commentProcessor, commentWriter);
     }
 
-    private <T, V> Step getImportStep(ItemReader<T> reader,
+    private <T, V> Step getImportStep(String nameStep, ItemReader<T> reader,
                                       ItemProcessor<T, V> processor,
                                       ItemWriter<V> writer) {
-        return new StepBuilder("importCommentStep", jobRepository)
-                .<T, V>chunk(1, transactionManager)
+        return new StepBuilder(nameStep, jobRepository)
+                .<T, V>chunk(CHUNK_SIZE, transactionManager)
                 .reader(reader)
                 .processor(processor)
                 .writer(writer)

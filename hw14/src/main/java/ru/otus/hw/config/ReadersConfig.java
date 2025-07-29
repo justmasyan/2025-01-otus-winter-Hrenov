@@ -1,7 +1,6 @@
 package ru.otus.hw.config;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.data.MongoCursorItemReader;
 import org.springframework.batch.item.data.builder.MongoCursorItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,25 +22,21 @@ public class ReadersConfig {
     private final MongoOperations mongoOperations;
 
     @Bean
-    @StepScope
     public MongoCursorItemReader<BookMongo> bookReader() {
         return getMongoCursorItemReader(BookMongo.class, "bookReader", "books");
     }
 
     @Bean
-    @StepScope
     public MongoCursorItemReader<AuthorMongo> authorReader() {
         return getMongoCursorItemReader(AuthorMongo.class, "authorReader", "authors");
     }
 
     @Bean
-    @StepScope
     public MongoCursorItemReader<GenreMongo> genreReader() {
         return getMongoCursorItemReader(GenreMongo.class, "genreReader", "genres");
     }
 
     @Bean
-    @StepScope
     public MongoCursorItemReader<CommentaryMongo> commentReader() {
         return getMongoCursorItemReader(CommentaryMongo.class, "commentReader", "commentaries");
     }

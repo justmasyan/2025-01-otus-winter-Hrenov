@@ -18,54 +18,40 @@ import java.util.Map;
 @Service
 public class ConvertServiceImpl implements ConvertService {
 
-    private final Map<Class<?>, Map<ObjectId, Long>> mapDbId = Map.of(
-            BookMongo.class, new HashMap<>(),
-            AuthorMongo.class, new HashMap<>(),
-            GenreMongo.class, new HashMap<>(),
-            CommentaryMongo.class, new HashMap<>()
-    );
+    private final Map<ObjectId, AuthorJpa> authors = new HashMap<>();
+
+    private final Map<ObjectId, GenreJpa> genres = new HashMap<>();
+
+    private final Map<ObjectId, BookJpa> books = new HashMap<>();
 
     @Override
     public BookJpa convertBook(BookMongo bookMongo) {
-        AuthorJpa authorJpa = convertAuthor(bookMongo.getAuthor());
+        AuthorJpa authorJpa = authors.get(bookMongo.getAuthor().getId());
         List<GenreJpa> genresJpa = bookMongo.getGenres().stream()
-                .map(this::convertGenre)
+                .map(genreMongo -> genres.get(genreMongo.getId()))
                 .toList();
-        return new BookJpa(getJpaId(bookMongo.getClass(), bookMongo.getId()),
-                bookMongo.getTitle(), authorJpa, genresJpa);
+        BookJpa bookJpa = new BookJpa(0, bookMongo.getTitle(), authorJpa, genresJpa);
+        books.put(bookMongo.getId(), bookJpa);
+        return bookJpa;
     }
 
     @Override
     public AuthorJpa convertAuthor(AuthorMongo authorMongo) {
-        return new AuthorJpa(getJpaId(authorMongo.getClass(), authorMongo.getId()), authorMongo.getFullName());
+        AuthorJpa authorJpa = new AuthorJpa(0, authorMongo.getFullName(), authorMongo.getId());
+        authors.put(authorMongo.getId(), authorJpa);
+        return authorJpa;
     }
 
     @Override
     public GenreJpa convertGenre(GenreMongo genreMongo) {
-        return new GenreJpa(getJpaId(genreMongo.getClass(), genreMongo.getId()), genreMongo.getName());
+        GenreJpa genreJpa = new GenreJpa(0, genreMongo.getName(), genreMongo.getId());
+        genres.put(genreMongo.getId(), genreJpa);
+        return genreJpa;
     }
 
     @Override
-    public CommentaryJpa convertComment(CommentaryMongo commentaryMongo) {
-        BookJpa bookJpa = convertBook(commentaryMongo.getBook());
-        return new CommentaryJpa(getJpaId(commentaryMongo.getClass(), commentaryMongo.getId()),
-                bookJpa, commentaryMongo.getText());
+    public CommentaryJpa convertComment(CommentaryMongo commentMongo) {
+        BookJpa bookJpa = books.get(commentMongo.getBook().getId());
+        return new CommentaryJpa(0, bookJpa, commentMongo.getText(), commentMongo.getId());
     }
-
-    private Long getJpaId(Class<?> clazz, ObjectId mongoId) {
-        Map<ObjectId, Long> map = mapDbId.get(clazz);
-
-        if (map.isEmpty()) {
-            map.put(mongoId, 1L);
-            return 1L;
-        }
-
-        Long jpaId = map.getOrDefault(mongoId, (long) map.size() + 1);
-        if (jpaId == map.size() + 1) {
-            map.put(mongoId, jpaId);
-        }
-
-        return jpaId;
-    }
-
 }
