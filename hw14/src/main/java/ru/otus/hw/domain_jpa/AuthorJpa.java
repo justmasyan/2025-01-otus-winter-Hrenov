@@ -6,11 +6,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
 
 @Data
 @AllArgsConstructor
@@ -25,7 +23,4 @@ public class AuthorJpa {
 
     @Column(name = "full_name", nullable = false)
     private String fullName;
-
-    @Transient
-    private ObjectId mongoId;
 }

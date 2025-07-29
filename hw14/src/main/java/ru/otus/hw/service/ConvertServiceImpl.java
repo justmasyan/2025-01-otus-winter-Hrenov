@@ -37,14 +37,14 @@ public class ConvertServiceImpl implements ConvertService {
 
     @Override
     public AuthorJpa convertAuthor(AuthorMongo authorMongo) {
-        AuthorJpa authorJpa = new AuthorJpa(0, authorMongo.getFullName(), authorMongo.getId());
+        AuthorJpa authorJpa = new AuthorJpa(0, authorMongo.getFullName());
         authors.put(authorMongo.getId(), authorJpa);
         return authorJpa;
     }
 
     @Override
     public GenreJpa convertGenre(GenreMongo genreMongo) {
-        GenreJpa genreJpa = new GenreJpa(0, genreMongo.getName(), genreMongo.getId());
+        GenreJpa genreJpa = new GenreJpa(0, genreMongo.getName());
         genres.put(genreMongo.getId(), genreJpa);
         return genreJpa;
     }
@@ -52,6 +52,6 @@ public class ConvertServiceImpl implements ConvertService {
     @Override
     public CommentaryJpa convertComment(CommentaryMongo commentMongo) {
         BookJpa bookJpa = books.get(commentMongo.getBook().getId());
-        return new CommentaryJpa(0, bookJpa, commentMongo.getText(), commentMongo.getId());
+        return new CommentaryJpa(0, bookJpa, commentMongo.getText());
     }
 }
