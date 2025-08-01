@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>List of all genres</title>
+
+    <script>
+        function findAllGenres() {
+            fetch("api/genres")
+            .then(rawResponse => rawResponse.json())
+            .then(genres => {
+                document.getElementById("genresContainer").appendChild(tableFor(genres))
+            })
+        }
+    </script>
+
+    <script>
+        function tableFor(genres) {
+            let table = document.createElement("table")
+            table.setAttribute('border', '1')
+
+            //thead
+            let thead = document.createElement('thead')
+            let theadRow = document.createElement('tr')
+
+            const theadDataLol = ['ID', 'Name']
+            theadDataLol.forEach(text =>  {
+              let theadData = document.createElement('th')
+              theadData.innerHTML = text
+              theadRow.appendChild(theadData)
+            })
+
+            thead.appendChild(theadRow)
+
+            //tbody
+
+            let tbody = document.createElement('tbody');
+
+            genres.forEach(function(genre) {
+                let tr = document.createElement('tr')
+
+                let tdId = document.createElement('td')
+                tdId.innerHTML = genre.id
+                let tdName = document.createElement('td')
+                tdName.innerHTML = genre.name
+
+                tr.appendChild(tdId)
+                tr.appendChild(tdName)
+
+                tbody.appendChild(tr)
+            })
+
+            table.appendChild(thead)
+            table.appendChild(tbody)
+            return table
+        }
+    </script>
+</head>
+
+<body onload="findAllGenres()">
+
+<h3>Genres Api:</h3>
+
+<p id="genresContainer"></p>
+
+<a href="genres.html" th:href="@{/genres}"><button type="button">Refresh</button></a>
+<a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
+
+</body>
+</html>
+
