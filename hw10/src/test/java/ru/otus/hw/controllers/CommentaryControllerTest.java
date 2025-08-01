@@ -50,7 +50,7 @@ class CommentaryControllerTest {
     void findCommentary() throws Exception {
         CommentaryDto exceptedComment = dbComments.get(0);
         when(commentaryService.findById(1L)).thenReturn(Optional.ofNullable(exceptedComment));
-        mvc.perform(get("/comments/%d".formatted(1L)))
+        mvc.perform(get("/api/comments/%d".formatted(1L)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(exceptedComment)));
     }
@@ -59,7 +59,7 @@ class CommentaryControllerTest {
     void findAllCommentariesByBookId() throws Exception {
         List<CommentaryDto> exceptedComments = dbComments;
         when(commentaryService.findAllByBookId(1L)).thenReturn(exceptedComments);
-        mvc.perform(get("/comments/book/%d".formatted(1L)))
+        mvc.perform(get("/api/comments/book/%d".formatted(1L)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(exceptedComments)));
     }
@@ -70,7 +70,7 @@ class CommentaryControllerTest {
         String exceptedCommentJson = mapper.writeValueAsString(exceptedComment);
         when(commentaryService.insert(any())).thenReturn(exceptedComment);
 
-        mvc.perform(post("/comments").contentType(APPLICATION_JSON).content(exceptedCommentJson))
+        mvc.perform(post("/api/comments").contentType(APPLICATION_JSON).content(exceptedCommentJson))
                 .andExpect(status().isOk())
                 .andExpect(content().json(exceptedCommentJson));
     }
@@ -81,7 +81,7 @@ class CommentaryControllerTest {
         String exceptedCommentJson = mapper.writeValueAsString(exceptedComment);
         when(commentaryService.update(any())).thenReturn(exceptedComment);
 
-        mvc.perform(put("/comments/%d".formatted(exceptedComment.getId()))
+        mvc.perform(put("/api/comments/%d".formatted(exceptedComment.getId()))
                         .contentType(APPLICATION_JSON).content(exceptedCommentJson))
                 .andExpect(status().isOk())
                 .andExpect(content().json(exceptedCommentJson));
@@ -90,7 +90,7 @@ class CommentaryControllerTest {
     @Test
     void deleteCommentById() throws Exception {
         CommentaryDto expectedComment = dbComments.get(0);
-        mvc.perform(delete("/comments/%d".formatted(expectedComment.getId())))
+        mvc.perform(delete("/api/comments/%d".formatted(expectedComment.getId())))
                 .andExpect(status().isOk());
 
         verify(commentaryService, times(1))

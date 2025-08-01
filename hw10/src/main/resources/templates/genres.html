@@ -6,57 +6,64 @@
 
     <script>
         function findAllGenres() {
-            const genresContainer = document.getElementById("genresContainer")
-
-            fetch("/genres")
+            fetch("api/genres")
             .then(rawResponse => rawResponse.json())
-            .then(json => {
-                genresContainer.innerHTML = generateTableForGenres(json)
+            .then(genres => {
+                document.getElementById("genresContainer").appendChild(tableFor(genres))
             })
         }
     </script>
 
     <script>
-        function hideGenres() {
-            document.getElementById("genresContainer").innerHTML = ''
-        }
-    </script>
+        function tableFor(genres) {
+            let table = document.createElement("table")
+            table.setAttribute('border', '1')
 
-    <script>
-        function generateTableForGenres(genres) {
-            var allGenreRows = ''
+            //thead
+            let thead = document.createElement('thead')
+            let theadRow = document.createElement('tr')
+
+            const theadDataLol = ['ID', 'Name']
+            theadDataLol.forEach(text =>  {
+              let theadData = document.createElement('th')
+              theadData.innerHTML = text
+              theadRow.appendChild(theadData)
+            })
+
+            thead.appendChild(theadRow)
+
+            //tbody
+
+            let tbody = document.createElement('tbody');
+
             genres.forEach(function(genre) {
-                var genreRow = `
-                <tr>
-                  <td>${genre.id}</td>
-                  <td>${genre.name}</td>
-                </tr>
-                `
-                allGenreRows += genreRow
+                let tr = document.createElement('tr')
+
+                let tdId = document.createElement('td')
+                tdId.innerHTML = genre.id
+                let tdName = document.createElement('td')
+                tdName.innerHTML = genre.name
+
+                tr.appendChild(tdId)
+                tr.appendChild(tdName)
+
+                tbody.appendChild(tr)
             })
 
-            return `
-                <table border="1">
-                  <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr>${allGenreRows}</tr>
-                  </tbody>
-                </table>`
+            table.appendChild(thead)
+            table.appendChild(tbody)
+            return table
         }
     </script>
 </head>
-<body>
+
+<body onload="findAllGenres()">
 
 <h3>Genres Api:</h3>
 
 <p id="genresContainer"></p>
-<button type="button" onclick="findAllGenres()">All genres</button>
-<button type="button" onclick="hideGenres()">Hide genres</button>
+
+<a href="genres.html" th:href="@{/genres}"><button type="button">Refresh</button></a>
 <a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
 
 </body>

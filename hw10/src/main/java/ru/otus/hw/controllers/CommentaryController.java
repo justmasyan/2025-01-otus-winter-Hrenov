@@ -21,30 +21,29 @@ public class CommentaryController {
 
     private final CommentaryService commentaryService;
 
-    @GetMapping("/comments/{id}")
+    @GetMapping("api/comments/{id}")
     public CommentaryDto findCommentary(@PathVariable Long id) {
         return commentaryService.findById(id).orElseThrow(
                 () -> new CommentNotFoundException("Commentary with id %d not found".formatted(id))
         );
     }
 
-    @GetMapping("/comments/book/{bookId}")
+    @GetMapping("api/comments/book/{bookId}")
     public List<CommentaryDto> findAllCommentariesByBookId(@PathVariable Long bookId) {
-        List<CommentaryDto> comments = commentaryService.findAllByBookId(bookId);
         return commentaryService.findAllByBookId(bookId);
     }
 
-    @PostMapping("/comments")
+    @PostMapping("api/comments")
     public CommentaryDto insertComment(@RequestBody CommentaryDto commentaryDto) {
         return commentaryService.insert(commentaryDto);
     }
 
-    @PutMapping("/comments/{id}")
+    @PutMapping("api/comments/{id}")
     public CommentaryDto updateComment(@RequestBody CommentaryDto commentaryDto) {
         return commentaryService.update(commentaryDto);
     }
 
-    @DeleteMapping("/comments/{id}")
+    @DeleteMapping("api/comments/{id}")
     public void deleteCommentById(@PathVariable long id) {
         commentaryService.deleteById(id);
     }

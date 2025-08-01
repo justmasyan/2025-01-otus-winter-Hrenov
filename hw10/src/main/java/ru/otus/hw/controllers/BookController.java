@@ -21,29 +21,29 @@ public class BookController {
 
     private final BookService bookService;
 
-    @GetMapping("/books")
+    @GetMapping("api/books")
     public List<BookDto> findAllBooks() {
-        return bookService.findAll();
+        return bookService.findAllBaseInfo();
     }
 
-    @GetMapping("/books/{id}")
+    @GetMapping("api/books/{id}")
     public BookDto findBookById(@PathVariable long id) {
         return bookService.findById(id).orElseThrow(
                 () -> new BookNotFoundException("Book with id %d not found".formatted(id))
         );
     }
 
-    @PostMapping("/books")
+    @PostMapping("api/books")
     public BookDto insertBook(@RequestBody BookDto bookDto) {
         return bookService.insert(bookDto);
     }
 
-    @PutMapping("/books/{id}")
+    @PutMapping("api/books/{id}")
     public BookDto updateBook(@RequestBody BookDto bookDto) {
         return bookService.update(bookDto);
     }
 
-    @DeleteMapping("/books/{id}")
+    @DeleteMapping("api/books/{id}")
     public void deleteBook(@PathVariable long id) {
         bookService.deleteById(id);
     }

@@ -24,16 +24,16 @@ class GenreControllerTest {
     private MockMvc mvc;
 
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
 
     @MockitoBean
-    GenreService genreService;
+    private GenreService genreService;
 
     @Test
     void findAllGenres() throws Exception {
         List<GenreDto> expectedGenres = getDbGenres();
         when(genreService.findAll()).thenReturn(expectedGenres);
-        mvc.perform(get("/genres"))
+        mvc.perform(get("/api/genres"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(expectedGenres)));
     }

@@ -24,16 +24,16 @@ class AuthorControllerTest {
     private MockMvc mvc;
 
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
 
     @MockitoBean
-    AuthorService authorService;
+    private AuthorService authorService;
 
     @Test
     void findAllAuthors() throws Exception {
         List<AuthorDto> expectedAuthors = getDbAuthors();
         when(authorService.findAll()).thenReturn(expectedAuthors);
-        mvc.perform(get("/authors"))
+        mvc.perform(get("/api/authors"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(expectedAuthors)));
     }

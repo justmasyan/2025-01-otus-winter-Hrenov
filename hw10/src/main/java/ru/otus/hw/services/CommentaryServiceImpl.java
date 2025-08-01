@@ -28,7 +28,7 @@ public class CommentaryServiceImpl implements CommentaryService {
     @Override
     @Transactional(readOnly = true)
     public Optional<CommentaryDto> findById(long id) {
-        return commentaryRepository.findById(id).map(commentaryConverter::commentaryToDtoWithoutBook);
+        return commentaryRepository.findById(id).map(commentaryConverter::commentaryToDto);
     }
 
     @Override

@@ -55,9 +55,9 @@ class BookControllerTest {
 
     @Test
     void findAllBooks() throws Exception {
-        List<BookDto> exceptedBooks = dbBooks;
-        when(bookService.findAll()).thenReturn(exceptedBooks);
-        mvc.perform(get("/books"))
+        List<BookDto> exceptedBooks = getDbBooksBaseInfo();
+        when(bookService.findAllBaseInfo()).thenReturn(exceptedBooks);
+        mvc.perform(get("/api/books"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(exceptedBooks)));
     }
@@ -66,7 +66,7 @@ class BookControllerTest {
     void findBookById() throws Exception {
         BookDto exceptedBook = dbBooks.get(0);
         when(bookService.findById(1L)).thenReturn(Optional.ofNullable(exceptedBook));
-        mvc.perform(get("/books/%d".formatted(1L)))
+        mvc.perform(get("/api/books/%d".formatted(1L)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(exceptedBook)));
     }
@@ -77,7 +77,7 @@ class BookControllerTest {
         String exceptedBookJson = mapper.writeValueAsString(exceptedBook);
         when(bookService.insert(any())).thenReturn(exceptedBook);
 
-        mvc.perform(post("/books").contentType(APPLICATION_JSON).content(exceptedBookJson))
+        mvc.perform(post("/api/books").contentType(APPLICATION_JSON).content(exceptedBookJson))
                 .andExpect(status().isOk())
                 .andExpect(content().json(exceptedBookJson));
     }
@@ -88,7 +88,7 @@ class BookControllerTest {
         String exceptedBookJson = mapper.writeValueAsString(exceptedBook);
         when(bookService.update(any())).thenReturn(exceptedBook);
 
-        mvc.perform(put("/books/%d".formatted(exceptedBook.getId()))
+        mvc.perform(put("/api/books/%d".formatted(exceptedBook.getId()))
                         .contentType(APPLICATION_JSON).content(exceptedBookJson))
                 .andExpect(status().isOk())
                 .andExpect(content().json(exceptedBookJson));
@@ -97,7 +97,7 @@ class BookControllerTest {
     @Test
     void deleteBook() throws Exception {
         BookDto expectedBook = dbBooks.get(0);
-        mvc.perform(delete("/books/%d".formatted(expectedBook.getId())))
+        mvc.perform(delete("/api/books/%d".formatted(expectedBook.getId())))
                 .andExpect(status().isOk());
 
         verify(bookService, times(1))
@@ -116,6 +116,13 @@ class BookControllerTest {
                         "BookTitle_" + id,
                         dbAuthors.get(id - 1),
                         dbGenres.subList((id - 1) * 2, (id - 1) * 2 + 2)
+                )).toList();
+    }
+
+    private static List<BookDto> getDbBooksBaseInfo() {
+        return IntStream.range(1, 4).boxed()
+                .map(id -> new BookDto(id,
+                        "BookTitle_" + id
                 )).toList();
     }
 

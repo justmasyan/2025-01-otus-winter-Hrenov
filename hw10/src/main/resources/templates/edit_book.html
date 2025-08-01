@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Application pages</title>
+
+    <script>
+        function findBook(id) {
+            const booksContainer = document.getElementById("booksContainer")
+
+            fetch(`/api/books/${id}`)
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                document.getElementById("booksContainer").appendChild(tableForBook(json))
+                document.getElementById("saveFormContainer").appendChild(saveBookForm(json))
+            })
+        }
+    </script>
+
+    <script>
+        function saveBook(id) {
+            const booksContainer = document.getElementById("booksContainer")
+
+            const titleInput = document.getElementById("update-book-title-input")
+            const authorIdInput = document.getElementById("update-book-author-input")
+            const genresIdInput = document.getElementById("update-book-genre-input")
+            const isOverwriteInput = document.getElementById("is-overwrite-book-input").checked
+            const genresIdArray = Array.from(genresIdInput.selectedOptions).map(option => ({id: option.value}))
+            const book = { title: titleInput.value, author: { id: authorIdInput.value}, genres: genresIdArray }
+
+            if(isOverwriteInput) {
+                book.id = id
+            }
+            let url = isOverwriteInput ? `/api/books/${id}` : '/api/books'
+            let method = isOverwriteInput ? 'PUT' : 'POST'
+            
+            fetch(url, {
+                method: method,
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(book)})
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                window.location.href = `/books/${json.id}`
+            })
+        }
+    </script>
+
+    <script>
+        function tableForBook(book) {
+            let table = document.createElement("table")
+            table.setAttribute('border', '1')
+
+            //thead
+            let thead = document.createElement('thead')
+            let theadRow = document.createElement('tr')
+
+            const theadDataLol = ['ID', 'Title','Author', 'Genres']
+            theadDataLol.forEach(text =>  {
+              let theadData = document.createElement('th')
+              theadData.innerHTML = text
+              theadRow.appendChild(theadData)
+            })
+
+            thead.appendChild(theadRow)
+
+            //tbody
+
+            let tbody = document.createElement('tbody');
+
+            let tr = document.createElement('tr')
+
+            let tdId = document.createElement('td')
+            tdId.innerHTML = book.id
+
+            let tdTitle = document.createElement('td')
+            tdTitle.innerHTML = book.title
+
+            let tdAuthor = document.createElement('td')
+            tdAuthor.innerHTML = book.author.fullName
+
+            let tdGenres = document.createElement('td')
+            tdGenres.innerHTML = book.genres.map(genre => genre.name).join(', ')
+
+            tr.appendChild(tdId)
+            tr.appendChild(tdTitle)
+            tr.appendChild(tdAuthor)
+            tr.appendChild(tdGenres)
+
+            tbody.appendChild(tr)
+
+
+            table.appendChild(thead)
+            table.appendChild(tbody)
+            return table
+        }
+    </script>
+
+</head>
+<script>
+    function saveBookForm(book){
+        let saveBookForm = document.createElement('form');
+
+        //TitleDiv
+        let titleDiv = document.createElement("div")
+        let titleLabel = document.createElement("label")
+        titleLabel.for = 'update-book-title-input'
+        titleLabel.innerHTML = 'Title'
+        titleDiv.appendChild(titleLabel)
+
+        let titleInput = document.createElement('input');
+        titleInput.id = 'update-book-title-input'
+        titleInput.name = 'titleName'
+        titleInput.type = 'text'
+        titleInput.placeholder = book.title
+        titleDiv.appendChild(titleInput)
+        saveBookForm.appendChild(titleDiv)
+
+        //AuthorDiv
+        let authorDiv = document.createElement("div")
+        let authorLabel = document.createElement("label")
+        authorLabel.for = 'update-book-author-input'
+        authorLabel.innerHTML = 'Author'
+        authorDiv.appendChild(authorLabel)
+
+        let authorSelect = document.createElement("select")
+        authorSelect.id = 'update-book-author-input'
+        fetch('/api/authors').then(response => response.json())
+            .then(json => {
+                json.forEach(function(author) {
+                    let authorOption = document.createElement("option");
+
+                    if(author.id == book.author.id){
+                        authorOption.selected = 'selected'
+                    }
+
+                    authorOption.textContent = author.fullName;
+                    authorOption.value = author.id;
+                    authorSelect.appendChild(authorOption);
+            })
+        })
+        authorDiv.appendChild(authorSelect);
+        saveBookForm.appendChild(authorDiv);
+
+        //GenreDiv
+        let genreDiv = document.createElement("div")
+        let genreLabel = document.createElement("label")
+        genreLabel.for = 'update-book-genre-input'
+        genreLabel.innerHTML = 'Genres'
+        genreDiv.appendChild(genreLabel)
+
+        let genreSelect = document.createElement("select");
+        genreSelect.id = 'update-book-genre-input'
+        genreSelect.multiple = 'multiple'
+        fetch('/api/genres').then(response => response.json())
+            .then(json => {
+
+            var genresIds = Array.from(book.genres).map(genre => (genre.id))
+                json.forEach(function(genre) {
+                    let genreOption = document.createElement("option");
+
+                    if(genresIds.includes(genre.id)){
+                        genreOption.selected = 'selected'
+                    }
+
+                    genreOption.textContent = genre.name;
+                    genreOption.value = genre.id;
+                    genreSelect.appendChild(genreOption);
+            })
+        })
+        genreDiv.appendChild(genreSelect);
+        saveBookForm.appendChild(genreDiv);
+
+        //OverwriteBook
+        let overwriteDiv = document.createElement("div")
+        let overwriteLabel = document.createElement("label")
+        overwriteLabel.for = 'is-overwrite-book-input'
+        overwriteLabel.innerHTML = 'Overwrite book?'
+        overwriteDiv.appendChild(overwriteLabel)
+
+        let isNewBook = document.createElement('input')
+        isNewBook.id = 'is-overwrite-book-input'
+        isNewBook.type = 'checkbox'
+        overwriteDiv.appendChild(isNewBook);
+        saveBookForm.appendChild(overwriteDiv);
+
+        let submitButtonDiv = document.createElement("div")
+        let submitButton = document.createElement('button');
+        submitButton.type = 'button'
+        submitButton.textContent = 'Save';
+        submitButton.addEventListener('click', function() {
+            saveBook(book.id)
+        });
+        submitButtonDiv.appendChild(submitButton);
+        saveBookForm.appendChild(submitButtonDiv);
+
+        return saveBookForm;
+    }
+</script>
+
+<body th:onload="findBook([[${id}]])">
+
+<h3>Edit Book:</h3>
+<p id="booksContainer"></p>
+
+<p id="saveFormContainer"></p>
+
+<p>
+    <a href="edit_book.html" th:href="@{/books/{bookId}(bookId=${id})}"><button type="button">Refresh</button></a>
+    <a href="books.html" th:href="@{/books}"><button type="button">Books Page</button></a>
+    <a href="main_page.html" th:href="@{/}"><button type="button">Main Page</button></a>
+</p>
+</body>
+</html>

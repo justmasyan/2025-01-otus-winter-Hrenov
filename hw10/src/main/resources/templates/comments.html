@@ -3,251 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <title>Comments</title>
-    <script>
-        function findComment() {
-            const commentsContainer = document.getElementById("commentsContainer")
-            const idInput = document.getElementById("bid-comment-input")
 
-            fetch('/comments/' + idInput.value)
+    <script>
+        function findAllCommentsByBook(bookId) {
+            fetch(`/api/comments/book/${bookId}`)
             .then(rawResponse => rawResponse.json())
-            .then(json => {
-                commentsContainer.innerHTML = generateTableForComment(json)
+            .then(comments => {
+<!--                document.getElementById("commentsContainer").innerHTML = '123'-->
+                document.getElementById("commentsContainer").appendChild(tableFor(bookId, comments))
             })
         }
     </script>
 
     <script>
-        function findAllCommentsByBookId() {
-            const commentsContainer = document.getElementById("commentsContainer")
-            const bookIdInput = document.getElementById("cbid-comment-input")
+        function foo(){
+            alert('hello')
+        }
+    </script>
 
-            fetch('/comments/book/'+ bookIdInput.value)
-            .then(rawResponse => rawResponse.json())
-            .then(json => {
-                commentsContainer.innerHTML = generateTableForComments(json)
+    <script>
+        function deleteComment(id, bookId) {
+            fetch(`/api/comments/${id}`, {method : 'DELETE'})
+            .then(rawResponse => window.location.href = `/comments/book/${bookId}`)
+        }
+    </script>
+
+    <script>
+        function tableFor(bookId, comments) {
+            let table = document.createElement("table")
+            table.setAttribute('border', '1')
+
+            //thead
+            let thead = document.createElement('thead')
+            let theadRow = document.createElement('tr')
+
+            const theadDataLol = ['ID', 'Text']
+            theadDataLol.forEach(text =>  {
+              let theadData = document.createElement('th')
+              theadData.innerHTML = text
+              theadRow.appendChild(theadData)
             })
-        }
-    </script>
 
-    <script>
-        function insertComment() {
+            let theadData = document.createElement('th');
+            theadData.innerHTML = 'Actions'
+            theadData.setAttribute('colspan', '2')
+            theadRow.appendChild(theadData)
 
-            const commentsContainer = document.getElementById("commentsContainer")
+            thead.appendChild(theadRow)
 
-            const bookIdInput = document.getElementById("insert-comment-book-id-input")
-            const textInput = document.getElementById("insert-comment-text-input")
-            const comment = { book: { id: bookIdInput.value}, text: textInput.value}
+            //tbody
 
-            fetch("/comments", {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(comment)})
-            .then(rawResponse => rawResponse.json())
-            .then(json => {
-                commentsContainer.innerHTML = generateTableForComment(json)
-            })
-        }
-    </script>
+            let tbody = document.createElement('tbody');
 
-    <script>
-        function updateComment() {
-            const commentsContainer = document.getElementById("commentsContainer")
-
-            const idInput = document.getElementById("update-comment-id-input")
-            const bookIdInput = document.getElementById("update-comment-book-id-input")
-            const textInput = document.getElementById("update-comment-text-input")
-            const comment = { id: idInput.value, book: { id: bookIdInput.value }, text: textInput.value}
-            fetch("/comments/" + idInput.value, {
-                method: 'PUT',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(comment)})
-            .then(rawResponse => rawResponse.json())
-            .then(json => {
-                commentsContainer.innerHTML = generateTableForComment(json)
-            })
-        }
-    </script>
-
-    <script>
-        function deleteComment() {
-            const commentsContainer = document.getElementById("commentsContainer")
-            const idInput = document.getElementById("del-comment-input")
-
-            fetch('/comments/' + idInput.value, {method : 'DELETE'})
-            .then(rawResponse => {
-                var commentsHeader = ''
-                commentsContainer.innerHTML = commentsHeader
-            })
-        }
-    </script>
-
-    <script>
-        function hideComments() {
-            document.getElementById("commentsContainer").innerHTML = ''
-        }
-    </script>
-
-    <script>
-        function generateTableForComment(comment) {
-            return `
-                <table border="1">
-                  <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Text</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr>
-                    <td>${comment.id}</td>
-                    <td>${comment.text}</td>
-                  </tr>
-                  </tbody>
-                </table>`
-        }
-    </script>
-
-    <script>
-        function generateTableForComments(comments) {
-            var allCommentRows = ''
             comments.forEach(function(comment) {
-                var commentRow = `
-                <tr>
-                  <td>${comment.id}</td>
-                  <td>${comment.text}</td>
-                </tr>
-                `
-                allCommentRows += commentRow
+                let tr = document.createElement('tr')
+
+                let tdId = document.createElement('td')
+                tdId.innerHTML = comment.id
+                let tdText = document.createElement('td')
+                tdText.innerHTML = comment.text
+
+                let tdEdit = document.createElement('td')
+                let tdEditHref = document.createElement('a')
+                tdEditHref.href = `/comments/${comment.id}`
+                let tdEditButton = document.createElement('button')
+                tdEditButton.type = 'button'
+                tdEditButton.innerHTML = 'Edit'
+
+                tdEditHref.appendChild(tdEditButton)
+                tdEdit.appendChild(tdEditHref)
+
+                let tdDelete = document.createElement('td')
+                let deleteButton = document.createElement('button');
+                deleteButton.type = 'button'
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', function() {
+                    deleteComment(comment.id, bookId)
+                });
+                tdDelete.appendChild(deleteButton);
+
+                tr.appendChild(tdId)
+                tr.appendChild(tdText)
+                tr.appendChild(tdEdit)
+                tr.appendChild(tdDelete)
+
+                tbody.appendChild(tr)
             })
 
-            return `
-                <table border="1">
-                  <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Text</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr>${allCommentRows}</tr>
-                  </tbody>
-                </table>`
+            table.appendChild(thead)
+            table.appendChild(tbody)
+            return table
         }
     </script>
 </head>
 
-<body>
+<body th:onload="findAllCommentsByBook([[${bookId}]])">
 
-<h3>Comments Api:</h3>
+<h3>Comments:</h3>
 <p id="commentsContainer"></p>
 
 <p>
-<form id="bid-comment-form" action="comments.html" th:method="get">
-    <h3>Find commentary by Id:</h3>
-
-    <div class="row">
-        <label for="bid-comment-input">Id:</label>
-        <input id="bid-comment-input" name="id" type="text"/>
-    </div>
-
-    <div class="row">
-        <button type="button" onclick="findComment()" >Find</button>
-    </div>
-</form>
-</p>
-
-<p>
-<form id="cbid-comment-form" action="comments.html" th:method="get">
-    <h3>Find commentaries by Book:</h3>
-
-    <div class="row">
-        <label for="cbid-comment-input">Book:</label>
-        <select id="cbid-comment-input">
-            <option th:each="book : ${books}" th:value="${book.id}" th:text="${book.title}"></option>
-        </select>
-    </div>
-
-    <div class="row">
-        <button type="button" onclick="findAllCommentsByBookId()" >Find</button>
-    </div>
-</form>
-</p>
-
-<p>
-    <form id="insert-comment-form" action="comments.html" th:method="post">
-        <h3>Add commentary:</h3>
-
-        <div class="row">
-            <label for="insert-comment-book-id-input">Book:</label>
-            <select id="insert-comment-book-id-input">
-                <option th:each="book : ${books}" th:value="${book.id}" th:text="${book.title}"></option>
-            </select>
-        </div>
-
-        <div class="row">
-            <label for="insert-comment-text-input">Text:</label>
-            <input id="insert-comment-text-input" name="text" type="text"/>
-        </div>
-
-        <div class="row">
-            <button type="button" onclick="insertComment()" >Save</button>
-        </div>
-    </form>
-</p>
-
-<p>
-    <form id="update-comment-form" action="comments.html" th:method="update">
-        <h3>Update commentary:</h3>
-
-        <div class="row">
-            <label for="update-comment-id-input">Comment:</label>
-            <select id="update-comment-id-input">
-                <option th:each="comment : ${comments}" th:value="${comment.id}" th:text="${comment.text}"></option>
-            </select>
-        </div>
-
-        <div class="row">
-            <label for="update-comment-book-id-input">Book:</label>
-            <select id="update-comment-book-id-input">
-                <option th:each="book : ${books}" th:value="${book.id}" th:text="${book.title}"></option>
-            </select>
-        </div>
-
-        <div class="row">
-            <label for="update-comment-text-input">Text:</label>
-            <input id="update-comment-text-input" name="text" type="text"/>
-        </div>
-
-        <div class="row">
-            <button type="button" onclick="updateComment()" >Save</button>
-        </div>
-    </form>
-</p>
-
-<p>
-    <form id="del-comment-form" action="comments.html" th:method="delete">
-        <h3>Delete commentary by Id:</h3>
-
-        <div class="row">
-            <label for="del-comment-input">Id:</label>
-            <input id="del-comment-input" name="id" type="text"/>
-        </div>
-
-        <div class="row">
-            <button type="button" onclick="deleteComment()" >Delete</button>
-        </div>
-    </form>
-</p>
-
-<p>
-    <button type="button" onclick="hideComments()">Hide comments</button>
-    <a href="comments.html" th:href="@{/api/comments}"><button type="button">Refresh</button></a>
+    <a href="comments.html" th:href="@{/comments/book/{bookId}(bookId=${bookId})}"><button type="button">Refresh</button></a>
+    <a href="books.html" th:href="@{/books}"><button type="button">Back To Books</button></a>
     <a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
 </p>
 
