@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Application pages</title>
+
+    <script>
+        function insertBook() {
+            const titleInput = document.getElementById("insert-book-title-input")
+            const authorIdInput = document.getElementById("insert-book-authors-select")
+            const genresIdInput = document.getElementById("insert-book-genres-select")
+            const genresIdArray = Array.from(genresIdInput.selectedOptions).map(option => ({id: option.value}))
+            const book = { title: titleInput.value, author: { id: authorIdInput.value}, genres: genresIdArray }
+
+            fetch('/api/books', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(book)})
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                window.location.href = `/books/${json.id}`
+            })
+        }
+    </script>
+
+</head>
+<script>
+    function insertBookForm(){
+        let authorSelect = document.getElementById('insert-book-authors-select');
+        fetch('/api/authors').then(response => response.json())
+            .then(json => {
+                json.forEach(function(author) {
+                let authorOption = document.createElement("option");
+
+                authorOption.textContent = author.fullName;
+                authorOption.value = author.id;
+                authorSelect.appendChild(authorOption);
+            })
+        })
+
+        let genreSelect = document.getElementById('insert-book-genres-select');
+        fetch('/api/genres').then(response => response.json())
+            .then(json => {
+                json.forEach(function(genre) {
+                    let genreOption = document.createElement("option");
+
+                    genreOption.textContent = genre.name;
+                    genreOption.value = genre.id;
+                    genreSelect.appendChild(genreOption);
+            })
+        })
+    }
+</script>
+
+<body onload="insertBookForm()">
+
+<form id="insert-book-form" action="add_book.html">
+    <h3>Insert book:</h3>
+
+    <div class="row">
+        <label for="insert-book-title-input">Title:</label>
+        <input id="insert-book-title-input" name="title" type="text"/>
+    </div>
+
+    <div class="row">
+        <label for="insert-book-authors-select">Author:</label>
+        <select id="insert-book-authors-select"></select>
+    </div>
+
+    <div class="row">
+        <label for="insert-book-genres-select">Ids Genres:</label>
+        <select id="insert-book-genres-select" multiple="multiple"></select>
+    </div>
+
+    <div class="row">
+        <button id="insert-book-button" type="button" onclick="insertBook()">Save</button>
+    </div>
+</form>
+
+
+<p>
+    <a href="books.html" th:href="@{/books}"><button type="button">Books Page</button></a>
+    <a href="main_page.html" th:href="@{/}"><button type="button">Main Page</button></a>
+</p>
+</body>
+</html>

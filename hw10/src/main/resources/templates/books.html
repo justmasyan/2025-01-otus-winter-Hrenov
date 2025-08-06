@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Books</title>
+
+  <script>
+    function findAllBooks() {
+        fetch('api/books')
+        .then(rawResponse => rawResponse.json())
+        .then(books => {
+            tableFor(books)
+        })
+    }
+  </script>
+
+  <script>
+    function deleteBook(id) {
+        fetch(`api/books/${id}`, {method : 'DELETE'})
+        .then(rawResponse => window.location.href = '/books')
+    }
+  </script>
+
+  <script>
+    function tableFor(books) {
+        let tbody = document.getElementById("books-table-tbody");
+
+        books.forEach(function(book) {
+            let tr = document.createElement('tr')
+
+            let tdId = document.createElement('td')
+            tdId.innerHTML = book.id
+            let tdTitle = document.createElement('td')
+            tdTitle.innerHTML = book.title
+
+            let tdShowComment = document.createElement('td')
+            let tdShowCommentHref = document.createElement('a')
+            tdShowCommentHref.href = `/comments/book/${book.id}`
+            let tdShowCommentButton = document.createElement('button')
+            tdShowCommentButton.type = 'button'
+            tdShowCommentButton.innerHTML = 'Comments'
+
+            tdShowCommentHref.appendChild(tdShowCommentButton)
+            tdShowComment.appendChild(tdShowCommentHref)
+
+            let tdEdit = document.createElement('td')
+            let tdEditHref = document.createElement('a')
+            tdEditHref.href = `/books/${book.id}`
+            let tdEditButton = document.createElement('button')
+            tdEditButton.type = 'button'
+            tdEditButton.innerHTML = 'Edit'
+
+            tdEditHref.appendChild(tdEditButton)
+            tdEdit.appendChild(tdEditHref)
+
+            let tdDelete = document.createElement('td')
+            let deleteButton = document.createElement('button');
+            deleteButton.type = 'button'
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', function() {
+                deleteBook(book.id)
+            });
+            tdDelete.appendChild(deleteButton);
+
+            tr.appendChild(tdId)
+            tr.appendChild(tdTitle)
+            tr.appendChild(tdShowComment)
+            tr.appendChild(tdEdit)
+            tr.appendChild(tdDelete)
+
+            tbody.appendChild(tr)
+        })
+    }
+  </script>
+</head>
+
+<body onload="findAllBooks();">
+
+<h3>Books:</h3>
+
+<table border="1">
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Title</th>
+    <th colspan="3">Actions</th>
+  </tr>
+  </thead>
+  <tbody id="books-table-tbody"><tbody>
+</table>
+
+<p>
+  <a href="books.html" th:href="@{/books}"><button type="button">Refresh</button></a>
+  <a href="add_book.html" th:href="@{/books/new}"><button type="button">Add Book</button></a>
+  <a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
+</p>
+
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Application pages</title>
+
+    <script>
+        function findComment(id) {
+            fetch(`/api/comments/${id}`)
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                tableForComment(json)
+                saveCommentForm(json)
+            })
+        }
+    </script>
+
+    <script>
+        function updateComment(id) {
+            const bookIdInput = document.getElementById("update-comment-books-select")
+            const textInput = document.getElementById("update-comment-text-input")
+            const comment = { id: id, book: { id: bookIdInput.value}, text: textInput.value }
+
+            fetch(`/api/comments/${id}`, {
+                method: 'PUT',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(comment)})
+            .then(rawResponse => rawResponse.json())
+            .then(comment => {
+                window.location.href = `/comments/${id}`
+            })
+        }
+    </script>
+
+    <script>
+        function tableForComment(comment) {
+            let tbody = document.getElementById("comment-table-tbody");
+
+            let tr = document.createElement('tr')
+
+            let tdId = document.createElement('td')
+            tdId.innerHTML = comment.id
+            tr.appendChild(tdId)
+
+            let tdBook = document.createElement('td')
+            tdBook.innerHTML = comment.book.title
+            tr.appendChild(tdBook)
+
+            let tdText = document.createElement('td')
+            tdText.innerHTML = comment.text
+            tr.appendChild(tdText)
+
+            tbody.appendChild(tr)
+        }
+    </script>
+
+</head>
+<script>
+    function saveCommentForm(comment){
+        let textInput = document.getElementById('update-comment-text-input')
+        textInput.name = 'textName'
+        textInput.type = 'text'
+        textInput.value = comment.text
+
+        let bookSelect = document.getElementById('update-comment-books-select')
+        fetch('/api/books').then(response => response.json())
+            .then(json => {
+                json.forEach(function(book) {
+                    let bookOption = document.createElement("option");
+
+                    if(book.id == comment.book.id){
+                        bookOption.selected = 'selected'
+                    }
+
+                    bookOption.textContent = book.title;
+                    bookOption.value = book.id;
+                    bookSelect.appendChild(bookOption);
+            })
+        })
+    }
+</script>
+
+<body th:onload="findComment([[${id}]])">
+
+<h3>Comment:</h3>
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Book</th>
+        <th>Text</th>
+    </tr>
+    </thead>
+    <tbody id="comment-table-tbody"><tbody>
+</table>
+
+<form id="update-comment-form" action="comments.html">
+    <h3>Edit comment:</h3>
+
+    <div class="row">
+        <label for="update-comment-text-input">Title:</label>
+        <input id="update-comment-text-input" name="title" type="text"/>
+    </div>
+
+    <div class="row">
+        <label for="update-comment-books-select">Book:</label>
+        <select id="update-comment-books-select"></select>
+    </div>
+
+    <div class="row">
+        <button id="update-comment-button" type="button" th:onclick="updateComment([[${id}]])">Save</button>
+    </div>
+</form>
+
+<p>
+    <a href="edit_comment.html" th:href="@{/comments/{commentId}(commentId=${id})}"><button type="button">Refresh</button></a>
+    <a href="books.html" th:href="@{/books}"><button type="button">Back to Books</button></a>
+    <a href="main_page.html" th:href="@{/}"><button type="button">Main Page</button></a>
+</p>
+</body>
+</html>

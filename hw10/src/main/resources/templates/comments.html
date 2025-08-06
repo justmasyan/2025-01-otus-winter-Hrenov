@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Comments</title>
+
+    <script>
+        function findAllCommentsByBook(bookId) {
+            fetch(`/api/comments/book/${bookId}`)
+            .then(rawResponse => rawResponse.json())
+            .then(comments => {
+                tableFor(bookId, comments)
+            })
+        }
+    </script>
+
+    <script>
+        function deleteComment(id, bookId) {
+            fetch(`/api/comments/${id}`, {method : 'DELETE'})
+            .then(rawResponse => window.location.href = `/comments/book/${bookId}`)
+        }
+    </script>
+
+    <script>
+        function tableFor(bookId, comments) {
+            let tbody = document.getElementById("comments-table-tbody");
+
+            comments.forEach(function(comment) {
+                let tr = document.createElement('tr')
+
+                let tdId = document.createElement('td')
+                tdId.innerHTML = comment.id
+                let tdText = document.createElement('td')
+                tdText.innerHTML = comment.text
+
+                let tdEdit = document.createElement('td')
+                let tdEditHref = document.createElement('a')
+                tdEditHref.href = `/comments/${comment.id}`
+                let tdEditButton = document.createElement('button')
+                tdEditButton.type = 'button'
+                tdEditButton.innerHTML = 'Edit'
+
+                tdEditHref.appendChild(tdEditButton)
+                tdEdit.appendChild(tdEditHref)
+
+                let tdDelete = document.createElement('td')
+                let deleteButton = document.createElement('button');
+                deleteButton.type = 'button'
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', function() {
+                    deleteComment(comment.id, bookId)
+                });
+                tdDelete.appendChild(deleteButton);
+
+                tr.appendChild(tdId)
+                tr.appendChild(tdText)
+                tr.appendChild(tdEdit)
+                tr.appendChild(tdDelete)
+
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+</head>
+
+<body th:onload="findAllCommentsByBook([[${bookId}]])">
+
+<h3>Comments:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Text</th>
+        <th colspan="2">Actions</th>
+    </tr>
+    </thead>
+    <tbody id="comments-table-tbody"><tbody>
+</table>
+
+<p>
+    <a href="comments.html" th:href="@{/comments/book/{bookId}(bookId=${bookId})}"><button type="button">Refresh</button></a>
+    <a href="add_comment.html" th:href="@{/comments/book/{bookId}/new(bookId=${bookId})}"><button type="button">Add Comment</button></a>
+    <a href="books.html" th:href="@{/books}"><button type="button">Back To Books</button></a>
+    <a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
+</p>
+
+</body>
+</html>
