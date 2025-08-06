@@ -44,6 +44,11 @@ public class PageController {
         return "edit_book";
     }
 
+    @GetMapping("/books/new")
+    public String showAddBookPage() {
+        return "add_book";
+    }
+
     @GetMapping("/books")
     public String showBooksPage() {
         return "books";
@@ -53,6 +58,12 @@ public class PageController {
     public String showCommentPage(@PathVariable long id, Model model) {
         model.addAttribute("id", id);
         return "edit_comment";
+    }
+
+    @GetMapping("/comments/book/{bookId}/new")
+    public String showAddCommentPage(@PathVariable long bookId, Model model) {
+        model.addAttribute("bookId", bookId);
+        return "add_comment";
     }
 
     @GetMapping("/comments/book/{bookId}")

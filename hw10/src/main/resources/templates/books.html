@@ -9,7 +9,7 @@
         fetch('api/books')
         .then(rawResponse => rawResponse.json())
         .then(books => {
-            document.getElementById("booksContainer").appendChild(tableFor(books))
+            tableFor(books)
         })
     }
   </script>
@@ -18,36 +18,12 @@
     function deleteBook(id) {
         fetch(`api/books/${id}`, {method : 'DELETE'})
         .then(rawResponse => window.location.href = '/books')
-
     }
   </script>
 
   <script>
     function tableFor(books) {
-        let table = document.createElement("table")
-        table.setAttribute('border', '1')
-
-        //thead
-        let thead = document.createElement('thead')
-        let theadRow = document.createElement('tr')
-
-        const theadDataLol = ['ID', 'Title']
-        theadDataLol.forEach(text =>  {
-          let theadData = document.createElement('th')
-          theadData.innerHTML = text
-          theadRow.appendChild(theadData)
-        })
-
-        let theadData = document.createElement('th');
-        theadData.innerHTML = 'Actions'
-        theadData.setAttribute('colspan', '3')
-        theadRow.appendChild(theadData)
-
-        thead.appendChild(theadRow)
-
-        //tbody
-
-        let tbody = document.createElement('tbody');
+        let tbody = document.getElementById("books-table-tbody");
 
         books.forEach(function(book) {
             let tr = document.createElement('tr')
@@ -94,10 +70,6 @@
 
             tbody.appendChild(tr)
         })
-
-        table.appendChild(thead)
-        table.appendChild(tbody)
-        return table
     }
   </script>
 </head>
@@ -105,10 +77,21 @@
 <body onload="findAllBooks();">
 
 <h3>Books:</h3>
-<p id="booksContainer"></p>
+
+<table border="1">
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Title</th>
+    <th colspan="3">Actions</th>
+  </tr>
+  </thead>
+  <tbody id="books-table-tbody"><tbody>
+</table>
 
 <p>
   <a href="books.html" th:href="@{/books}"><button type="button">Refresh</button></a>
+  <a href="add_book.html" th:href="@{/books/new}"><button type="button">Add Book</button></a>
   <a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
 </p>
 

@@ -9,30 +9,20 @@
             fetch(`/api/comments/${id}`)
             .then(rawResponse => rawResponse.json())
             .then(json => {
-                document.getElementById("commentsContainer").appendChild(tableFor(json))
-                document.getElementById("saveFormContainer").appendChild(saveCommentForm(json))
+                tableForComment(json)
+                saveCommentForm(json)
             })
         }
     </script>
 
     <script>
-        function saveComment(id) {
-            const commentsContainer = document.getElementById("commentsContainer")
-
-            const bookIdInput = document.getElementById("update-comment-book-input")
+        function updateComment(id) {
+            const bookIdInput = document.getElementById("update-comment-books-select")
             const textInput = document.getElementById("update-comment-text-input")
-            const isOverwriteInput = document.getElementById("is-overwrite-comment-input").checked
+            const comment = { id: id, book: { id: bookIdInput.value}, text: textInput.value }
 
-            const comment = { book: { id: bookIdInput.value}, text: textInput.value }
-
-            if(isOverwriteInput) {
-                comment.id = id
-            }
-            let url = isOverwriteInput ? `/api/comments/${id}` : '/api/comments'
-            let method = isOverwriteInput ? 'PUT' : 'POST'
-
-            fetch(url, {
-                method: method,
+            fetch(`/api/comments/${id}`, {
+                method: 'PUT',
                 headers: {
                   'Accept': 'application/json',
                   'Content-Type': 'application/json'
@@ -40,84 +30,42 @@
                 body: JSON.stringify(comment)})
             .then(rawResponse => rawResponse.json())
             .then(comment => {
-                window.location.href = `/comments/${comment.id}`
+                window.location.href = `/comments/${id}`
             })
         }
     </script>
 
     <script>
-        function tableFor(comment) {
-            let table = document.createElement("table")
-            table.setAttribute('border', '1')
-
-            //thead
-            let thead = document.createElement('thead')
-            let theadRow = document.createElement('tr')
-
-            const theadDataLol = ['ID', 'Book', 'Text']
-            theadDataLol.forEach(text =>  {
-              let theadData = document.createElement('th')
-              theadData.innerHTML = text
-              theadRow.appendChild(theadData)
-            })
-
-            thead.appendChild(theadRow)
-
-            //tbody
-            let tbody = document.createElement('tbody');
+        function tableForComment(comment) {
+            let tbody = document.getElementById("comment-table-tbody");
 
             let tr = document.createElement('tr')
 
             let tdId = document.createElement('td')
             tdId.innerHTML = comment.id
+            tr.appendChild(tdId)
 
             let tdBook = document.createElement('td')
             tdBook.innerHTML = comment.book.title
+            tr.appendChild(tdBook)
 
             let tdText = document.createElement('td')
             tdText.innerHTML = comment.text
-
-            tr.appendChild(tdId)
-            tr.appendChild(tdBook)
             tr.appendChild(tdText)
 
             tbody.appendChild(tr)
-
-            table.appendChild(thead)
-            table.appendChild(tbody)
-            return table
         }
     </script>
 
 </head>
 <script>
     function saveCommentForm(comment){
-        let saveCommentForm = document.createElement('form');
-
-        //TextDiv
-        let textDiv = document.createElement("div")
-        let textLabel = document.createElement("label")
-        textLabel.for = 'update-comment-text-input'
-        textLabel.innerHTML = 'Text'
-        textDiv.appendChild(textLabel)
-
-        let textInput = document.createElement('input');
-        textInput.id = 'update-comment-text-input'
+        let textInput = document.getElementById('update-comment-text-input')
         textInput.name = 'textName'
         textInput.type = 'text'
-        textInput.placeholder = comment.text
-        textDiv.appendChild(textInput)
-        saveCommentForm.appendChild(textDiv)
+        textInput.value = comment.text
 
-        //BookDiv
-        let bookDiv = document.createElement("div")
-        let bookLabel = document.createElement("label")
-        bookLabel.for = 'update-comment-book-input'
-        bookLabel.innerHTML = 'Book'
-        bookDiv.appendChild(bookLabel)
-
-        let bookSelect = document.createElement("select")
-        bookSelect.id = 'update-comment-book-input'
+        let bookSelect = document.getElementById('update-comment-books-select')
         fetch('/api/books').then(response => response.json())
             .then(json => {
                 json.forEach(function(book) {
@@ -132,42 +80,40 @@
                     bookSelect.appendChild(bookOption);
             })
         })
-        bookDiv.appendChild(bookSelect);
-        saveCommentForm.appendChild(bookDiv);
-
-        //OverwriteComment
-        let overwriteDiv = document.createElement("div")
-        let overwriteLabel = document.createElement("label")
-        overwriteLabel.for = 'is-overwrite-comment-input'
-        overwriteLabel.innerHTML = 'Overwrite comment?'
-        overwriteDiv.appendChild(overwriteLabel)
-
-        let isOverwriteComment = document.createElement('input')
-        isOverwriteComment.id = 'is-overwrite-comment-input'
-        isOverwriteComment.type = 'checkbox'
-        overwriteDiv.appendChild(isOverwriteComment);
-        saveCommentForm.appendChild(overwriteDiv);
-
-        let submitButtonDiv = document.createElement("div")
-        let submitButton = document.createElement('button');
-        submitButton.type = 'button'
-        submitButton.textContent = 'Save';
-        submitButton.addEventListener('click', function() {
-            saveComment(comment.id)
-        });
-        submitButtonDiv.appendChild(submitButton);
-        saveCommentForm.appendChild(submitButtonDiv);
-
-        return saveCommentForm;
     }
 </script>
 
 <body th:onload="findComment([[${id}]])">
 
-<h3>Edit Comment:</h3>
-<p id="commentsContainer"></p>
+<h3>Comment:</h3>
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Book</th>
+        <th>Text</th>
+    </tr>
+    </thead>
+    <tbody id="comment-table-tbody"><tbody>
+</table>
 
-<p id="saveFormContainer"></p>
+<form id="update-comment-form" action="comments.html">
+    <h3>Edit comment:</h3>
+
+    <div class="row">
+        <label for="update-comment-text-input">Title:</label>
+        <input id="update-comment-text-input" name="title" type="text"/>
+    </div>
+
+    <div class="row">
+        <label for="update-comment-books-select">Book:</label>
+        <select id="update-comment-books-select"></select>
+    </div>
+
+    <div class="row">
+        <button id="update-comment-button" type="button" th:onclick="updateComment([[${id}]])">Save</button>
+    </div>
+</form>
 
 <p>
     <a href="edit_comment.html" th:href="@{/comments/{commentId}(commentId=${id})}"><button type="button">Refresh</button></a>

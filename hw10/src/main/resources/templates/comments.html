@@ -9,15 +9,8 @@
             fetch(`/api/comments/book/${bookId}`)
             .then(rawResponse => rawResponse.json())
             .then(comments => {
-<!--                document.getElementById("commentsContainer").innerHTML = '123'-->
-                document.getElementById("commentsContainer").appendChild(tableFor(bookId, comments))
+                tableFor(bookId, comments)
             })
-        }
-    </script>
-
-    <script>
-        function foo(){
-            alert('hello')
         }
     </script>
 
@@ -30,30 +23,7 @@
 
     <script>
         function tableFor(bookId, comments) {
-            let table = document.createElement("table")
-            table.setAttribute('border', '1')
-
-            //thead
-            let thead = document.createElement('thead')
-            let theadRow = document.createElement('tr')
-
-            const theadDataLol = ['ID', 'Text']
-            theadDataLol.forEach(text =>  {
-              let theadData = document.createElement('th')
-              theadData.innerHTML = text
-              theadRow.appendChild(theadData)
-            })
-
-            let theadData = document.createElement('th');
-            theadData.innerHTML = 'Actions'
-            theadData.setAttribute('colspan', '2')
-            theadRow.appendChild(theadData)
-
-            thead.appendChild(theadRow)
-
-            //tbody
-
-            let tbody = document.createElement('tbody');
+            let tbody = document.getElementById("comments-table-tbody");
 
             comments.forEach(function(comment) {
                 let tr = document.createElement('tr')
@@ -89,10 +59,6 @@
 
                 tbody.appendChild(tr)
             })
-
-            table.appendChild(thead)
-            table.appendChild(tbody)
-            return table
         }
     </script>
 </head>
@@ -100,10 +66,21 @@
 <body th:onload="findAllCommentsByBook([[${bookId}]])">
 
 <h3>Comments:</h3>
-<p id="commentsContainer"></p>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Text</th>
+        <th colspan="2">Actions</th>
+    </tr>
+    </thead>
+    <tbody id="comments-table-tbody"><tbody>
+</table>
 
 <p>
     <a href="comments.html" th:href="@{/comments/book/{bookId}(bookId=${bookId})}"><button type="button">Refresh</button></a>
+    <a href="add_comment.html" th:href="@{/comments/book/{bookId}/new(bookId=${bookId})}"><button type="button">Add Comment</button></a>
     <a href="books.html" th:href="@{/books}"><button type="button">Back To Books</button></a>
     <a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
 </p>

@@ -6,61 +6,24 @@
 
     <script>
         function findAllAuthors() {
-            const authorsContainer = document.getElementById("authorsContainer")
-
             fetch("api/authors")
             .then(rawResponse => rawResponse.json())
             .then(authors => {
-                document.getElementById("authorsContainer").appendChild(tableFor(authors))
+                let tbody = document.getElementById("authors-table-tbody")
+                authors.forEach(function(author) {
+                    let tr = document.createElement('tr')
+
+                    let tdId = document.createElement('td')
+                    tdId.innerHTML = author.id
+                    let tdFullName = document.createElement('td')
+                    tdFullName.innerHTML = author.fullName
+
+                    tr.appendChild(tdId)
+                    tr.appendChild(tdFullName)
+
+                    tbody.appendChild(tr)
+                })
             })
-        }
-    </script>
-
-    <script>
-        function hideAuthors() {
-            document.getElementById("authorsContainer").innerHTML = ''
-        }
-    </script>
-
-    <script>
-        function tableFor(authors) {
-            let table = document.createElement("table")
-            table.setAttribute('border', '1')
-
-            //thead
-            let thead = document.createElement('thead')
-            let theadRow = document.createElement('tr')
-
-            const theadDataLol = ['ID', 'FullName']
-            theadDataLol.forEach(text =>  {
-              let theadData = document.createElement('th')
-              theadData.innerHTML = text
-              theadRow.appendChild(theadData)
-            })
-
-            thead.appendChild(theadRow)
-
-            //tbody
-
-            let tbody = document.createElement('tbody');
-
-            authors.forEach(function(author) {
-                let tr = document.createElement('tr')
-
-                let tdId = document.createElement('td')
-                tdId.innerHTML = author.id
-                let tdFullName = document.createElement('td')
-                tdFullName.innerHTML = author.fullName
-
-                tr.appendChild(tdId)
-                tr.appendChild(tdFullName)
-
-                tbody.appendChild(tr)
-            })
-
-            table.appendChild(thead)
-            table.appendChild(tbody)
-            return table
         }
     </script>
 </head>
@@ -69,7 +32,15 @@
 
 <h3>Authors:</h3>
 
-<p id="authorsContainer"></p>
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>FullName</th>
+    </tr>
+    </thead>
+    <tbody id="authors-table-tbody"><tbody>
+</table>
 
 <a href="authors.html" th:href="@{/authors}"><button type="button">Refresh</button></a>
 <a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
