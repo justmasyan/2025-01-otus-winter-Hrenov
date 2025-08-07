@@ -31,7 +31,7 @@ public class CommentaryServiceImpl implements CommentaryService {
     @Override
     public List<CommentaryDto> findAllByBookId(String bookId) {
         return commentaryRepository.findAllByBookId(bookId).stream()
-                .map(commentaryConverter::commentaryToDto).toList();
+                .map(commentaryConverter::commentaryToBaseInfoDto).toList();
     }
 
     @Override
