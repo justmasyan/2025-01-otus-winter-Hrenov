@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.otus.hw.converters.AuthorConverter;
 import ru.otus.hw.converters.BookConverter;
+import ru.otus.hw.converters.CommentaryConverter;
 import ru.otus.hw.converters.GenreConverter;
 import ru.otus.hw.dto.BookDto;
 import ru.otus.hw.dto.GenreDto;
@@ -24,8 +25,9 @@ import static ru.otus.hw.TestDataProvider.getDbBooks;
 import static ru.otus.hw.TestDataProvider.getDbGenres;
 
 @DataMongoTest
-@Import({BookServiceImpl.class, BookConverter.class,
-        AuthorConverter.class, GenreConverter.class})
+@Import({AuthorServiceImpl.class,BookServiceImpl.class,
+        GenreServiceImpl.class, CommentaryServiceImpl.class, CommentaryConverter.class,
+        BookConverter.class, AuthorConverter.class, GenreConverter.class})
 class BookServiceImplTest {
 
     @Autowired

@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.context.annotation.Import;
+import ru.otus.hw.converters.AuthorConverter;
+import ru.otus.hw.converters.BookConverter;
+import ru.otus.hw.converters.CommentaryConverter;
 import ru.otus.hw.converters.GenreConverter;
 import ru.otus.hw.dto.GenreDto;
 
@@ -13,7 +16,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static ru.otus.hw.TestDataProvider.getDbGenres;
 
 @DataMongoTest()
-@Import({GenreServiceImpl.class, GenreConverter.class})
+@Import({AuthorServiceImpl.class,BookServiceImpl.class,
+        GenreServiceImpl.class, CommentaryServiceImpl.class, CommentaryConverter.class,
+        BookConverter.class, AuthorConverter.class, GenreConverter.class})
 class GenreServiceImplTest {
 
     @Autowired

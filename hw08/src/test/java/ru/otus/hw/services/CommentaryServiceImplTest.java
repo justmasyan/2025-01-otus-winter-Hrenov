@@ -24,7 +24,8 @@ import static ru.otus.hw.TestDataProvider.getDbBooks;
 import static ru.otus.hw.TestDataProvider.getDbComments;
 
 @DataMongoTest()
-@Import({CommentaryServiceImpl.class, CommentaryConverter.class,
+@Import({AuthorServiceImpl.class,BookServiceImpl.class,
+        GenreServiceImpl.class, CommentaryServiceImpl.class, CommentaryConverter.class,
         BookConverter.class, AuthorConverter.class, GenreConverter.class})
 class CommentaryServiceImplTest {
 
