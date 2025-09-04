@@ -10,9 +10,9 @@
     </parent>
 
     <groupId>ru.otus.hw</groupId>
-    <artifactId>hw09-mvc</artifactId>
+    <artifactId>hw17-docker</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>spring-jdbc-demo</name>
+    <name>spring-docker</name>
 
     <properties>
         <java.version>17</java.version>
@@ -21,6 +21,7 @@
         <reflections.version>0.10.2</reflections.version>
         <checkstyle-plugin.version>3.3.1</checkstyle-plugin.version>
         <checkstyle.version>10.15.0</checkstyle.version>
+        <jib-plugin.version>2.7.1</jib-plugin.version>
         <checkstyle.config.url>
             https://raw.githubusercontent.com/OtusTeam/Spring/master/checkstyle.xml
         </checkstyle.config.url>
@@ -94,6 +95,22 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>${jib-plugin.version}</version>
+                <configuration>
+                    <from>
+                        <image>bellsoft/liberica-openjdk-alpine-musl:17.0.2-9</image>
+                    </from>
+                    <to>
+                        <image>registry.hub.docker.com/justmasyan/spring-docker-image</image>
+                    </to>
+                    <container>
+                        <mainClass>ru.otus.hw.Application</mainClass>
+                    </container>
+                </configuration>
             </plugin>
         </plugins>
     </build>
