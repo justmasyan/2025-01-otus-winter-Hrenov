@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:maindb
+  sql:
+    init:
+      mode: always
+
+  jpa:
+    generate-ddl: false
+    properties:
+      hibernate:
+        format_sql: false
+    hibernate:
+      ddl-auto: none
+
+    show-sql: true
+
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
