@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Application pages</title>
+
+    <script>
+        function insertComment(bookId) {
+            const bookIdInput = document.getElementById("insert-comment-book-input")
+            const textInput = document.getElementById("insert-comment-text-input")
+            const comment = { book: { id: bookIdInput.value}, text: textInput.value }
+
+            fetch('/api/comments', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(comment)})
+            .then(rawResponse => rawResponse.json())
+            .then(comment => {
+                window.location.href = `/comments/${comment.id}`
+            })
+        }
+    </script>
+
+</head>
+<script>
+    function saveCommentForm(bookId){
+        fetch(`/api/books/${bookId}`).then(response => response.json())
+            .then(book => {
+                let header = document.getElementById('insert-comment-header')
+                header.innerHTML = `Add comment for Book: ${book.title}`
+            })
+    }
+</script>
+
+<body th:onload="saveCommentForm([[${bookId}]])">
+
+<form id="insert-comment-form" action="add_comment.html">
+    <h3 id="insert-comment-header"></h3>
+
+    <div class="row">
+        <label for="insert-comment-book-input">Book Id:</label>
+        <input id="insert-comment-book-input" type="text" th:value="${bookId}" readonly/>
+    </div>
+
+    <div class="row">
+        <label for="insert-comment-text-input">Text:</label>
+        <input id="insert-comment-text-input" type="text"/>
+    </div>
+
+    <div class="row">
+        <button id="insert-comment-button" type="button" onclick="insertComment()">Save</button>
+    </div>
+</form>
+
+<p>
+    <a href="books.html" th:href="@{/books}">
+        <button type="button">Back to Books</button>
+    </a>
+    <a href="main_page.html" th:href="@{/}">
+        <button type="button">Main Page</button>
+    </a>
+</p>
+</body>
+</html>

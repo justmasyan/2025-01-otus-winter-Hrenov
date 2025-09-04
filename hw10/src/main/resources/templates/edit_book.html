@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Application pages</title>
+
+    <script>
+        function findBook(id) {
+            const booksContainer = document.getElementById("booksContainer")
+
+            fetch(`/api/books/${id}`)
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                tableForBook(json)
+                updateBookForm(json)
+            })
+        }
+    </script>
+
+    <script>
+        function updateBook(id) {
+            const titleInput = document.getElementById("update-book-title-input")
+            const authorIdInput = document.getElementById("update-book-authors-select")
+            const genresIdInput = document.getElementById("update-book-genres-select")
+            const genresIdArray = Array.from(genresIdInput.selectedOptions).map(option => ({id: option.value}))
+            const book = { id: id, title: titleInput.value, author: { id: authorIdInput.value}, genres: genresIdArray }
+
+            fetch(`/api/books/${id}`, {
+                method: 'PUT',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(book)})
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                window.location.href = `/books/${json.id}`
+            })
+        }
+    </script>
+
+    <script>
+        function tableForBook(book) {
+            let tbody = document.getElementById("book-table-tbody");
+
+            let tr = document.createElement('tr')
+
+            let tdId = document.createElement('td')
+            tdId.innerHTML = book.id
+            tr.appendChild(tdId)
+
+            let tdTitle = document.createElement('td')
+            tdTitle.innerHTML = book.title
+            tr.appendChild(tdTitle)
+
+            let tdAuthor = document.createElement('td')
+            tdAuthor.innerHTML = book.author.fullName
+            tr.appendChild(tdAuthor)
+
+            let tdGenres = document.createElement('td')
+            tdGenres.innerHTML = book.genres.map(genre => genre.name).join(', ')
+            tr.appendChild(tdGenres)
+
+            tbody.appendChild(tr)
+        }
+    </script>
+
+</head>
+<script>
+    function updateBookForm(book){
+        let titleInput = document.getElementById('update-book-title-input');
+        titleInput.name = 'titleName'
+        titleInput.type = 'text'
+        titleInput.value = book.title
+
+        let authorSelect = document.getElementById('update-book-authors-select');
+        fetch('/api/authors').then(response => response.json())
+            .then(json => {
+                json.forEach(function(author) {
+                let authorOption = document.createElement("option");
+
+                if(author.id == book.author.id){
+                    authorOption.selected = 'selected'
+                }
+
+                authorOption.textContent = author.fullName;
+                authorOption.value = author.id;
+                authorSelect.appendChild(authorOption);
+            })
+        })
+
+        let genreSelect = document.getElementById('update-book-genres-select');
+        fetch('/api/genres').then(response => response.json())
+            .then(json => {
+                var genresIds = Array.from(book.genres).map(genre => (genre.id))
+                json.forEach(function(genre) {
+                    let genreOption = document.createElement("option");
+
+                    if(genresIds.includes(genre.id)){
+                        genreOption.selected = 'selected'
+                    }
+
+                    genreOption.textContent = genre.name;
+                    genreOption.value = genre.id;
+                    genreSelect.appendChild(genreOption);
+            })
+        })
+    }
+</script>
+
+<body th:onload="findBook([[${id}]])">
+
+<h3>Book:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Genres</th>
+    </tr>
+    </thead>
+    <tbody id="book-table-tbody"><tbody>
+</table>
+
+<form id="update-book-form" action="books.html">
+    <h3>Edit book:</h3>
+
+    <div class="row">
+        <label for="update-book-title-input">Title:</label>
+        <input id="update-book-title-input" name="title" type="text"/>
+    </div>
+
+    <div class="row">
+        <label for="update-book-authors-select">Author:</label>
+        <select id="update-book-authors-select"></select>
+    </div>
+
+    <div class="row">
+        <label for="update-book-genres-select">Ids Genres:</label>
+        <select id="update-book-genres-select" multiple="multiple"></select>
+    </div>
+
+    <div class="row">
+        <button id="update-book-button" type="button" th:onclick="updateBook([[${id}]])">Save</button>
+    </div>
+</form>
+
+<p>
+    <a href="edit_book.html" th:href="@{/books/{bookId}(bookId=${id})}"><button type="button">Refresh</button></a>
+    <a href="books.html" th:href="@{/books}"><button type="button">Books Page</button></a>
+    <a href="main_page.html" th:href="@{/}"><button type="button">Main Page</button></a>
+</p>
+</body>
+</html>

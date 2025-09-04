@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>List of all authors</title>
+
+    <script>
+        function findAllAuthors() {
+            fetch("api/authors")
+            .then(rawResponse => rawResponse.json())
+            .then(authors => {
+                let tbody = document.getElementById("authors-table-tbody")
+                authors.forEach(function(author) {
+                    let tr = document.createElement('tr')
+
+                    let tdId = document.createElement('td')
+                    tdId.innerHTML = author.id
+                    let tdFullName = document.createElement('td')
+                    tdFullName.innerHTML = author.fullName
+
+                    tr.appendChild(tdId)
+                    tr.appendChild(tdFullName)
+
+                    tbody.appendChild(tr)
+                })
+            })
+        }
+    </script>
+</head>
+
+<body onload="findAllAuthors()">
+
+<h3>Authors:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>FullName</th>
+    </tr>
+    </thead>
+    <tbody id="authors-table-tbody"><tbody>
+</table>
+
+<a href="authors.html" th:href="@{/authors}"><button type="button">Refresh</button></a>
+<a href="main_page.html" th:href="@{/}"><button type="button">Back</button></a>
+
+</body>
+</html>
+
