@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Application pages</title>
+
+    <script>
+        function onLoadPage(accountId) {
+            findLector(accountId)
+            findLectures()
+            findHomeworks()
+        }
+    </script>
+
+    <script>
+        function findLector(accountId) {
+            fetch(`/api/lectors/accounts/${accountId}`)
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                tableForBaseInfo(json)
+                tableForCourses(json)
+            })
+        }
+    </script>
+
+    <script>
+        function findLectures() {
+            fetch("api/lectures/lector")
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                tableForLectures(json)
+            })
+        }
+    </script>
+
+    <script>
+        function findHomeworks() {
+            fetch("api/homeworks/lector")
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                tableForHomeworks(json)
+            })
+        }
+    </script>
+
+    <script>
+        function tableForBaseInfo(lector) {
+            document.getElementById("lector-table-tdUsername").innerHTML = lector.account.username
+            document.getElementById("lector-table-tdFirstName").innerHTML = lector.firstName
+            document.getElementById("lector-table-tdLastName").innerHTML = lector.lastName
+        }
+    </script>
+
+    <script>
+        function tableForCourses(lector) {
+            let tbody = document.getElementById("courses-table-tbody");
+
+            lector.courses.forEach(function(course) {
+                let tr = document.createElement('tr')
+
+                let tdCourse = document.createElement('td')
+                let tdCourseHref = document.createElement('a')
+                tdCourseHref.href = `/courses/${course.id}`
+                tdCourseHref.innerHTML = course.title
+                tdCourse.appendChild(tdCourseHref)
+
+                tr.appendChild(tdCourse)
+
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function tableForLectures(lectures) {
+            let tbody = document.getElementById("lectures-table-tbody");
+
+            lectures.forEach(function(lecture) {
+                let tr = document.createElement('tr')
+
+                let tdTopicTitle = document.createElement('td')
+                let tdTopicTitleHref = document.createElement('a')
+                tdTopicTitleHref.href = `/lectures/${lecture.id}`
+                tdTopicTitleHref.innerHTML = lecture.lectureTopic.title
+                tdTopicTitle.appendChild(tdTopicTitleHref)
+
+                let tdStatus = document.createElement('td')
+                tdStatus.innerHTML = lecture.status.text
+
+                let tdGroupTitle = document.createElement('td')
+                let tdGroupTitleHref = document.createElement('a')
+                tdGroupTitleHref.href = `/groups/${lecture.studyGroup.id}`
+                tdGroupTitleHref.innerHTML = lecture.studyGroup.code
+                tdGroupTitle.appendChild(tdGroupTitleHref)
+
+                let tdLectureTime = document.createElement('td')
+                tdLectureTime.innerHTML = lecture.lectureTime
+
+                tr.appendChild(tdTopicTitle)
+                tr.appendChild(tdStatus)
+                tr.appendChild(tdGroupTitle)
+                tr.appendChild(tdLectureTime)
+
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function tableForHomeworks(homeworks) {
+            let tbody = document.getElementById("homeworks-table-tbody");
+
+            homeworks.forEach(function(homework) {
+                let tr = document.createElement('tr')
+
+                let tdTopicTitle = document.createElement('td')
+                tdTopicTitle.innerHTML = homework.lecture.lectureTopic.title
+
+                let tdStudent = document.createElement('td')
+                tdStudent.innerHTML = `${homework.student.firstName} ${homework.student.lastName}`
+
+                let tdStatus = document.createElement('td')
+                tdStatus.innerHTML = homework.status.text
+
+                let tdMark = document.createElement('td')
+                tdMark.innerHTML = homework.mark
+
+                let tdHomework = document.createElement('td')
+                let tdHomeworkHref = document.createElement('a')
+                tdHomeworkHref.href = `/homeworks/${homework.id}`
+                tdHomeworkHref.innerHTML = "Перейти"
+                tdHomework.appendChild(tdHomeworkHref)
+
+                tr.appendChild(tdTopicTitle)
+                tr.appendChild(tdStudent)
+                tr.appendChild(tdStatus)
+                tr.appendChild(tdMark)
+                tr.appendChild(tdHomework)
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+</head>
+
+<body th:onload="onLoadPage([[${accountId}]])">
+
+<table border="1">
+    <tbody>
+    <tr>
+        <td><a href="courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a href="account.html" th:href="@{/account}">Личный кабинет</a></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Общая информация: </h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Логин</th>
+        <th>Имя</th>
+        <th>Фамилия</th>
+    </tr>
+    </thead>
+    <tbody id="lector-table-tbody">
+    <tr>
+        <td id="lector-table-tdUsername"></td>
+        <td id="lector-table-tdFirstName"></td>
+        <td id="lector-table-tdLastName"></td>
+    </tr><tbody>
+</table>
+
+<h3>Преподает в рамках курсов: </h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Название курса</th>
+    </tr>
+    </thead>
+    <tbody id="courses-table-tbody">
+</table>
+
+<h3>Проводимые лекции: </h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Тема лекции</th>
+        <th>Статус лекции</th>
+        <th>Учебная группа</th>
+        <th>Время начала лекции</th>
+    </tr>
+    </thead>
+    <tbody id="lectures-table-tbody">
+</table>
+
+<h3>Домашние задания для проверки:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Тема</th>
+        <th>Студент</th>
+        <th>Статус ДЗ</th>
+        <th>Оценка</th>
+        <th>Ссылка на дз</th>
+    </tr>
+    </thead>
+    <tbody id="homeworks-table-tbody">
+</table>
+
+</body>
+</html>

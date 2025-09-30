@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Application pages</title>
+
+    <script>
+        async function authenticate() {
+            const username = document.getElementById("auth-username-input").value
+            const password = document.getElementById("auth-password-input").value
+
+            const authRequest = { username: username, password: password }
+
+            fetch("api/account/authentication", {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(authRequest)
+            }).then(function(rawResponse) {
+                if (!rawResponse.ok) {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                } else {
+                    rawResponse.json().then(function(json) {
+                        document.getElementById("auth-token-header").innerHTML = json.token
+                        document.getElementById("auth-copy-token-button").style.display = "inline"
+                    })
+                }
+            })
+
+        }
+    </script>
+
+    <script>
+        function copyToken() {
+            const token = document.getElementById("auth-token-header").innerHTML
+            navigator.clipboard.writeText(token)
+            alert("Токен скопирован")
+        }
+    </script>
+</head>
+
+<body>
+
+<table border="1">
+    <tbody>
+    <tr>
+        <td><a href="courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a href="account.html" th:href="@{/account}">Личный кабинет</a></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Введите логин и пароль:</h3>
+
+<form id="register_account_form" action="authentication.html">
+
+    <table border="1">
+        <tbody>
+        <tr>
+            <td><label for="auth-username-input">Логин</label></td>
+            <td><input id="auth-username-input" name="title" type="text" required/></td>
+        </tr>
+        <tr>
+            <td><label for="auth-password-input">Пароль</label></td>
+            <td><input id="auth-password-input" name="title" type="text" required/></td>
+        </tr>
+        <tbody>
+    </table>
+
+    <div>
+        <button id="register-account-button" type="button" onclick="authenticate()">Получить токен</button>
+        <button id="auth-copy-token-button" style='display: none;' type="button" onclick="copyToken()">Скопировать токен</button></td>
+    </div>
+</form>
+
+<h3 style='display: none;' id="auth-token-header"></h3>
+
+</body>
+</html>

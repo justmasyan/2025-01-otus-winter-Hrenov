@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Application pages</title>
+
+    <script>
+        function onLoadPage(id) {
+            findLecture(id)
+        }
+    </script>
+
+    <script>
+        function findLecture(id) {
+            fetch(`/api/lectures/${id}`)
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                tableForBaseInfo(json)
+                tableForMaterials(json)
+            })
+        }
+    </script>
+
+    <script>
+        function tableForBaseInfo(lecture) {
+            document.getElementById("lecture-table-tdTopicTitle").innerHTML = lecture.lectureTopic.title
+
+            document.getElementById("lecture-table-tdHrefGroup").href = `/groups/${lecture.studyGroup.id}`
+            document.getElementById("lecture-table-tdHrefGroup").innerHTML = lecture.studyGroup.code
+
+            document.getElementById("lecture-table-tdStatus").innerHTML = lecture.status.text
+            document.getElementById("lecture-table-tdLectureTime").innerHTML = lecture.lectureTime
+            document.getElementById("lecture-table-tdLector").innerHTML = `${lecture.lector.firstName} ${lecture.lector.lastName}`
+        }
+    </script>
+
+    <script>
+        function tableForMaterials(lecture) {
+
+            let tbody = document.getElementById("materials-table-tbody");
+
+            lecture.materials.forEach(function(material) {
+                let tr = document.createElement('tr')
+
+                let tdUrl = document.createElement('td')
+                tdUrl.innerHTML = material.url
+
+                tr.appendChild(tdUrl)
+
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+</head>
+
+<body th:onload="onLoadPage([[${id}]])">
+
+<table border="1">
+    <tbody>
+    <tr>
+        <td><a href="courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a href="account.html" th:href="@{/account}">Личный кабинет</a></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Информация о лекции:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Тема</th>
+        <th>Учебный курс</th>
+        <th>Время начала лекции</th>
+        <th>Статус лекции</th>
+        <th>Лектор</th>
+    </tr>
+    </thead>
+    <tbody id="lecture-table-tbody">
+    <tr>
+        <td id="lecture-table-tdTopicTitle"></td>
+        <td><a id="lecture-table-tdHrefGroup"></a></td>
+        <td id="lecture-table-tdLectureTime"></td>
+        <td id="lecture-table-tdStatus"></td>
+        <td id="lecture-table-tdLector"></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Материалы к лекции:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Ссылка на материал</th>
+    </tr>
+    </thead>
+    <tbody id="materials-table-tbody">
+</table>
+
+</body>
+</html>

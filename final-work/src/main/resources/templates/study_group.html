@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Application pages</title>
+
+    <script>
+        function onLoadPage(id) {
+            findGroup(id)
+            findLectures(id)
+        }
+    </script>
+
+    <script>
+        function findGroup(id) {
+            fetch(`/api/groups/${id}`)
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                tableForBaseInfo(json)
+            })
+        }
+    </script>
+
+    <script>
+        function findLectures(id) {
+            fetch(`/api/lectures/groups/${id}`)
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                tableForLectures(json)
+            })
+        }
+    </script>
+
+    <script>
+        function tableForBaseInfo(group) {
+            document.getElementById("group-table-tdCode").innerHTML = group.code
+            document.getElementById("group-table-tdStartDate").innerHTML = group.startDate
+
+            document.getElementById("group-table-tdHrefCourse").href = `/courses/${group.course.id}`
+            document.getElementById("group-table-tdHrefCourse").innerHTML = group.course.title
+        }
+    </script>
+
+    <script>
+        function tableForLectures(lectures) {
+            let tbody = document.getElementById("lectures-table-tbody");
+
+            lectures.forEach(function(lecture) {
+                let tr = document.createElement('tr')
+
+                let tdTopicTitle = document.createElement('td')
+                let tdTopicTitleHref = document.createElement('a')
+                tdTopicTitleHref.href = `/lectures/${lecture.id}`
+                tdTopicTitleHref.innerHTML = lecture.lectureTopic.title
+                tdTopicTitle.appendChild(tdTopicTitleHref)
+
+                let tdStatus = document.createElement('td')
+                tdStatus.innerHTML = lecture.status.text
+
+                let tdLectureTime = document.createElement('td')
+                tdLectureTime.innerHTML = lecture.lectureTime
+
+                tr.appendChild(tdTopicTitle)
+                tr.appendChild(tdStatus)
+                tr.appendChild(tdLectureTime)
+
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+</head>
+
+<body th:onload="onLoadPage([[${id}]])">
+
+<table border="1">
+    <tbody>
+    <tr>
+        <td><a href="courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a href="account.html" th:href="@{/account}">Личный кабинет</a></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Информация о группе:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Код группы</th>
+        <th>Начало обучения</th>
+        <th>Курс обучения</th>
+    </tr>
+    </thead>
+    <tbody id="group-table-tbody">
+    <tr>
+        <td id="group-table-tdCode"></td>
+        <td id="group-table-tdStartDate"></td>
+        <td><a id="group-table-tdHrefCourse"></a></td>
+    </tr><tbody>
+</table>
+
+<h3>Список лекций:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Тема лекции</th>
+        <th>Статус лекции</th>
+        <th>Время лекции</th>
+    </tr>
+    </thead>
+    <tbody id="lectures-table-tbody">
+</table>
+
+</body>
+</html>

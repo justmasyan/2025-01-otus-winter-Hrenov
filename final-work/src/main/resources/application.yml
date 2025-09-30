@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:maindb
+  sql:
+    init:
+      mode: never
+
+  h2:
+    console:
+      enabled: true
+
+  jpa:
+    open-in-view: false
+    generate-ddl: false
+    properties:
+      hibernate:
+        format_sql: false
+    hibernate:
+      ddl-auto: none
+
+    show-sql: true
+app:
+  security:
+    secret: 29qiq474iulmtsgqr802gkp70dz86kbc
+    lifetime: 20h
+
+flyway:
+  enabled: true
+  clean-on-validation-error: true
+
+#logging:
+#  level:
+#    org:
+#      springframework: TRACE

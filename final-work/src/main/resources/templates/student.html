@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Application pages</title>
+
+    <script>
+        function onLoadPage(accountId) {
+            findStudentByAccount(accountId)
+            findStudentGroupsByAccount(accountId)
+        }
+    </script>
+
+    <script>
+        function findStudentByAccount(accountId) {
+            fetch(`/api/students/accounts/${accountId}`)
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                tableForBaseInfo(json)
+            })
+        }
+    </script>
+
+    <script>
+        function findStudentGroupsByAccount(accountId) {
+            fetch(`api/groups/students/accounts/${accountId}`)
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                tableForGroups(json)
+            })
+        }
+    </script>
+
+    <script>
+        function tableForBaseInfo(student) {
+            document.getElementById("student-table-tdUsername").innerHTML = student.account.username
+            document.getElementById("student-table-tdFirstName").innerHTML = student.firstName
+            document.getElementById("student-table-tdLastName").innerHTML = student.lastName
+        }
+    </script>
+
+    <script>
+        function tableForGroups(groups) {
+
+            if (groups.length == 0){
+                document.getElementById("groups-table-header").innerHTML = "Вы не состоите ни в одной учебной группе."
+                document.getElementById("groups-table").style.display = "none"
+                return
+            }
+
+            let tbody = document.getElementById("groups-table-tbody");
+
+            groups.forEach(function(group) {
+                let tr = document.createElement('tr')
+
+                let tdCode = document.createElement('td')
+                let tdCodeHref = document.createElement('a')
+                tdCodeHref.href = `/groups/${group.id}`
+                tdCodeHref.innerHTML = group.code
+                tdCode.appendChild(tdCodeHref)
+
+                let tdStartDate = document.createElement('td')
+                tdStartDate.innerHTML = group.startDate
+
+                tr.appendChild(tdCode)
+                tr.appendChild(tdStartDate)
+
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+</head>
+
+<body th:onload="onLoadPage([[${accountId}]])">
+
+<table border="1">
+    <tbody>
+    <tr>
+        <td><a href="courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a href="account.html" th:href="@{/account}">Личный кабинет</a></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Общая информация:</h3>
+
+<table id="student-table" border="1">
+    <thead>
+    <tr>
+        <th>Логин</th>
+        <th>Имя</th>
+        <th>Фамилия</th>
+    </tr>
+    </thead>
+    <tbody id="student-table-tbody">
+    <tr>
+        <td id="student-table-tdUsername"></td>
+        <td id="student-table-tdFirstName"></td>
+        <td id="student-table-tdLastName"></td>
+    </tr><tbody>
+</table>
+
+<h3 id="groups-table-header">Список учебных групп:</h3>
+
+<table id="groups-table" border="1">
+    <thead>
+    <tr>
+        <th>Название группы</th>
+        <th>Дата начала обучения</th>
+    </tr>
+    </thead>
+    <tbody id="groups-table-tbody">
+</table>
+
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Application pages</title>
+
+    <script>
+        function onLoadPage(id) {
+            findCourse(id)
+            findLectorsByCourseId(id)
+            findGroupsByCourseId(id)
+        }
+    </script>
+
+    <script>
+        function findCourse(id) {
+            fetch(`/api/courses/${id}`)
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                tableForCourse(json)
+                tableForTopics(json)
+                tableForLectors(json)
+            })
+        }
+    </script>
+
+    <script>
+        function findLectorsByCourseId(id) {
+            fetch(`/api/lectors/courses/${id}`)
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                tableForLectors(json)
+            })
+        }
+    </script>
+
+    <script>
+        function findGroupsByCourseId(id) {
+            fetch(`/api/groups/courses/${id}`)
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
+                tableForGroups(json)
+            })
+        }
+    </script>
+
+    <script>
+        function tableForCourse(course) {
+            let tbody = document.getElementById("course-table-tbody");
+
+            let tr = document.createElement('tr')
+
+            let tdTitle = document.createElement('td')
+            tdTitle.innerHTML = course.title
+            tr.appendChild(tdTitle)
+            let tdPrice = document.createElement('td')
+            tdPrice.innerHTML = course.price
+            tr.appendChild(tdPrice)
+            //Начало следующей группы
+
+            tbody.appendChild(tr)
+        }
+    </script>
+
+    <script>
+        function tableForTopics(course) {
+            let tbody = document.getElementById("topics-table-tbody");
+
+            course.lectureTopics.forEach(function(topic){
+                let tr = document.createElement('tr')
+
+                let tdTitle = document.createElement('td')
+                tdTitle.innerHTML = topic.title
+                tr.appendChild(tdTitle)
+
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function tableForLectors(lectors) {
+            let tbody = document.getElementById("lectors-table-tbody");
+
+            lectors.forEach(function(lector){
+                let tr = document.createElement('tr')
+                let lectorFirstName = document.createElement('td')
+                lectorFirstName.innerHTML = lector.firstName
+                tr.appendChild(lectorFirstName)
+
+                let lectorLastName = document.createElement('td')
+                lectorLastName.innerHTML = lector.lastName
+                tr.appendChild(lectorLastName)
+
+                let lectorTitleJob = document.createElement('td')
+                lectorTitleJob.innerHTML = lector.jobTitle
+                tr.appendChild(lectorTitleJob)
+
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function tableForGroups(groups) {
+            let tbody = document.getElementById("groups-table-tbody");
+
+            groups.forEach(function(group) {
+                let tr = document.createElement('tr')
+
+                let tdCode = document.createElement('td')
+                let tdCodeHref = document.createElement('a')
+                tdCodeHref.href = `/groups/${group.id}`
+                tdCodeHref.innerHTML = group.code
+                tdCode.appendChild(tdCodeHref)
+
+                let tdStartDate = document.createElement('td')
+                tdStartDate.innerHTML = group.startDate
+
+                tr.appendChild(tdCode)
+                tr.appendChild(tdStartDate)
+
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+</head>
+
+<body th:onload="onLoadPage([[${id}]])">
+
+<table border="1">
+    <tbody>
+    <tr>
+        <td><a href="courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a href="account.html" th:href="@{/account}">Личный кабинет</a></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Общая информация о курсе:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Название курса</th>
+        <th>Стоимость курса</th>
+    </tr>
+    </thead>
+    <tbody id="course-table-tbody"><tbody>
+</table>
+
+<h3>Программа курса:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Название темы</th>
+    </tr>
+    </thead>
+    <tbody id="topics-table-tbody"><tbody>
+</table>
+
+<h3>Список преподавателей:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Имя</th>
+        <th>Фамилия</th>
+        <th>Место работы</th>
+    </tr>
+    </thead>
+    <tbody id="lectors-table-tbody"><tbody>
+</table>
+
+<h3>Учебные группы по курсу:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Название группы</th>
+        <th>Дата начала обучения</th>
+    </tr>
+    </thead>
+    <tbody id="groups-table-tbody">
+</table>
+
+</body>
+</html>

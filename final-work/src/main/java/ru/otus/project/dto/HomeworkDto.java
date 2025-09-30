@@ -1,0 +1,46 @@
+package ru.otus.project.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+import java.util.List;
+
+@Data
+@AllArgsConstructor
+public class HomeworkDto {
+
+    private long id;
+
+    private long mark;
+
+    private HomeworkStatusDto status;
+
+    private LectureDto lecture;
+
+    private StudentDto student;
+
+    private LectorDto lector;
+
+    private List<HomeworkMessageDto> messages;
+
+    public HomeworkDto(long id, long mark, HomeworkStatusDto status) {
+        this.id = id;
+        this.mark = mark;
+        this.status = status;
+    }
+
+    public HomeworkDto(long id, long mark, HomeworkStatusDto status, StudentDto student) {
+        this.id = id;
+        this.mark = mark;
+        this.status = status;
+        this.student = student;
+    }
+
+    public HomeworkDto(long id, long mark, HomeworkStatusDto status, LectureDto lecture, StudentDto student) {
+        this.id = id;
+        this.mark = mark;
+        this.status = status;
+        this.lecture = lecture;
+        this.student = student;
+    }
+}
