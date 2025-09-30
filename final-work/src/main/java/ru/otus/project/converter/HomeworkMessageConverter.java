@@ -11,7 +11,7 @@ public class HomeworkMessageConverter {
 
     private final AccountConverter accountConverter;
 
-    public HomeworkMessageDto entityToDto(HomeworkMessage message) {
+    public HomeworkMessageDto entityToWithAccountDto(HomeworkMessage message) {
         return new HomeworkMessageDto(message.getId(),
                 message.getText(),
                 message.getSendTime(),

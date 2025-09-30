@@ -16,11 +16,6 @@ CREATE TABLE groups_students (
     PRIMARY KEY (group_id, student_id)
 );
 
-CREATE TABLE homeworks_messages (
-    homework_id BIGINT REFERENCES homeworks(id) ON DELETE CASCADE,
-    message_id BIGINT REFERENCES messages(id) ON DELETE CASCADE,
-    PRIMARY KEY (homework_id, message_id)
-);
 
 CREATE TABLE lectures_materials (
     lecture_id BIGINT REFERENCES lectures(id) ON DELETE CASCADE,

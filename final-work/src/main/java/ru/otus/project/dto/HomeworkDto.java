@@ -21,8 +21,6 @@ public class HomeworkDto {
 
     private LectorDto lector;
 
-    private List<HomeworkMessageDto> messages;
-
     public HomeworkDto(long id, long mark, HomeworkStatusDto status) {
         this.id = id;
         this.mark = mark;

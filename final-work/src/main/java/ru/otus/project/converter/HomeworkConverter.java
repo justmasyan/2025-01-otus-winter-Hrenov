@@ -9,15 +9,13 @@ import ru.otus.project.dto.HomeworkDto;
 @RequiredArgsConstructor
 public class HomeworkConverter {
 
+    private final HomeworkStatusConverter statusConverter;
+
     private final StudentConverter studentConverter;
 
     private final LectureConverter lectureConverter;
 
     private final LectorConverter lectorConverter;
-
-    private final HomeworkStatusConverter statusConverter;
-
-    private final HomeworkMessageConverter messageConverter;
 
     public HomeworkDto entityToBaseInfoDto(Homework homework) {
         return new HomeworkDto(homework.getId(), homework.getMark(),
@@ -42,7 +40,6 @@ public class HomeworkConverter {
                 statusConverter.entityToDto(homework.getStatus()),
                 lectureConverter.entityToWithStatusTopicDto(homework.getLecture()),
                 studentConverter.entityToBaseInfoDto(homework.getStudent()),
-                lectorConverter.entityToBaseInfoDto(homework.getLector()),
-                homework.getMessages().stream().map(messageConverter::entityToDto).toList());
+                lectorConverter.entityToBaseInfoDto(homework.getLector()));
     }
 }

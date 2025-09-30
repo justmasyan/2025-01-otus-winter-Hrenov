@@ -46,10 +46,4 @@ public class Homework {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lector_id")
     private Lector lector;
-
-    @Fetch(FetchMode.SUBSELECT)
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "homeworks_messages", joinColumns = @JoinColumn(name = "homework_id"),
-            inverseJoinColumns = @JoinColumn(name = "message_id"))
-    private List<HomeworkMessage> messages;
 }

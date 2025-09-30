@@ -65,7 +65,7 @@ CREATE TABLE lectures (
     lecture_time DATETIME,
     status_id tinyint REFERENCES lecture_statuses(id),
     topic_id BIGINT REFERENCES lecture_topics(id) ON DELETE CASCADE,
-    lector_id BIGINT REFERENCES lectors(id) ON DELETE CASCADE,
+    lector_id BIGINT REFERENCES lectors(id),
     group_id BIGINT REFERENCES study_groups(id) ON DELETE CASCADE
 );
 
@@ -74,7 +74,7 @@ CREATE TABLE homeworks (
     mark tinyint,
     status_id tinyint REFERENCES homework_statuses(id),
     lecture_id BIGINT REFERENCES lectures(id) ON DELETE CASCADE,
-    lector_id BIGINT REFERENCES lectors(id) ON DELETE CASCADE,
+    lector_id BIGINT REFERENCES lectors(id),
     student_id BIGINT REFERENCES students(id) ON DELETE CASCADE
 );
 
@@ -82,5 +82,6 @@ CREATE TABLE messages (
     id BIGSERIAL PRIMARY KEY,
     send_time DATETIME,
     text VARCHAR(256),
-    sender_id BIGINT REFERENCES accounts(id) ON DELETE CASCADE
+    sender_id BIGINT REFERENCES accounts(id),
+    homework_id BIGINT REFERENCES homeworks(id) ON DELETE CASCADE
 );

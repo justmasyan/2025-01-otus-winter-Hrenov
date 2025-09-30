@@ -126,9 +126,19 @@
                 });
                 tdJoinGroup.appendChild(joinGroupButton);
 
+                let tdExitGroup = document.createElement('td')
+                let exitGroupButton = document.createElement('button');
+                exitGroupButton.type = 'button'
+                exitGroupButton.textContent = 'Покинуть группу';
+                exitGroupButton.addEventListener('click', function() {
+                    exitGroup(group.id)
+                });
+                tdExitGroup.appendChild(exitGroupButton);
+
                 tr.appendChild(tdCode)
                 tr.appendChild(tdStartDate)
                 tr.appendChild(tdJoinGroup)
+                tr.appendChild(tdExitGroup)
 
                 tbody.appendChild(tr)
             })
@@ -137,7 +147,7 @@
 
     <script>
         function joinGroup(groupId){
-            fetch(`/api/groups/${groupId}/students/new`, {
+            fetch(`/api/groups/${groupId}/student`, {
                 method: 'POST'
             }).then(function(rawResponse) {
                 if (!rawResponse.ok) {
@@ -146,6 +156,22 @@
                     })
                 } else {
                     alert("Вы успешно добавились в группу")
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function exitGroup(groupId){
+            fetch(`/api/groups/${groupId}/student`, {
+                method: 'DELETE'
+            }).then(function(rawResponse) {
+                if (!rawResponse.ok) {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                } else {
+                    alert("Вы покинули группу")
                 }
             })
         }

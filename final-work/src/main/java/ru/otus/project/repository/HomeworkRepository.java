@@ -28,4 +28,19 @@ public interface HomeworkRepository extends JpaRepository<Homework, Long> {
             "lecture.lectureTopic", "lecture.status"
     })
     List<Homework> findAllByLectorAccountId(long accountId);
+
+    @Query("SELECT h from Homework h " +
+            "JOIN h.student hs " +
+            "JOIN h.lecture hl " +
+            "JOIN hl.studyGroup hlsd " +
+            "where hs.id = :studentId AND hlsd.id = :studyGroupId")
+    List<Homework> findAllByStudentAndStudyGroup(long studentId, long studyGroupId);
+
+    @Query("SELECT h FROM Homework h " +
+            "JOIN h.lector hl " +
+            "JOIN h.lecture hle " +
+            "JOIN hle.studyGroup hles " +
+            "JOIN hles.course lsc " +
+            "WHERE hl.id = :lectorId AND hles.id = :courseId")
+    List<Homework> findAllByLectorAndCourse(long lectorId, long courseId);
 }

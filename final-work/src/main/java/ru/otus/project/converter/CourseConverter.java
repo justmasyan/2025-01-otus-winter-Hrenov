@@ -11,13 +11,13 @@ public class CourseConverter {
 
     private final LectureTopicConverter lectureTopicConverter;
 
-    public CourseDto entityToDto(Course course) {
+    public CourseDto entityToMinDto(Course course) {
+        return new CourseDto(course.getId(), course.getTitle(), course.getPrice());
+    }
+
+    public CourseDto entityToWithTopicDto(Course course) {
         return new CourseDto(course.getId(), course.getTitle(), course.getPrice(),
                 course.getLectureTopics().stream().map(lectureTopicConverter::entityToDto).toList()
         );
-    }
-
-    public CourseDto entityToBaseInfoDto(Course course) {
-        return new CourseDto(course.getId(), course.getTitle(), course.getPrice());
     }
 }

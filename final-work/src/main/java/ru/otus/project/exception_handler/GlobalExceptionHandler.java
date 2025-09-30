@@ -7,12 +7,29 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.otus.project.dto.ErrorResponseDto;
+import ru.otus.project.exception.CourseNotFoundException;
+import ru.otus.project.exception.HomeworkNotFoundException;
+import ru.otus.project.exception.LectorAlreadyInCourseException;
+import ru.otus.project.exception.LectorNotFoundException;
+import ru.otus.project.exception.NotZeroIdWhenInsertException;
+import ru.otus.project.exception.RoleNotFoundException;
+import ru.otus.project.exception.StudentAlreadyInGroupException;
+import ru.otus.project.exception.StudentNotFoundException;
+import ru.otus.project.exception.StudentNotInGroupException;
+import ru.otus.project.exception.StudentsExistWhenGroupCreateException;
+import ru.otus.project.exception.StudyGroupNotFoundException;
 
+import java.nio.charset.MalformedInputException;
 import java.security.SignatureException;
 import java.util.Date;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(Throwable.class)
+    public ResponseEntity<?> throwableException(Throwable e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Неизвестная ошибка в сервисе", new Date()), HttpStatus.UNAUTHORIZED);
+    }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<?> badCredentials(BadCredentialsException e) {
@@ -24,16 +41,68 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ErrorResponseDto("Токен авторизации истек. Авторизуйтесь повторно", new Date()), HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(MalformedInputException.class)
+    public ResponseEntity<?> malformedInputException(MalformedInputException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Токен не соответствует стандарту", new Date()), HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(SignatureException.class)
     public ResponseEntity<?> signatureException(SignatureException e) {
         return new ResponseEntity<>(new ErrorResponseDto("Подпись токена авторизации ему не соответствует", new Date()), HttpStatus.UNAUTHORIZED);
     }
 
-    //JwtExpired
+    @ExceptionHandler(CourseNotFoundException.class)
+    public ResponseEntity<?> courseNotFoundException(CourseNotFoundException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Курс не найден", new Date()), HttpStatus.BAD_REQUEST);
+    }
 
-    //SignatureException
+    @ExceptionHandler(HomeworkNotFoundException.class)
+    public ResponseEntity<?> homeworkNotFoundException(HomeworkNotFoundException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Домашняя работа не найден", new Date()), HttpStatus.BAD_REQUEST);
+    }
 
-    //MalformedJwtException
+    @ExceptionHandler(LectorAlreadyInCourseException.class)
+    public ResponseEntity<?> lectorAlreadyInCourseException(LectorAlreadyInCourseException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Лектор уже преподает на курсе", new Date()), HttpStatus.BAD_REQUEST);
+    }
 
-    //Пользователь не найден
+    @ExceptionHandler(LectorNotFoundException.class)
+    public ResponseEntity<?> lectorNotFoundException(LectorNotFoundException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Преподаватель не найден", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NotZeroIdWhenInsertException.class)
+    public ResponseEntity<?> notZeroIdWhenInsertException(NotZeroIdWhenInsertException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Ненулевой id при создании", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ResponseEntity<?> roleNotFoundException(RoleNotFoundException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Роль не найдена", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(StudentAlreadyInGroupException.class)
+    public ResponseEntity<?> studentAlreadyInGroupException(StudentAlreadyInGroupException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Студент уже состоит в учебной группе", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(StudentNotFoundException.class)
+    public ResponseEntity<?> studentNotFoundException(StudentNotFoundException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Студент не найден", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(StudentNotInGroupException.class)
+    public ResponseEntity<?> studentNotInGroupException(StudentNotInGroupException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Студент и так не состоит в учебной группе", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(StudentsExistWhenGroupCreateException.class)
+    public ResponseEntity<?> studentsExistWhenGroupCreateException(StudentsExistWhenGroupCreateException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Учебная группа изначально должна быть без студентов", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(StudyGroupNotFoundException.class)
+    public ResponseEntity<?> studyGroupNotFoundException(StudyGroupNotFoundException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Учебная группа не найдена", new Date()), HttpStatus.BAD_REQUEST);
+    }
 }

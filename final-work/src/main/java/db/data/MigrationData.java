@@ -76,7 +76,8 @@ public class MigrationData {
 
         prepareStudyGroups();
         prepareLectures();
-        prepareHomeworksWithMessages();
+        prepareHomeworks();
+        prepareHomeworkMessages();
     }
 
     private void prepareLectureTopics() {
@@ -134,10 +135,8 @@ public class MigrationData {
     }
 
     private void insertCoursesToLectors() {
-        COURSES.forEach(courseDto ->
-                getManyRandomFrom(LECTORS).forEach(lector ->
-                        lector.getCourses().add(courseDto)
-                )
+        COURSES.forEach(courseDto -> getManyRandomFrom(LECTORS)
+                .forEach(lector -> lector.getCourses().add(courseDto))
         );
     }
 
@@ -204,11 +203,8 @@ public class MigrationData {
         }
     }
 
-    private void prepareHomeworksWithMessages() {
+    private void prepareHomeworks() {
         long homeworkId = 1;
-        long messageId = 1;
-        Calendar calendar = Calendar.getInstance();
-        prepareCalendar(calendar);
         for (LectureDto lectureDto : LECTURES) {
             List<LectorDto> lectors = LECTORS.stream().filter(lector ->
                     lector.getCourses().contains(lectureDto.getStudyGroup().getCourse())
@@ -216,26 +212,38 @@ public class MigrationData {
 
             for (StudentDto studentDto : lectureDto.getStudyGroup().getStudents()) {
                 LectorDto lectorDto = getOneRandomFrom(lectors);
-                List<String> strMessages = getOneRandomFrom(DEFAULT_HOMEWORK_DISCUSSION);
-                List<HomeworkMessageDto> messages = new ArrayList<>();
-                for (int i = 1; i <= strMessages.size(); i++) {
-                    calendar.add(Calendar.HOUR, 1);
-                    messages.add(new HomeworkMessageDto(
-                            messageId++,
-                            strMessages.get(i - 1),
-                            calendar.getTime(),
-                            i % 2 != 0 ? studentDto.getAccount() : lectorDto.getAccount()
-                    ));
-                }
-                HOMEWORK_MESSAGES.addAll(messages);
                 HOMEWORKS.add(new HomeworkDto(homeworkId++,
                         nextInt(10) + 1,
                         getOneRandomFrom(HOMEWORK_STATUSES),
                         lectureDto,
                         studentDto,
-                        lectorDto,
-                        messages));
+                        lectorDto));
             }
+        }
+    }
+
+    private void prepareHomeworkMessages() {
+        long messageId = 1;
+        Calendar calendar = Calendar.getInstance();
+        prepareCalendar(calendar);
+
+        for (HomeworkDto homeworkDto : HOMEWORKS) {
+            List<String> strMessages = getOneRandomFrom(DEFAULT_HOMEWORK_DISCUSSION);
+            List<HomeworkMessageDto> messages = new ArrayList<>();
+            for (int i = 1; i <= strMessages.size(); i++) {
+                AccountDto sender = i % 2 != 0 ? homeworkDto.getStudent().getAccount()
+                        : homeworkDto.getLector().getAccount();
+                calendar.add(Calendar.HOUR, 1);
+
+                messages.add(new HomeworkMessageDto(
+                        messageId++,
+                        strMessages.get(i - 1),
+                        calendar.getTime(),
+                        sender,
+                        homeworkDto
+                ));
+            }
+            HOMEWORK_MESSAGES.addAll(messages);
         }
     }
 

@@ -35,16 +35,4 @@ public class LectorController {
     public LectorDto createStudent(@Valid @RequestBody LectorDto lectorDto) {
         return lectorService.insert(lectorDto);
     }
-
-    @PostMapping("api/lectors/courses/{courseId}")
-    public LectorDto addLectorToCourse(@AuthenticationPrincipal AccountDto accountDto,
-                                       @PathVariable long courseId) {
-        return lectorService.moveLectorToCourse(accountDto.getId(), courseId);
-    }
-
-    @DeleteMapping("api/lectors/courses/{courseId}")
-    public LectorDto deleteLectorFromCourse(@AuthenticationPrincipal AccountDto accountDto,
-                                            @PathVariable long courseId) {
-        return lectorService.deleteLectorFromCourse(accountDto.getId(), courseId);
-    }
 }

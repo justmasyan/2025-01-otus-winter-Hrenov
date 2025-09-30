@@ -7,6 +7,7 @@
     <script>
         function onLoadPage(id) {
             findHomework(id)
+            findMessagesForHomework(id)
         }
     </script>
 
@@ -16,6 +17,15 @@
             .then(rawResponse => rawResponse.json())
             .then(json => {
                 tableForBaseInfo(json)
+            })
+        }
+    </script>
+
+    <script>
+        function findMessagesForHomework(id) {
+            fetch(`/api/messages/homeworks/${id}`)
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
                 tableForMessages(json)
             })
         }
@@ -33,16 +43,14 @@
     </script>
 
     <script>
-        function tableForMessages(homework) {
+        function tableForMessages(messages) {
             let tbody = document.getElementById("messages-table-tbody");
 
-            let student = `${homework.student.firstName} ${homework.student.lastName}`
-            let lector = `${homework.lector.firstName} ${homework.lector.lastName}`
-            homework.messages.forEach(function(message) {
+            messages.forEach(function(message) {
                 let tr = document.createElement('tr')
 
                 let tdSender = document.createElement('td')
-                tdSender.innerHTML = (message.sender.id == homework.student.id) ? student : lector
+                tdSender.innerHTML = message.sender.username
 
                 let tdText = document.createElement('td')
                 tdText.innerHTML = message.text

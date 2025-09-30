@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.project.converter.HomeworkConverter;
 import ru.otus.project.converter.HomeworkStatusConverter;
+import ru.otus.project.domain.Course;
 import ru.otus.project.domain.Homework;
 import ru.otus.project.domain.Lector;
 import ru.otus.project.domain.Lecture;
@@ -12,12 +13,12 @@ import ru.otus.project.domain.Student;
 import ru.otus.project.domain.StudyGroup;
 import ru.otus.project.dto.HomeworkDto;
 import ru.otus.project.enums.HomeworkStatusEnum;
+import ru.otus.project.exception.HomeworkNotFoundException;
 import ru.otus.project.repository.HomeworkRepository;
 import ru.otus.project.repository.LectorRepository;
 import ru.otus.project.repository.LectureRepository;
 import ru.otus.project.utils.RandomUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -38,7 +39,7 @@ public class HomeworkServiceImpl {
     public HomeworkDto findById(long id) {
         return homeworkRepository.findById(id)
                 .map(homeworkConverter::entityToDto)
-                .orElseThrow(() -> new RuntimeException("Домашняя работа не найдена"));
+                .orElseThrow(() -> new HomeworkNotFoundException("Домашняя работа не найдена"));
     }
 
     @Transactional(readOnly = true)
@@ -51,7 +52,7 @@ public class HomeworkServiceImpl {
     public HomeworkDto findByLectureIdAndStudentId(long lectureId, long studentId) {
         return homeworkRepository.findByLectureIdAndStudentAccountId(lectureId, studentId)
                 .map(homeworkConverter::entityToBaseInfoDto)
-                .orElseThrow(() -> new RuntimeException("Домашняя работа не найдена"));
+                .orElseThrow(() -> new HomeworkNotFoundException("Домашняя работа не найдена"));
     }
 
     @Transactional(readOnly = true)
@@ -66,9 +67,27 @@ public class HomeworkServiceImpl {
         List<Lector> lectors = lectorRepository.findAllByCoursesId(studyGroup.getCourse().getId());
         List<Homework> homeworks = lectures.stream().map(lecture -> new Homework(0L, 0,
                 statusConverter.enumToEntity(HomeworkStatusEnum.NOT_SEND),
-                lecture, student, RandomUtils.getOneRandomFrom(lectors),
-                new ArrayList<>()
+                lecture, student, RandomUtils.getOneRandomFrom(lectors)
         )).toList();
         homeworkRepository.saveAll(homeworks);
+    }
+
+    @Transactional
+    public void deleteHomeworksForStudentAndGroup(Student student, StudyGroup studyGroup) {
+        List<Homework> homeworks = homeworkRepository.findAllByStudentAndStudyGroup(student.getId(), studyGroup.getId());
+        homeworkRepository.deleteAllInBatch(homeworks);
+    }
+
+    @Transactional
+    public void removeLectorForCourseHomeworks(Course course, Lector oldLector) {
+        List<Homework> homeworks = homeworkRepository.findAllByLectorAndCourse(oldLector.getId(), course.getId());
+        List<Homework> updatedHomeworks = homeworks.stream().map(homework ->
+                new Homework(homework.getId(), homework.getMark(),
+                        homework.getStatus(),
+                        homework.getLecture(),
+                        homework.getStudent(),
+                        RandomUtils.getOneRandomFrom(course.getLectors()))
+        ).toList();
+        homeworkRepository.saveAll(updatedHomeworks);
     }
 }

@@ -17,6 +17,6 @@ public class StudyGroupConverter {
     }
     public StudyGroupDto entityWithCourseDto(StudyGroup studyGroup){
         return new StudyGroupDto(studyGroup.getId(), studyGroup.getCode(), studyGroup.getStartDate(),
-                courseConverter.entityToBaseInfoDto(studyGroup.getCourse()));
+                courseConverter.entityToMinDto(studyGroup.getCourse()));
     }
 }

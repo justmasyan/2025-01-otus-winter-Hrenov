@@ -14,7 +14,7 @@ import java.util.Map;
 import static db.data.MigrationData.data;
 
 @SuppressWarnings("unchecked")
-public class V095__Insert_homework_messages extends BaseJavaMigration {
+public class V100__Insert_homework_messages extends BaseJavaMigration {
 
     @Override
     public void migrate(Context context) throws Exception {
@@ -28,10 +28,11 @@ public class V095__Insert_homework_messages extends BaseJavaMigration {
         data().getHOMEWORK_MESSAGES().forEach(messageDto -> params.add(Map.of(
                 "text", messageDto.getText(),
                 "sendTime", messageDto.getSendTime(),
+                "homeworkId", messageDto.getHomework().getId(),
                 "senderId", messageDto.getSender().getId()
         )));
 
-        jdbc.batchUpdate("insert into messages (text, send_time, sender_id)" +
-                " values (:text, :sendTime, :senderId)", params.toArray(new Map[0]));
+        jdbc.batchUpdate("insert into messages (text, send_time, homework_id, sender_id)" +
+                " values (:text, :sendTime, :homeworkId, :senderId)", params.toArray(new Map[0]));
     }
 }

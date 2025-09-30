@@ -28,7 +28,7 @@ flyway:
   enabled: true
   clean-on-validation-error: true
 
-#logging:
-#  level:
-#    org:
-#      springframework: TRACE
+logging:
+  level:
+    org:
+      springframework: TRACE

@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +16,7 @@ import java.util.Date;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "messages")
 @Entity
 public class HomeworkMessage {
@@ -30,4 +32,8 @@ public class HomeworkMessage {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id")
     private Account sender;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "homework_id")
+    private Homework homework;
 }

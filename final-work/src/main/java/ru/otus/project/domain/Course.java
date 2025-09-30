@@ -13,7 +13,9 @@ import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -22,6 +24,8 @@ import java.util.List;
 import java.util.Objects;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "courses")
 @Entity
 public class Course {
@@ -41,6 +45,12 @@ public class Course {
     @JoinTable(name = "courses_topics", joinColumns = @JoinColumn(name = "course_id"),
             inverseJoinColumns = @JoinColumn(name = "topic_id"))
     private List<LectureTopic> lectureTopics;
+
+    @Fetch(FetchMode.SUBSELECT)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "courses_lectors", joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "lector_id"))
+    private List<Lector> lectors;
 
     @Override
     public boolean equals(Object object) {
