@@ -44,15 +44,21 @@
         </dependency>
 
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-<!--            <scope>runtime</scope>-->
-        </dependency>
-
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -95,22 +101,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.google.cloud.tools</groupId>
-                <artifactId>jib-maven-plugin</artifactId>
-                <version>${jib-plugin.version}</version>
-                <configuration>
-                    <from>
-                        <image>bellsoft/liberica-openjdk-alpine-musl:17.0.2-9</image>
-                    </from>
-                    <to>
-                        <image>registry.hub.docker.com/justmasyan/spring-docker-image</image>
-                    </to>
-                    <container>
-                        <mainClass>ru.otus.hw.Application</mainClass>
-                    </container>
-                </configuration>
             </plugin>
         </plugins>
     </build>
