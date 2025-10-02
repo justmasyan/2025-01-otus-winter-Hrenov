@@ -8,7 +8,7 @@ import ru.otus.project.domain.Account;
 import ru.otus.project.domain.Student;
 import ru.otus.project.dto.AccountDto;
 import ru.otus.project.dto.StudentDto;
-import ru.otus.project.exception.NotZeroIdWhenInsertException;
+import ru.otus.project.exception.NoZeroIdException;
 import ru.otus.project.exception.StudentNotFoundException;
 import ru.otus.project.repository.StudentRepository;
 
@@ -31,7 +31,7 @@ public class StudentServiceImpl {
     @Transactional
     public StudentDto insert(StudentDto studentDto) {
         if (studentDto.getId() != 0 || studentDto.getAccount().getId() != 0) {
-            throw new NotZeroIdWhenInsertException("Id должен равняться нулю");
+            throw new NoZeroIdException("Id должен равняться нулю");
         }
         return save(studentDto);
     }

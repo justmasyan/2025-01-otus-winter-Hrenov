@@ -1,6 +1,6 @@
 package db.migration;
 
-
+import db.data.MigrationDataStorage;
 import org.flywaydb.core.api.migration.BaseJavaMigration;
 import org.flywaydb.core.api.migration.Context;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -12,23 +12,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static db.data.MigrationData.data;
-
 @SuppressWarnings("unchecked")
-public class V008__Insert_lecture_materials extends BaseJavaMigration {
+public class V055__Insert_lecture_materials extends BaseJavaMigration {
 
     @Override
     public void migrate(Context context) throws Exception {
         DataSource ds = new SingleConnectionDataSource(context.getConnection(), true);
         NamedParameterJdbcOperations jdbc = new NamedParameterJdbcTemplate(ds);
-        insertHomeworkStatuses(jdbc);
+        insertLectureMaterials(jdbc);
     }
 
-    private void insertHomeworkStatuses(NamedParameterJdbcOperations jdbc) {
+    private void insertLectureMaterials(NamedParameterJdbcOperations jdbc) {
         List<Map<String, Object>> params = new ArrayList<>();
-        data().getLECTURE_MATERIALS().forEach(materialsDto -> params.add(Map.of(
-                "url", materialsDto.getUrl())
-        ));
-        jdbc.batchUpdate("insert into lecture_materials(url) values (:url)", params.toArray(new Map[0]));
+        MigrationDataStorage.getLECTURE_MATERIALS().forEach(materialDto -> params.add(Map.of(
+                "url", materialDto.getUrl(),
+                "lectureId", materialDto.getLecture().getId()
+        )));
+
+        jdbc.batchUpdate("insert into lecture_materials (url, lecture_id)" +
+                " values (:url, :lectureId)", params.toArray(new Map[0]));
     }
 }

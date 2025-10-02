@@ -47,10 +47,4 @@ public class Lecture {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
     private StudyGroup studyGroup;
-
-    @Fetch(FetchMode.SUBSELECT)
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "lectures_materials", joinColumns = @JoinColumn(name = "lecture_id"),
-            inverseJoinColumns = @JoinColumn(name = "material_id"))
-    private List<LectureMaterial> materials;
 }

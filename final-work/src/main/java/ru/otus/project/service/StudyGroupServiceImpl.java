@@ -9,7 +9,7 @@ import ru.otus.project.domain.Student;
 import ru.otus.project.domain.StudyGroup;
 import ru.otus.project.dto.StudyGroupDto;
 import ru.otus.project.exception.CourseNotFoundException;
-import ru.otus.project.exception.NotZeroIdWhenInsertException;
+import ru.otus.project.exception.NoZeroIdException;
 import ru.otus.project.exception.StudentAlreadyInGroupException;
 import ru.otus.project.exception.StudentNotFoundException;
 import ru.otus.project.exception.StudentNotInGroupException;
@@ -61,7 +61,7 @@ public class StudyGroupServiceImpl {
     @Transactional
     public StudyGroupDto insertGroup(StudyGroupDto studyGroupDto) {
         if (studyGroupDto.getId() != 0) {
-            throw new NotZeroIdWhenInsertException("Id должен равняться нулю");
+            throw new NoZeroIdException("Id должен равняться нулю");
         }
 
         if (!Objects.isNull(studyGroupDto.getStudents())) {

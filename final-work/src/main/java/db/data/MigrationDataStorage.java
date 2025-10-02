@@ -1,10 +1,7 @@
 package db.data;
 
-import lombok.AccessLevel;
 import lombok.Getter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 import ru.otus.project.dto.AccountDto;
 import ru.otus.project.dto.AccountRoleDto;
 import ru.otus.project.dto.CourseDto;
@@ -43,21 +40,12 @@ import static ru.otus.project.utils.RandomUtils.getManyRandomFrom;
 import static ru.otus.project.utils.RandomUtils.getOneRandomFrom;
 import static ru.otus.project.utils.RandomUtils.nextInt;
 
-@Getter
-@Component
-public class MigrationData {
+public class MigrationDataStorage {
 
-    @Getter(AccessLevel.NONE)
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+    private final PasswordEncoder passwordEncoder;
 
-    @Getter(AccessLevel.NONE)
-    private final static MigrationData DATA_FOR_MIGRATION = new MigrationData();
-
-    public static MigrationData data() {
-        return DATA_FOR_MIGRATION;
-    }
-
-    MigrationData() {
+    public MigrationDataStorage(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
         prepareDomains();
     }
 
@@ -65,7 +53,6 @@ public class MigrationData {
         prepareRoles();
         prepareLectureTopics();
         prepareLectureStatuses();
-        prepareLectureMaterials();
         prepareHomeworkStatuses();
 
         prepareCourses();
@@ -76,6 +63,7 @@ public class MigrationData {
 
         prepareStudyGroups();
         prepareLectures();
+        prepareLectureMaterials();
         prepareHomeworks();
         prepareHomeworkMessages();
     }
@@ -103,13 +91,6 @@ public class MigrationData {
         );
     }
 
-    private void prepareLectureMaterials() {
-        List<String> materials = getManyRandomFrom(DEFAULT_LECTURE_MATERIALS);
-        for (int i = 1; i <= materials.size(); i++) {
-            LECTURE_MATERIALS.add(new LectureMaterialDto(i, materials.get(i - 1)));
-        }
-    }
-
     private void prepareAccounts() {
         ACCOUNTS.add(new AccountDto(1, "STUDENT", passwordEncoder.encode("STUDENT"), ACCOUNT_ROLES.get(0)));
         ACCOUNTS.add(new AccountDto(2, "LECTOR", passwordEncoder.encode("LECTOR"), ACCOUNT_ROLES.get(1)));
@@ -131,7 +112,6 @@ public class MigrationData {
                         new ArrayList<>()));
             }
         }
-        ;
     }
 
     private void insertCoursesToLectors() {
@@ -195,11 +175,19 @@ public class MigrationData {
                         getOneRandomFrom(LECTURE_STATUSES),
                         topic,
                         getOneRandomFrom(lectors),
-                        groupDto,
-                        getManyRandomFrom(LECTURE_MATERIALS)
+                        groupDto
                 ));
                 calendar.add(Calendar.DATE, 2);
             }
+        }
+    }
+
+    private void prepareLectureMaterials() {
+        int materialId = 1;
+        for (LectureDto lectureDto : LECTURES) {
+            List<String> materialUrls = getManyRandomFrom(DEFAULT_LECTURE_MATERIALS);
+            for (String url : materialUrls)
+                LECTURE_MATERIALS.add(new LectureMaterialDto(materialId++, url, lectureDto));
         }
     }
 
@@ -231,14 +219,25 @@ public class MigrationData {
             List<String> strMessages = getOneRandomFrom(DEFAULT_HOMEWORK_DISCUSSION);
             List<HomeworkMessageDto> messages = new ArrayList<>();
             for (int i = 1; i <= strMessages.size(); i++) {
-                AccountDto sender = i % 2 != 0 ? homeworkDto.getStudent().getAccount()
-                        : homeworkDto.getLector().getAccount();
+                AccountDto sender;
+                String senderDesc;
+
+                if (i % 2 != 0) {
+                    StudentDto studentDto = homeworkDto.getStudent();
+                    sender = studentDto.getAccount();
+                    senderDesc = "%s %s".formatted(studentDto.getFirstName(), studentDto.getLastName());
+                } else {
+                    LectorDto lectorDto = homeworkDto.getLector();
+                    sender = lectorDto.getAccount();
+                    senderDesc = "%s %s".formatted(lectorDto.getFirstName(), lectorDto.getLastName());
+                }
                 calendar.add(Calendar.HOUR, 1);
 
                 messages.add(new HomeworkMessageDto(
                         messageId++,
                         strMessages.get(i - 1),
                         calendar.getTime(),
+                        senderDesc,
                         sender,
                         homeworkDto
                 ));
@@ -258,17 +257,30 @@ public class MigrationData {
         return new BigDecimal(1000).multiply(new BigDecimal(RandomUtils.nextInt(100) + 1));
     }
 
-    private final List<AccountRoleDto> ACCOUNT_ROLES = new ArrayList<>();
-    private final List<AccountDto> ACCOUNTS = new ArrayList<>();
-    private final List<StudentDto> STUDENTS = new ArrayList<>();
-    private final List<LectorDto> LECTORS = new ArrayList<>();
-    private final List<LectureTopicDto> LECTURE_TOPICS = new ArrayList<>();
-    private final List<CourseDto> COURSES = new ArrayList<>();
-    private final List<StudyGroupDto> STUDY_GROUPS = new ArrayList<>();
-    private final List<LectureStatusDto> LECTURE_STATUSES = new ArrayList<>();
-    private final List<LectureMaterialDto> LECTURE_MATERIALS = new ArrayList<>();
-    private final List<LectureDto> LECTURES = new ArrayList<>();
-    private final List<HomeworkDto> HOMEWORKS = new ArrayList<>();
-    private final List<HomeworkMessageDto> HOMEWORK_MESSAGES = new ArrayList<>();
-    private final List<HomeworkStatusDto> HOMEWORK_STATUSES = new ArrayList<>();
+    @Getter
+    private static final List<AccountRoleDto> ACCOUNT_ROLES = new ArrayList<>();
+    @Getter
+    private static final List<AccountDto> ACCOUNTS = new ArrayList<>();
+    @Getter
+    private static final List<StudentDto> STUDENTS = new ArrayList<>();
+    @Getter
+    private static final List<LectorDto> LECTORS = new ArrayList<>();
+    @Getter
+    private static final List<LectureTopicDto> LECTURE_TOPICS = new ArrayList<>();
+    @Getter
+    private static final List<CourseDto> COURSES = new ArrayList<>();
+    @Getter
+    private static final List<StudyGroupDto> STUDY_GROUPS = new ArrayList<>();
+    @Getter
+    private static final List<LectureStatusDto> LECTURE_STATUSES = new ArrayList<>();
+    @Getter
+    private static final List<LectureMaterialDto> LECTURE_MATERIALS = new ArrayList<>();
+    @Getter
+    private static final List<LectureDto> LECTURES = new ArrayList<>();
+    @Getter
+    private static final List<HomeworkDto> HOMEWORKS = new ArrayList<>();
+    @Getter
+    private static final List<HomeworkMessageDto> HOMEWORK_MESSAGES = new ArrayList<>();
+    @Getter
+    private static final List<HomeworkStatusDto> HOMEWORK_STATUSES = new ArrayList<>();
 }

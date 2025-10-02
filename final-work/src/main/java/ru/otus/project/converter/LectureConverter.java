@@ -17,8 +17,6 @@ public class LectureConverter {
 
     private final LectureStatusConverter statusConverter;
 
-    private final LectureMaterialsConverter materialsConverter;
-
     public LectureDto entityToMinimumDto(Lecture lecture) {
         return new LectureDto(lecture.getId(), lecture.getLectureTime());
     }
@@ -41,7 +39,6 @@ public class LectureConverter {
                 statusConverter.entityToDto(lecture.getStatus()),
                 topicConverter.entityToDto(lecture.getLectureTopic()),
                 lectorConverter.entityToBaseInfoDto(lecture.getLector()),
-                studyGroupConverter.entityToBaseInfoDto(lecture.getStudyGroup()),
-                lecture.getMaterials().stream().map(materialsConverter::entityToDto).toList());
+                studyGroupConverter.entityToBaseInfoDto(lecture.getStudyGroup()));
     }
 }

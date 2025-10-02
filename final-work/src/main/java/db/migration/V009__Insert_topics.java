@@ -1,5 +1,6 @@
 package db.migration;
 
+import db.data.MigrationDataStorage;
 import org.flywaydb.core.api.migration.BaseJavaMigration;
 import org.flywaydb.core.api.migration.Context;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -10,8 +11,6 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static db.data.MigrationData.data;
 
 @SuppressWarnings("unchecked")
 public class V009__Insert_topics extends BaseJavaMigration {
@@ -27,7 +26,7 @@ public class V009__Insert_topics extends BaseJavaMigration {
 
     private void insertTopics(NamedParameterJdbcOperations jdbc) {
         List<Map<String, Object>> params = new ArrayList<>(5);
-        data().getLECTURE_TOPICS().forEach(topic -> params.add(Map.of(
+        MigrationDataStorage.getLECTURE_TOPICS().forEach(topic -> params.add(Map.of(
                 "title", topic.getTitle())
         ));
 

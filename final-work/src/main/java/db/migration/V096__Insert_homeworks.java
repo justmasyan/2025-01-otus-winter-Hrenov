@@ -1,5 +1,6 @@
 package db.migration;
 
+import db.data.MigrationDataStorage;
 import org.flywaydb.core.api.migration.BaseJavaMigration;
 import org.flywaydb.core.api.migration.Context;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -10,8 +11,6 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static db.data.MigrationData.data;
 
 @SuppressWarnings("unchecked")
 public class V096__Insert_homeworks extends BaseJavaMigration {
@@ -25,7 +24,7 @@ public class V096__Insert_homeworks extends BaseJavaMigration {
 
     private void insertHomeworks(NamedParameterJdbcOperations jdbc) {
         List<Map<String, Object>> params = new ArrayList<>();
-        data().getHOMEWORKS().forEach(homeworkDto -> params.add(Map.of(
+        MigrationDataStorage.getHOMEWORKS().forEach(homeworkDto -> params.add(Map.of(
                 "mark", homeworkDto.getMark(),
                 "statusId", homeworkDto.getStatus().getId(),
                 "lectureId", homeworkDto.getLecture().getId(),

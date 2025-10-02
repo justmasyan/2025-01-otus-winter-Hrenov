@@ -1,6 +1,11 @@
 spring:
+  mvc:
+    favicon:
+      enabled: true
+
   datasource:
     url: jdbc:h2:mem:maindb
+
   sql:
     init:
       mode: never
@@ -19,14 +24,15 @@ spring:
       ddl-auto: none
 
     show-sql: true
-app:
-  security:
-    secret: 29qiq474iulmtsgqr802gkp70dz86kbc
-    lifetime: 20h
+
+jwt:
+  lifetime: 20h
+  private.key: classpath:app.key
+  public.key: classpath:app.pub
 
 flyway:
   enabled: true
-  clean-on-validation-error: true
+  clean-on-validation-error: false
 
 logging:
   level:

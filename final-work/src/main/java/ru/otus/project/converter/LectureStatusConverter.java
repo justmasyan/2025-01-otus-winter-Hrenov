@@ -12,6 +12,10 @@ public class LectureStatusConverter {
         return new LectureStatusDto(status.getId(), status.getText());
     }
 
+    public LectureStatus dtoToEntity(LectureStatusDto status) {
+        return new LectureStatus(status.getId(), status.getText());
+    }
+
     public LectureStatus enumToEntity(LectureStatusEnum status) {
         return new LectureStatus(status.id, status.text);
     }

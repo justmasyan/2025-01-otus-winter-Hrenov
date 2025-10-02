@@ -23,23 +23,30 @@ public class HomeworkConverter {
     }
 
     public HomeworkDto entityToWithStudentDto(Homework homework) {
-        return new HomeworkDto(homework.getId(),homework.getMark(),
+        return new HomeworkDto(homework.getId(), homework.getMark(),
                 statusConverter.entityToDto(homework.getStatus()),
                 studentConverter.entityToBaseInfoDto(homework.getStudent()));
     }
 
     public HomeworkDto entityToDtoForLector(Homework homework) {
-        return new HomeworkDto(homework.getId(),homework.getMark(),
+        return new HomeworkDto(homework.getId(), homework.getMark(),
                 statusConverter.entityToDto(homework.getStatus()),
                 lectureConverter.entityToWithStatusTopicDto(homework.getLecture()),
                 studentConverter.entityToBaseInfoDto(homework.getStudent()));
     }
 
+    public HomeworkDto entityToDtoForLecture(Homework homework) {
+        return new HomeworkDto(homework.getId(), homework.getMark(),
+                statusConverter.entityToDto(homework.getStatus()),
+                studentConverter.entityToBaseInfoDto(homework.getStudent()),
+                lectorConverter.entityToDto(homework.getLector()));
+    }
+
     public HomeworkDto entityToDto(Homework homework) {
-        return new HomeworkDto(homework.getId(),homework.getMark(),
+        return new HomeworkDto(homework.getId(), homework.getMark(),
                 statusConverter.entityToDto(homework.getStatus()),
                 lectureConverter.entityToWithStatusTopicDto(homework.getLecture()),
-                studentConverter.entityToBaseInfoDto(homework.getStudent()),
-                lectorConverter.entityToBaseInfoDto(homework.getLector()));
+                studentConverter.entityToDto(homework.getStudent()),
+                lectorConverter.entityToDto(homework.getLector()));
     }
 }

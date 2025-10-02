@@ -9,7 +9,7 @@ import ru.otus.project.domain.Lector;
 import ru.otus.project.dto.AccountDto;
 import ru.otus.project.dto.LectorDto;
 import ru.otus.project.exception.LectorNotFoundException;
-import ru.otus.project.exception.NotZeroIdWhenInsertException;
+import ru.otus.project.exception.NoZeroIdException;
 import ru.otus.project.repository.LectorRepository;
 
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class LectorServiceImpl {
     @Transactional
     public LectorDto insert(LectorDto lectorDto) {
         if (lectorDto.getId() != 0 || lectorDto.getAccount().getId() != 0) {
-            throw new NotZeroIdWhenInsertException("Id должен равняться нулю");
+            throw new NoZeroIdException("Id должен равняться нулю");
         }
         return save(lectorDto);
     }

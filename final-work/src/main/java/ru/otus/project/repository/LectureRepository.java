@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface LectureRepository extends JpaRepository<Lecture, Long> {
 
-    @EntityGraph(attributePaths = {"status", "lectureTopic", "lector.account", "studyGroup"})
+    @EntityGraph(attributePaths = {"status", "lectureTopic", "lector.account", "studyGroup.course"})
     Optional<Lecture> findById(long id);
 
     @EntityGraph(attributePaths = {"status", "lectureTopic"})
@@ -29,11 +29,3 @@ public interface LectureRepository extends JpaRepository<Lecture, Long> {
             "WHERE lea.id = :accountId AND lsc.id = :courseId")
     List<Lecture> findAllByLectorAccountIdAndCourseId(long accountId, long courseId);
 }
-
-
-//@Query(value = "SELECT l FROM Lecture l" +
-//        "JOIN FETCH l.lector le " +
-//        "JOIN FETCH l.lector.account lea " +
-//        "JOIN FETCH l.studyGroup ls" +
-//        "JOIN FETCH l.studyGroup.course lsc " +
-//        "WHERE lea.id = :accountId AND lsc.id = :courseId")

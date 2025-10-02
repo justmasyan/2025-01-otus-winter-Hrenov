@@ -1,59 +1,64 @@
 package ru.otus.project.config;
 
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
+import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
-import ru.otus.project.security.ExceptionHandlerFilter;
-import ru.otus.project.security.JwtSecurityFilter;
 
-@EnableWebSecurity
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+
 @Configuration
 public class SecurityConfig {
 
+    @Value("${jwt.public.key}")
+    private RSAPublicKey key;
+
+    @Value("${jwt.private.key}")
+    private RSAPrivateKey priv;
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   ExceptionHandlerFilter exceptionHandlerFilter,
-                                                   JwtSecurityFilter jwtSecurityFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-
-//                .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
-//      .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
-
                 .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/courses/**", "/api/courses/**").permitAll()
+                        .requestMatchers("/api/groups/courses/**", "/api/lectors/courses/**").permitAll()
                         .requestMatchers("/api/account/authentication", "/api/roles", "/api/students/new").permitAll()
-                        .requestMatchers("/api/**").authenticated()
-                        .requestMatchers("/account").authenticated()//остальные html страницы
-                        .requestMatchers("/api/account/registration").hasRole("ADMIN")
+                        .requestMatchers("/account","/api/**","/courses/**,","/lectures/**","/groups/**","/homeworks/**").authenticated()
                         .anyRequest().permitAll()// чтобы на неизвестные пути прилетало 404, а не 403
                 ).anonymous(AbstractHttpConfigurer::disable)
-                .addFilterBefore(exceptionHandlerFilter, LogoutFilter.class)
-                .addFilterBefore(jwtSecurityFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(exceptionHandling ->
-                        exceptionHandling.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
-        /*
-        TODO:401 и 403
-        Вызов за JWT - BeanValidating, чтобы в теле были username и password обязательно
-        Если их нет, то ошибка 401
-        Если они есть но неправильные, то BadCredentinal
-        Вызов к ресурсу - если какие-то ошибки с токеном, то соотв ошибки
-        Если нет такого заголовка, то 401
-         */
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling((exceptions) -> exceptions
+                        .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
+                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
+                );
+
         return http.build();
     }
 
@@ -65,5 +70,27 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        authoritiesConverter.setAuthorityPrefix("");
+        authoritiesConverter.setAuthoritiesClaimName("authority");
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
+        return jwtAuthenticationConverter;
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder.withPublicKey(this.key).build();
+    }
+
+    @Bean
+    public JwtEncoder jwtEncoder() {
+        JWK jwk = new RSAKey.Builder(this.key).privateKey(this.priv).build();
+        JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
+        return new NimbusJwtEncoder(jwks);
     }
 }

@@ -1,5 +1,6 @@
 package db.migration;
 
+import db.data.MigrationDataStorage;
 import org.flywaydb.core.api.migration.BaseJavaMigration;
 import org.flywaydb.core.api.migration.Context;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -10,8 +11,6 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static db.data.MigrationData.data;
 
 @SuppressWarnings("unchecked")
 public class V040__Insert_groups extends BaseJavaMigration {
@@ -26,7 +25,7 @@ public class V040__Insert_groups extends BaseJavaMigration {
 
     private void insertGroups(NamedParameterJdbcOperations jdbc) {
         List<Map<String, Object>> params = new ArrayList<>(5);
-        data().getSTUDY_GROUPS().forEach(groupDto -> params.add(Map.of(
+        MigrationDataStorage.getSTUDY_GROUPS().forEach(groupDto -> params.add(Map.of(
                 "code", groupDto.getCode(),
                 "startDate", groupDto.getStartDate(),
                 "courseId", groupDto.getCourse().getId()
@@ -38,7 +37,7 @@ public class V040__Insert_groups extends BaseJavaMigration {
 
     private void insertRelationsToStudents(NamedParameterJdbcOperations jdbc) {
         List<Map<String, Object>> params = new ArrayList<>();
-        data().getSTUDY_GROUPS().forEach(groupDto ->
+        MigrationDataStorage.getSTUDY_GROUPS().forEach(groupDto ->
                 groupDto.getStudents().forEach(studentDto -> params.add(Map.of(
                         "studentId", studentDto.getId(),
                         "groupId", groupDto.getId())

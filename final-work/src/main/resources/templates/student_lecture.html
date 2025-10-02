@@ -7,6 +7,7 @@
     <script>
         function onLoadPage(id) {
             findLecture(id)
+            findLectureMaterialsByLecture(id)
             findHomeworkByLectureForStudent(id)
         }
     </script>
@@ -17,6 +18,16 @@
             .then(rawResponse => rawResponse.json())
             .then(json => {
                 tableForBaseInfo(json)
+                tableForMaterials(json)
+            })
+        }
+    </script>
+
+    <script>
+        function findLectureMaterialsByLecture(lectureId) {
+            fetch(`/api/lecture-materials/lectures/${lectureId}`)
+            .then(rawResponse => rawResponse.json())
+            .then(json => {
                 tableForMaterials(json)
             })
         }
@@ -46,11 +57,10 @@
     </script>
 
     <script>
-        function tableForMaterials(lecture) {
-
+        function tableForMaterials(materials) {
             let tbody = document.getElementById("materials-table-tbody");
 
-            lecture.materials.forEach(function(material) {
+            materials.forEach(function(material) {
                 let tr = document.createElement('tr')
 
                 let tdUrl = document.createElement('td')

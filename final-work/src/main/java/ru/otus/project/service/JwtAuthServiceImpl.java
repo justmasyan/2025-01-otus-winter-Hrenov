@@ -1,46 +1,38 @@
 package ru.otus.project.service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 import ru.otus.project.dto.AccountDto;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Date;
-import java.util.Map;
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
 public class JwtAuthServiceImpl implements JwtAuthService {
 
-    @Value("${app.security.secret}")
-    private String secret;
-
-    @Value("${app.security.lifetime}")
+    @Value("${jwt.lifetime}")
     private Duration lifetime;
 
+    @Autowired
+    private final JwtEncoder encoder;
+
     public String generateJwtToken(AccountDto accountDto) {
-        Date issuedDate = new Date();
-        Date expireDate = new Date(issuedDate.getTime() + lifetime.toMillis());
+        Instant issued = Instant.now();
+        Instant expire =  Instant.ofEpochSecond(issued.getEpochSecond() + lifetime.getSeconds());
 
-        return Jwts.builder()
+        JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject(accountDto.getUsername())
-                .claim("id", accountDto.getId())
-                .claim("authorityId", accountDto.getAuthority().getId())
+                .issuedAt(issued)
+                .expiresAt(expire)
+                .claim("accountId", accountDto.getId())
                 .claim("authority", accountDto.getAuthority().getAuthority())
-                .issuedAt(issuedDate)
-                .expiration(expireDate)
-                .signWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
-                .compact();
-    }
-
-    public Claims getClaimsFromToken(String token) {
-        return Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
-                .build().parseSignedClaims(token).getPayload();
+                .build();
+        return this.encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 }

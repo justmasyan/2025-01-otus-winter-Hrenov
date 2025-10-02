@@ -36,6 +36,7 @@
             document.getElementById("homework-table-tdTopicHref").innerHTML = homework.lecture.lectureTopic.title
             document.getElementById("homework-table-tdTopicHref").href = `/lectures/${homework.lecture.id}`
 
+            document.getElementById("homework-table-tdMark").innerHTML = homework.mark
             document.getElementById("homework-table-tdStatus").innerHTML = homework.status.text
             document.getElementById("homework-table-tdStudent").innerHTML = `${homework.student.firstName} ${homework.student.lastName}`
             document.getElementById("homework-table-tdLector").innerHTML = `${homework.lector.firstName} ${homework.lector.lastName}`
@@ -50,7 +51,7 @@
                 let tr = document.createElement('tr')
 
                 let tdSender = document.createElement('td')
-                tdSender.innerHTML = message.sender.username
+                tdSender.innerHTML = message.senderDesc
 
                 let tdText = document.createElement('td')
                 tdText.innerHTML = message.text
@@ -62,7 +63,32 @@
                 tr.appendChild(tdText)
                 tr.appendChild(tdTime)
 
-                tbody.appendChild(tr)
+                tbody.prepend(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function insertMessage(homeworkId) {
+            const text = document.getElementById("insert-message-text-input").value
+
+            const message = { text: text, homework: { id: homeworkId} }
+
+            fetch("/api/messages/new", {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(message)
+            }).then(function(rawResponse) {
+                if (!rawResponse.ok) {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                } else {
+                    alert("Сообщение отправлено")
+                }
             })
         }
     </script>
@@ -87,6 +113,7 @@
     <tr>
         <th>Тема</th>
         <th>Статус ДЗ</th>
+        <th>Оценка</th>
         <th>ФИО студента</th>
         <th>ФИО лектора</th>
     </tr>
@@ -95,20 +122,34 @@
     <tr>
         <td><a id="homework-table-tdTopicHref"></a></td>
         <td id="homework-table-tdStatus"></td>
+        <td id="homework-table-tdMark"></td>
         <td id="homework-table-tdStudent"></td>
         <td id="homework-table-tdLector"></td>
-    </tr><tbody>
+    </tr>
+    <tbody>
 </table>
+
+<h3>Обсуждение ДЗ</h3>
 
 <table border="1">
     <thead>
     <tr>
-        <th>ФИО отправителя</th>
+        <th>Логин</th>
         <th>Текст сообщения</th>
         <th>Время отправления</th>
     </tr>
     </thead>
     <tbody id="messages-table-tbody">
+    <tr>
+        <td><label for="insert-message-text-input">Вы</label></td>
+        <td><input id="insert-message-text-input" name="title" type="text"/></td>
+        <td>
+            <button id="insert-message-button" type="button" th:onclick="insertMessage([[${id}]])">
+                Отправить сообщение
+            </button>
+        </td>
+    </tr>
+    </tbody>
 </table>
 
 </body>

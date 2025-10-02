@@ -14,11 +14,6 @@ CREATE TABLE lecture_statuses (
     text VARCHAR(255) UNIQUE
 );
 
-CREATE TABLE lecture_materials (
-    id BIGSERIAL PRIMARY KEY,
-    url VARCHAR(255) UNIQUE
-);
-
 CREATE TABLE lecture_topics (
     id BIGSERIAL PRIMARY KEY,
     title VARCHAR(255)
@@ -69,6 +64,12 @@ CREATE TABLE lectures (
     group_id BIGINT REFERENCES study_groups(id) ON DELETE CASCADE
 );
 
+CREATE TABLE lecture_materials (
+    id BIGSERIAL PRIMARY KEY,
+    url VARCHAR(255),
+    lecture_id BIGINT REFERENCES lectures(id) ON DELETE CASCADE
+);
+
 CREATE TABLE homeworks (
     id BIGSERIAL PRIMARY KEY,
     mark tinyint,
@@ -82,6 +83,7 @@ CREATE TABLE messages (
     id BIGSERIAL PRIMARY KEY,
     send_time DATETIME,
     text VARCHAR(256),
+    sender_desc VARCHAR(256),
     sender_id BIGINT REFERENCES accounts(id),
     homework_id BIGINT REFERENCES homeworks(id) ON DELETE CASCADE
 );

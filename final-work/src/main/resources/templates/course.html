@@ -19,7 +19,6 @@
             .then(json => {
                 tableForCourse(json)
                 tableForTopics(json)
-                tableForLectors(json)
             })
         }
     </script>
@@ -109,10 +108,7 @@
                 let tr = document.createElement('tr')
 
                 let tdCode = document.createElement('td')
-                let tdCodeHref = document.createElement('a')
-                tdCodeHref.href = `/groups/${group.id}`
-                tdCodeHref.innerHTML = group.code
-                tdCode.appendChild(tdCodeHref)
+                tdCode.innerHTML = group.code
 
                 let tdStartDate = document.createElement('td')
                 tdStartDate.innerHTML = group.startDate
@@ -133,7 +129,8 @@
     <tbody>
     <tr>
         <td><a href="courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
-        <td><a href="account.html" th:href="@{/account}">Личный кабинет</a></td>
+        <td><a href="authentication.html" th:href="@{/authentication}">Получить токен</a></td>
+        <td><a href="register.html" th:href="@{/register}">Зарегистрироваться</a></td>
     </tr>
     <tbody>
 </table>

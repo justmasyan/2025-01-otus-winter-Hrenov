@@ -7,7 +7,7 @@ import ru.otus.project.dto.LectureMaterialDto;
 @Component
 public class LectureMaterialsConverter {
 
-    public LectureMaterialDto entityToDto(LectureMaterial materials) {
+    public LectureMaterialDto entityToMinDto(LectureMaterial materials) {
         return new LectureMaterialDto(materials.getId(), materials.getUrl());
     }
 }

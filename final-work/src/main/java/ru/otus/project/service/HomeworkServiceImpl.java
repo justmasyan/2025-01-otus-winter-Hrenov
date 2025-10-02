@@ -7,6 +7,7 @@ import ru.otus.project.converter.HomeworkConverter;
 import ru.otus.project.converter.HomeworkStatusConverter;
 import ru.otus.project.domain.Course;
 import ru.otus.project.domain.Homework;
+import ru.otus.project.domain.HomeworkStatus;
 import ru.otus.project.domain.Lector;
 import ru.otus.project.domain.Lecture;
 import ru.otus.project.domain.Student;
@@ -14,7 +15,14 @@ import ru.otus.project.domain.StudyGroup;
 import ru.otus.project.dto.HomeworkDto;
 import ru.otus.project.enums.HomeworkStatusEnum;
 import ru.otus.project.exception.HomeworkNotFoundException;
+import ru.otus.project.exception.HomeworkStatusNotFoundException;
+import ru.otus.project.exception.LectorAlreadyInHomeworkException;
+import ru.otus.project.exception.LectorNotFoundException;
+import ru.otus.project.exception.LectorNotInCourseException;
+import ru.otus.project.exception.LectorNotInHomeworkException;
+import ru.otus.project.exception.NoAvailableLectorsException;
 import ru.otus.project.repository.HomeworkRepository;
+import ru.otus.project.repository.HomeworkStatusRepository;
 import ru.otus.project.repository.LectorRepository;
 import ru.otus.project.repository.LectureRepository;
 import ru.otus.project.utils.RandomUtils;
@@ -31,6 +39,8 @@ public class HomeworkServiceImpl {
 
     private final HomeworkRepository homeworkRepository;
 
+    private final HomeworkStatusRepository statusRepository;
+
     private final HomeworkConverter homeworkConverter;
 
     private final HomeworkStatusConverter statusConverter;
@@ -43,9 +53,15 @@ public class HomeworkServiceImpl {
     }
 
     @Transactional(readOnly = true)
-    public List<HomeworkDto> findAllByLectorId(long lectorId) {
-        return homeworkRepository.findAllByLectorAccountId(lectorId).stream()
+    public List<HomeworkDto> findAllByLectorId(long lectorAccountId) {
+        return homeworkRepository.findAllByLectorAccountId(lectorAccountId).stream()
                 .map(homeworkConverter::entityToDtoForLector).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<HomeworkDto> findAllByLectureId(long lectureId) {
+        return homeworkRepository.findAllByLectureId(lectureId).stream()
+                .map(homeworkConverter::entityToDtoForLecture).toList();
     }
 
     @Transactional(readOnly = true)
@@ -59,6 +75,28 @@ public class HomeworkServiceImpl {
     public List<HomeworkDto> findByLectureIdAndLectorId(long lectureId, long lectorId) {
         return homeworkRepository.findAllByLectureIdAndLectorId(lectureId, lectorId)
                 .stream().map(homeworkConverter::entityToWithStudentDto).toList();
+    }
+
+    @Transactional
+    public HomeworkDto updateHomework(HomeworkDto homeworkDto, long accountId){
+        Homework homework = homeworkRepository.findById(homeworkDto.getId())
+                .orElseThrow(() -> new HomeworkNotFoundException("Домашняя работа не найдена"));
+
+        if(homework.getLector().getAccount().getId() != accountId){
+            throw new LectorNotInHomeworkException("Данный лектор не проверяет это ДЗ");
+        }
+
+        HomeworkStatus status = statusRepository.findById(homeworkDto.getStatus().getId())
+                .orElseThrow(() -> new HomeworkStatusNotFoundException("Данный статус ДЗ не найден"));
+
+        Homework newHomework = new Homework(homework.getId(),
+                homeworkDto.getMark(),
+                status,
+                homework.getLecture(),
+                homework.getStudent(),
+                homework.getLector());
+        Homework savedHomework = homeworkRepository.save(newHomework);
+        return homeworkConverter.entityToDto(savedHomework);
     }
 
     @Transactional
@@ -89,5 +127,57 @@ public class HomeworkServiceImpl {
                         RandomUtils.getOneRandomFrom(course.getLectors()))
         ).toList();
         homeworkRepository.saveAll(updatedHomeworks);
+    }
+
+    @Transactional
+    public void assignLectorToHomework(long homeworkId, long lectorAccountId) {
+        Homework homework = homeworkRepository.findById(homeworkId)
+                .orElseThrow(() -> new HomeworkNotFoundException("Домашняя работа не найдена"));
+
+        if (homework.getLector().getAccount().getId() == lectorAccountId) {
+            throw new LectorAlreadyInHomeworkException("Данный преподаватель уже назначен проверяющим");
+        }
+
+        Lector lector = lectorRepository.findByAccountId(lectorAccountId)
+                .orElseThrow(() -> new LectorNotFoundException("Лектор не найден"));
+
+        if (!lector.getCourses().contains(homework.getLecture().getStudyGroup().getCourse())) {
+            throw new LectorNotInCourseException("Данного преподавателя нет на курсе");
+        }
+
+        Homework newHomework = new Homework(homework.getId(),
+                homework.getMark(),
+                homework.getStatus(),
+                homework.getLecture(),
+                homework.getStudent(),
+                lector);
+
+        homeworkRepository.save(newHomework);
+    }
+
+    @Transactional
+    public void removeLectorFromHomework(long homeworkId, long lectorAccountId) {
+        Homework homework = homeworkRepository.findById(homeworkId)
+                .orElseThrow(() -> new HomeworkNotFoundException("Лекция с таким id не найдена"));
+
+        if (homework.getLector().getAccount().getId() != lectorAccountId) {
+            throw new LectorNotInHomeworkException("Данный преподаватель не ведет эту лекцию");
+        }
+
+        long courseId = homework.getLecture().getStudyGroup().getCourse().getId();
+        List<Lector> availableLectors = lectorRepository.findAllByCoursesId(courseId);
+        availableLectors.remove(homework.getLector());
+
+        if (availableLectors.isEmpty()) {
+            throw new NoAvailableLectorsException("Нет доступных преподавателей");
+        }
+
+        Homework newHomework = new Homework(homework.getId(),
+                homework.getMark(),
+                homework.getStatus(),
+                homework.getLecture(),
+                homework.getStudent(),
+                RandomUtils.getOneRandomFrom(availableLectors));
+        homeworkRepository.save(newHomework);
     }
 }

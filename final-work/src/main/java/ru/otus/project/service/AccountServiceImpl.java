@@ -10,7 +10,7 @@ import ru.otus.project.converter.AccountConverter;
 import ru.otus.project.domain.Account;
 import ru.otus.project.domain.AccountRole;
 import ru.otus.project.dto.AccountDto;
-import ru.otus.project.exception.NotZeroIdWhenInsertException;
+import ru.otus.project.exception.NoZeroIdException;
 import ru.otus.project.exception.RoleNotFoundException;
 import ru.otus.project.repository.AccountRepository;
 import ru.otus.project.repository.AccountRoleRepository;
@@ -37,7 +37,7 @@ public class AccountServiceImpl implements UserDetailsService {
     @Transactional
     public AccountDto insert(AccountDto accountDto) {
         if (accountDto.getId() != 0) {
-            throw new NotZeroIdWhenInsertException("При регистрации Id должно быть 0");
+            throw new NoZeroIdException("При регистрации Id должно быть 0");
         }
 
         return save(accountDto);

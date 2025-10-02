@@ -2,6 +2,7 @@ package ru.otus.project.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,14 +31,14 @@ public class CourseController {
     }
 
     @PostMapping("api/courses/{courseId}/lector")
-    public void addLectorToCourse(@AuthenticationPrincipal AccountDto accountDto,
+    public void addLectorToCourse(@AuthenticationPrincipal Jwt jwt,
                                   @PathVariable long courseId) {
-        courseService.addLectorToCourse(accountDto.getId(), courseId);
+        courseService.addLectorToCourse(jwt.getClaim("accountId"), courseId);
     }
 
     @DeleteMapping("api/courses/{courseId}/lector")
-    public void deleteLectorFromCourse(@AuthenticationPrincipal AccountDto accountDto,
+    public void deleteLectorFromCourse(@AuthenticationPrincipal Jwt jwt,
                                        @PathVariable long courseId) {
-        courseService.deleteLectorFromCourse(accountDto.getId(), courseId);
+        courseService.deleteLectorFromCourse(jwt.getClaim("accountId"), courseId);
     }
 }

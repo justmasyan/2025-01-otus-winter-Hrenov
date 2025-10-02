@@ -15,6 +15,7 @@ public class HomeworkMessageConverter {
         return new HomeworkMessageDto(message.getId(),
                 message.getText(),
                 message.getSendTime(),
+                message.getSenderDesc(),
                 accountConverter.entityToBaseInfoDto(message.getSender())
         );
     }

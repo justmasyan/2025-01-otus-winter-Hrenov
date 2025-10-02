@@ -11,5 +11,5 @@ import java.util.List;
 public interface HomeworkMessageRepository extends JpaRepository<HomeworkMessage, Long> {
 
     @EntityGraph(attributePaths = {"sender"})
-    List<HomeworkMessage> findAllByHomeworkId(long homeworkId);
+    List<HomeworkMessage> findAllByHomeworkIdOrderBySendTimeDesc(long homeworkId);
 }

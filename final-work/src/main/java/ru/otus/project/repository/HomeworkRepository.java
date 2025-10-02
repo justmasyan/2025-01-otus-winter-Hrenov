@@ -14,7 +14,8 @@ public interface HomeworkRepository extends JpaRepository<Homework, Long> {
 
     @EntityGraph(attributePaths = {
             "status", "student.account", "lector.account",
-            "lecture.lectureTopic", "lecture.status"
+            "lecture.lectureTopic", "lecture.status",
+            "lecture.studyGroup.course"
     })
     Optional<Homework> findById(long id);
 
@@ -22,6 +23,11 @@ public interface HomeworkRepository extends JpaRepository<Homework, Long> {
     Optional<Homework> findByLectureIdAndStudentAccountId(long lectureId, long accountId);
 
     List<Homework> findAllByLectureIdAndLectorId(long lectureId, long lectorId);
+
+    @EntityGraph(attributePaths = {
+            "status", "student.account", "lector.account"
+    })
+    List<Homework> findAllByLectureId(long lectureId);
 
     @EntityGraph(attributePaths = {
             "status", "student.account",

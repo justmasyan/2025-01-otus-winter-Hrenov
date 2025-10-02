@@ -15,10 +15,3 @@ CREATE TABLE groups_students (
     student_id BIGINT REFERENCES students(id) ON DELETE CASCADE,
     PRIMARY KEY (group_id, student_id)
 );
-
-
-CREATE TABLE lectures_materials (
-    lecture_id BIGINT REFERENCES lectures(id) ON DELETE CASCADE,
-    material_id BIGINT REFERENCES lecture_materials(id) ON DELETE CASCADE,
-    PRIMARY KEY (lecture_id, material_id)
-);

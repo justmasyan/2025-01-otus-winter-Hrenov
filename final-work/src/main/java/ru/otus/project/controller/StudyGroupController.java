@@ -2,6 +2,7 @@ package ru.otus.project.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,14 +43,14 @@ public class StudyGroupController {
     }
 
     @PostMapping("api/groups/{id}/student")
-    public StudyGroupDto addStudentToGroup(@AuthenticationPrincipal AccountDto accountDto,
+    public StudyGroupDto addStudentToGroup(@AuthenticationPrincipal Jwt jwt,
                                            @PathVariable long id) {
-        return studyGroupService.addStudentToGroup(id, accountDto.getId());
+        return studyGroupService.addStudentToGroup(id, jwt.getClaim("accountId"));
     }
 
     @DeleteMapping("api/groups/{id}/student")
-    public StudyGroupDto removeStudentFromGroup(@AuthenticationPrincipal AccountDto accountDto,
+    public StudyGroupDto removeStudentFromGroup(@AuthenticationPrincipal Jwt jwt,
                                            @PathVariable long id) {
-        return studyGroupService.removeStudentFromGroup(id, accountDto.getId());
+        return studyGroupService.removeStudentFromGroup(id, jwt.getClaim("accountId"));
     }
 }

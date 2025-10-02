@@ -29,6 +29,8 @@ public class HomeworkMessage {
 
     private Date sendTime;
 
+    private String senderDesc;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id")
     private Account sender;

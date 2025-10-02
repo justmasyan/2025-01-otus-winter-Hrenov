@@ -1,5 +1,6 @@
 package db.migration;
 
+import db.data.MigrationDataStorage;
 import org.flywaydb.core.api.migration.BaseJavaMigration;
 import org.flywaydb.core.api.migration.Context;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -10,8 +11,6 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static db.data.MigrationData.data;
 
 @SuppressWarnings("unchecked")
 public class V016__Insert_courses extends BaseJavaMigration {
@@ -26,7 +25,7 @@ public class V016__Insert_courses extends BaseJavaMigration {
 
     private void insertCourses(NamedParameterJdbcOperations jdbc) {
         List<Map<String, Object>> params = new ArrayList<>();
-        data().getCOURSES().forEach(courseDto -> params.add(Map.of(
+        MigrationDataStorage.getCOURSES().forEach(courseDto -> params.add(Map.of(
                 "title", courseDto.getTitle(),
                 "price", courseDto.getPrice())
         ));
@@ -36,7 +35,7 @@ public class V016__Insert_courses extends BaseJavaMigration {
 
     private void insertRelationsToTopics(NamedParameterJdbcOperations jdbc) {
         List<Map<String, Object>> params = new ArrayList<>();
-        data().getCOURSES().forEach(courseDto ->
+        MigrationDataStorage.getCOURSES().forEach(courseDto ->
                 courseDto.getLectureTopics().forEach(topicDto -> params.add(Map.of(
                         "courseId", courseDto.getId(),
                         "topicId", topicDto.getId())

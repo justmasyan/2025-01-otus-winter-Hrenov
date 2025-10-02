@@ -4,6 +4,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.otus.project.dto.ErrorResponseDto;
@@ -11,7 +12,8 @@ import ru.otus.project.exception.CourseNotFoundException;
 import ru.otus.project.exception.HomeworkNotFoundException;
 import ru.otus.project.exception.LectorAlreadyInCourseException;
 import ru.otus.project.exception.LectorNotFoundException;
-import ru.otus.project.exception.NotZeroIdWhenInsertException;
+import ru.otus.project.exception.LectorNotInCourseException;
+import ru.otus.project.exception.NoZeroIdException;
 import ru.otus.project.exception.RoleNotFoundException;
 import ru.otus.project.exception.StudentAlreadyInGroupException;
 import ru.otus.project.exception.StudentNotFoundException;
@@ -26,9 +28,24 @@ import java.util.Date;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    //InvalidBearerTokenException возникает при новом JWT и старом JWT
+    //NoResourceFoundException возникает при попытке зайти не недоступную страницу
+    //LectorNotInLectureException
+    //LectorAlreadyInLectureException
+    //NotAvailableLectors
+    //LectorNotInHomeworkException
+    //EmptyHomeworkException
+    //AccountNotInHomeworkException
+    //InvalidBearerTokenException возникает при истечении JWT
+
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<?> throwableException(Throwable e) {
         return new ResponseEntity<>(new ErrorResponseDto("Неизвестная ошибка в сервисе", new Date()), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<?> authorizationDeniedException(AuthorizationDeniedException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Нет прав на этот ресурс", new Date()), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
@@ -66,13 +83,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ErrorResponseDto("Лектор уже преподает на курсе", new Date()), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(LectorNotInCourseException.class)
+    public ResponseEntity<?> lectorNotInCourseException(LectorNotInCourseException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Лектор не преподает на этом курсе", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(LectorNotFoundException.class)
     public ResponseEntity<?> lectorNotFoundException(LectorNotFoundException e) {
         return new ResponseEntity<>(new ErrorResponseDto("Преподаватель не найден", new Date()), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(NotZeroIdWhenInsertException.class)
-    public ResponseEntity<?> notZeroIdWhenInsertException(NotZeroIdWhenInsertException e) {
+    @ExceptionHandler(NoZeroIdException.class)
+    public ResponseEntity<?> notZeroIdWhenInsertException(NoZeroIdException e) {
         return new ResponseEntity<>(new ErrorResponseDto("Ненулевой id при создании", new Date()), HttpStatus.BAD_REQUEST);
     }
 

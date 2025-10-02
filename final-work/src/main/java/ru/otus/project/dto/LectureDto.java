@@ -2,11 +2,12 @@ package ru.otus.project.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
-import java.util.List;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class LectureDto {
 
@@ -21,8 +22,6 @@ public class LectureDto {
     private LectorDto lector;
 
     private StudyGroupDto studyGroup;
-
-    private List<LectureMaterialDto> materials;
 
     public LectureDto(long id, Date lectureTime) {
         this.id = id;
