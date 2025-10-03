@@ -19,7 +19,6 @@
             .then(json => {
                 tableForBaseInfo(json)
                 updateLectureForm(json)
-                findHomeworks()
             })
         }
     </script>
@@ -47,6 +46,7 @@
     <script>
         function tableForBaseInfo(lecture) {
             document.getElementById("lecture-table-tdTopicTitle").innerHTML = lecture.lectureTopic.title
+            document.getElementById("lecture-table-tdUrl").innerHTML = lecture.url
 
             document.getElementById("lecture-table-tdHrefGroup").href = `/groups/${lecture.studyGroup.id}`
             document.getElementById("lecture-table-tdHrefGroup").innerHTML = lecture.studyGroup.code
@@ -120,6 +120,7 @@
 
     <script>
         function updateLectureForm(lecture) {
+            document.getElementById("update-lecture-url-input").value = lecture.url
             document.getElementById("update-lecture-time-input").value = new Date(lecture.lectureTime)
                 .toISOString().slice(0,16)
             const statusSelect = document.getElementById("update-lecture-status-select")
@@ -248,7 +249,7 @@
 <table border="1">
     <tbody>
     <tr>
-        <td><a href="courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a href="lector_courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
         <td><a href="account.html" th:href="@{/account}">Личный кабинет</a></td>
     </tr>
     <tbody>
@@ -260,6 +261,7 @@
     <thead>
     <tr>
         <th>Тема</th>
+        <th>Ссылка</th>>
         <th>Учебный курс</th>
         <th>Лектор</th>
         <th>Время начала лекции</th>
@@ -269,6 +271,7 @@
     <tbody id="lecture-table-tbody">
     <tr>
         <td id="lecture-table-tdTopicTitle"></td>
+        <td id="lecture-table-tdUrl"></td>
         <td><a id="lecture-table-tdHrefGroup"></a></td>
         <td id="lecture-table-tdLector"></td>
         <td id="lecture-table-tdLectureTime"></td>
@@ -292,6 +295,11 @@
 
     <table border="1">
         <tbody>
+        <tr>
+            <td><label for="update-lecture-url-input">Новая ссылка</label></td>
+            <td><input id="update-lecture-url-input" name="title" type="text" required/></td>
+        </tr>
+
         <tr>
             <td><label for="update-lecture-time-input">Новое время лекции</label></td>
             <td><input id="update-lecture-time-input" name="title" type="datetime-local" required/></td>
@@ -322,7 +330,11 @@
 
     <tr>
         <td><input id="insert-material-url-input" name="title" type="text"/></td>
-        <td> <button id="insert-material-url-button" type="button" th:onclick="insertMaterialForLecture([[${id}]])">Добавить</button></td>
+        <td>
+            <button id="insert-material-url-button" type="button" th:onclick="insertMaterialForLecture([[${id}]])">
+                Добавить
+            </button>
+        </td>
     </tr>
     </tbody>
 </table>

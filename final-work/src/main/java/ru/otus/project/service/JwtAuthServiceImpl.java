@@ -22,9 +22,10 @@ public class JwtAuthServiceImpl implements JwtAuthService {
     @Autowired
     private final JwtEncoder encoder;
 
+    @Override
     public String generateJwtToken(AccountDto accountDto) {
         Instant issued = Instant.now();
-        Instant expire =  Instant.ofEpochSecond(issued.getEpochSecond() + lifetime.getSeconds());
+        Instant expire = Instant.ofEpochSecond(issued.getEpochSecond() + lifetime.getSeconds());
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject(accountDto.getUsername())

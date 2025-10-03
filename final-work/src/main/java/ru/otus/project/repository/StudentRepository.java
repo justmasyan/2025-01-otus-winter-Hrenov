@@ -10,6 +10,9 @@ import java.util.Optional;
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Long> {
 
-    @Query("SELECT s FROM Student s JOIN FETCH s.account WHERE s.account.id = :accountId")
+    @Query("SELECT s FROM Student s " +
+            "JOIN FETCH s.account sa " +
+            "JOIN FETCH sa.authority " +
+            "WHERE s.account.id = :accountId")
     Optional<Student> findByAccountId(long accountId);
 }

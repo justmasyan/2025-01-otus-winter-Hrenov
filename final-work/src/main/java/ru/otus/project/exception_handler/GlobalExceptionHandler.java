@@ -1,18 +1,26 @@
 package ru.otus.project.exception_handler;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import ru.otus.project.dto.ErrorResponseDto;
+import ru.otus.project.exception.AccountNotInHomeworkException;
 import ru.otus.project.exception.CourseNotFoundException;
+import ru.otus.project.exception.EmptyHomeworkException;
+import ru.otus.project.exception.EmptyTopicsException;
 import ru.otus.project.exception.HomeworkNotFoundException;
 import ru.otus.project.exception.LectorAlreadyInCourseException;
+import ru.otus.project.exception.LectorAlreadyInLectureException;
 import ru.otus.project.exception.LectorNotFoundException;
 import ru.otus.project.exception.LectorNotInCourseException;
+import ru.otus.project.exception.LectorNotInHomeworkException;
+import ru.otus.project.exception.LectorNotInLectureException;
+import ru.otus.project.exception.NoAvailableLectorsException;
 import ru.otus.project.exception.NoZeroIdException;
 import ru.otus.project.exception.RoleNotFoundException;
 import ru.otus.project.exception.StudentAlreadyInGroupException;
@@ -20,29 +28,22 @@ import ru.otus.project.exception.StudentNotFoundException;
 import ru.otus.project.exception.StudentNotInGroupException;
 import ru.otus.project.exception.StudentsExistWhenGroupCreateException;
 import ru.otus.project.exception.StudyGroupNotFoundException;
+import ru.otus.project.exception.TopicNotFoundException;
+import ru.otus.project.exception.TopicTitleExistException;
+import ru.otus.project.exception.UndefinedRoleException;
+import ru.otus.project.exception.ZeroIdException;
 
-import java.nio.charset.MalformedInputException;
-import java.security.SignatureException;
 import java.util.Date;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-    //InvalidBearerTokenException возникает при новом JWT и старом JWT
-    //NoResourceFoundException возникает при попытке зайти не недоступную страницу
-    //LectorNotInLectureException
-    //LectorAlreadyInLectureException
-    //NotAvailableLectors
-    //LectorNotInHomeworkException
-    //EmptyHomeworkException
-    //AccountNotInHomeworkException
-    //InvalidBearerTokenException возникает при истечении JWT
 
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<?> throwableException(Throwable e) {
         return new ResponseEntity<>(new ErrorResponseDto("Неизвестная ошибка в сервисе", new Date()), HttpStatus.UNAUTHORIZED);
     }
 
+    //отдельно должен обрабатываться
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<?> authorizationDeniedException(AuthorizationDeniedException e) {
         return new ResponseEntity<>(new ErrorResponseDto("Нет прав на этот ресурс", new Date()), HttpStatus.UNAUTHORIZED);
@@ -53,19 +54,71 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ErrorResponseDto("Неправильный логин или пароль", new Date()), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<?> expiredJwtException(ExpiredJwtException e) {
-        return new ResponseEntity<>(new ErrorResponseDto("Токен авторизации истек. Авторизуйтесь повторно", new Date()), HttpStatus.UNAUTHORIZED);
+    //отдельно должен обрабатываться
+    @ExceptionHandler(InvalidBearerTokenException.class)
+    public ResponseEntity<?> invalidBearerTokenException(InvalidBearerTokenException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Некорректный токен", new Date()), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(MalformedInputException.class)
-    public ResponseEntity<?> malformedInputException(MalformedInputException e) {
-        return new ResponseEntity<>(new ErrorResponseDto("Токен не соответствует стандарту", new Date()), HttpStatus.UNAUTHORIZED);
+    //отдельно должен обрабатываться
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<?> noResourceFoundException(NoResourceFoundException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Страница не найдена", new Date()), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(SignatureException.class)
-    public ResponseEntity<?> signatureException(SignatureException e) {
-        return new ResponseEntity<>(new ErrorResponseDto("Подпись токена авторизации ему не соответствует", new Date()), HttpStatus.UNAUTHORIZED);
+    @ExceptionHandler(LectorNotInLectureException.class)
+    public ResponseEntity<?> lectorNotInLectureException(LectorNotInLectureException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Преподаватель не ведет эту лекцию", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(LectorAlreadyInLectureException.class)
+    public ResponseEntity<?> lectorAlreadyInLectureException(AuthorizationDeniedException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Преподаватель уже ведет эту лекцию", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoAvailableLectorsException.class)
+    public ResponseEntity<?> notAvailableLectors(NoAvailableLectorsException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Нет доступных преподавателей", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(LectorNotInHomeworkException.class)
+    public ResponseEntity<?> lectorNotInHomeworkException(LectorNotInHomeworkException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Преподаватель не проверяет это ДЗ", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(EmptyHomeworkException.class)
+    public ResponseEntity<?> emptyHomeworkException(EmptyHomeworkException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("ДЗ не должно быть пустым", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AccountNotInHomeworkException.class)
+    public ResponseEntity<?> accountNotInHomeworkException(AccountNotInHomeworkException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Данный пользователь никак не связан с этой ДЗ", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ZeroIdException.class)
+    public ResponseEntity<?> zeroIdException(ZeroIdException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("id не должен равняться 0", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(TopicTitleExistException.class)
+    public ResponseEntity<?> topicTitleExistException(TopicTitleExistException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Такая тема лекции уже существует", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(EmptyTopicsException.class)
+    public ResponseEntity<?> emptyTopicsException(EmptyTopicsException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Темы лекций не должны быть пустыми", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(TopicNotFoundException.class)
+    public ResponseEntity<?> topicNotFoundException(TopicNotFoundException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Тема лекции не найдена", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UndefinedRoleException.class)
+    public ResponseEntity<?> undefinedRoleException(UndefinedRoleException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Неопределенная роль", new Date()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(CourseNotFoundException.class)

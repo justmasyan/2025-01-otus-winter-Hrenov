@@ -35,6 +35,12 @@ public class HomeworkConverter {
                 studentConverter.entityToBaseInfoDto(homework.getStudent()));
     }
 
+    public HomeworkDto entityToDtoForStudent(Homework homework) {
+        return new HomeworkDto(homework.getId(), homework.getMark(),
+                statusConverter.entityToDto(homework.getStatus()),
+                lectureConverter.entityToDtoForStudent(homework.getLecture()));
+    }
+
     public HomeworkDto entityToDtoForLecture(Homework homework) {
         return new HomeworkDto(homework.getId(), homework.getMark(),
                 statusConverter.entityToDto(homework.getStatus()),

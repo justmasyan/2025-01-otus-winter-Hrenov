@@ -1,5 +1,7 @@
 package ru.otus.project.service;
 
-public interface JwtAuthService {
+import ru.otus.project.dto.AccountDto;
 
+public interface JwtAuthService {
+    String generateJwtToken(AccountDto accountDto);
 }

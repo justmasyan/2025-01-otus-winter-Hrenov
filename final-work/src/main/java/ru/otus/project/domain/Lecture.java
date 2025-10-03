@@ -30,6 +30,8 @@ public class Lecture {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    private String url;
+
     private Date lectureTime;
 
     @ManyToOne(fetch = FetchType.LAZY)

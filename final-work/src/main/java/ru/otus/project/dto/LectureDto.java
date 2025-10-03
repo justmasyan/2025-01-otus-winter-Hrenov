@@ -13,6 +13,8 @@ public class LectureDto {
 
     private long id;
 
+    private String url;
+
     private Date lectureTime;
 
     private LectureStatusDto status;
@@ -23,20 +25,25 @@ public class LectureDto {
 
     private StudyGroupDto studyGroup;
 
-    public LectureDto(long id, Date lectureTime) {
+    public LectureDto(long id, String url, Date lectureTime, LectureStatusDto status, LectureTopicDto lectureTopic) {
         this.id = id;
-        this.lectureTime = lectureTime;
-    }
-
-    public LectureDto(long id, Date lectureTime, LectureStatusDto status, LectureTopicDto lectureTopic) {
-        this.id = id;
+        this.url = url;
         this.lectureTime = lectureTime;
         this.status = status;
         this.lectureTopic = lectureTopic;
     }
 
-    public LectureDto(long id, Date lectureTime, LectureStatusDto status, LectureTopicDto lectureTopic, StudyGroupDto studyGroup) {
+    public LectureDto(long id, String url, Date lectureTime, LectureTopicDto lectureTopic, StudyGroupDto studyGroup) {
         this.id = id;
+        this.url = url;
+        this.lectureTime = lectureTime;
+        this.lectureTopic = lectureTopic;
+        this.studyGroup = studyGroup;
+    }
+
+    public LectureDto(long id, String url, Date lectureTime, LectureStatusDto status, LectureTopicDto lectureTopic, StudyGroupDto studyGroup) {
+        this.id = id;
+        this.url = url;
         this.lectureTime = lectureTime;
         this.status = status;
         this.lectureTopic = lectureTopic;

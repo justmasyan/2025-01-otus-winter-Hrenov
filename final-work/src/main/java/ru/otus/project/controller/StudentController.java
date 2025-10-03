@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.otus.project.dto.StudentDto;
@@ -22,7 +23,12 @@ public class StudentController {
     }
 
     @PostMapping("api/students/new")
-    public StudentDto createStudent(@Valid @RequestBody StudentDto studentDto){
+    public StudentDto insertStudent(@Valid @RequestBody StudentDto studentDto){
         return studentService.insert(studentDto);
+    }
+
+    @PutMapping("api/students/accounts/{accountId}")
+    public StudentDto updateStudent(@RequestBody StudentDto studentDto){
+        return studentService.update(studentDto);
     }
 }

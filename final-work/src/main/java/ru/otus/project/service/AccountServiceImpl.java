@@ -10,6 +10,7 @@ import ru.otus.project.converter.AccountConverter;
 import ru.otus.project.domain.Account;
 import ru.otus.project.domain.AccountRole;
 import ru.otus.project.dto.AccountDto;
+import ru.otus.project.exception.AccountNotFoundException;
 import ru.otus.project.exception.NoZeroIdException;
 import ru.otus.project.exception.RoleNotFoundException;
 import ru.otus.project.repository.AccountRepository;
@@ -17,7 +18,7 @@ import ru.otus.project.repository.AccountRoleRepository;
 
 @Service
 @RequiredArgsConstructor
-public class AccountServiceImpl implements UserDetailsService {
+public class AccountServiceImpl implements AccountService, UserDetailsService {
 
     private final PasswordEncoder passwordEncoder;
 
@@ -30,16 +31,24 @@ public class AccountServiceImpl implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public AccountDto loadUserByUsername(String username) throws UsernameNotFoundException {
-        return accountRepository.findByUsername(username).map(accountConverter::entityToDto)
+        return accountRepository.findByUsername(username).map(accountConverter::entityToAuthorizationDto)
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
     }
 
+    @Override
     @Transactional
     public AccountDto insert(AccountDto accountDto) {
         if (accountDto.getId() != 0) {
-            throw new NoZeroIdException("При регистрации Id должно быть 0");
+            throw new NoZeroIdException("Id должен равняться нулю");
         }
+        return save(accountDto);
+    }
 
+    @Override
+    @Transactional
+    public AccountDto update(AccountDto accountDto) {
+        accountRepository.findById(accountDto.getId())
+                .orElseThrow(() -> new AccountNotFoundException("Аккаунт не найден"));
         return save(accountDto);
     }
 

@@ -25,7 +25,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-public class HomeworkMessageServiceImpl {
+public class HomeworkMessageServiceImpl implements HomeworkMessageService {
 
     private final AccountRepository accountRepository;
 
@@ -35,12 +35,14 @@ public class HomeworkMessageServiceImpl {
 
     private final HomeworkMessageConverter messageConverter;
 
+    @Override
     @Transactional(readOnly = true)
     public List<HomeworkMessageDto> findAllByHomeworkId(long homeworkId) {
         return messageRepository.findAllByHomeworkIdOrderBySendTimeDesc(homeworkId).stream()
                 .map(messageConverter::entityToWithAccountDto).toList();
     }
 
+    @Override
     @Transactional
     public HomeworkMessageDto insertMessage(HomeworkMessageDto messageDto, long accountId) {
         if (Objects.isNull(messageDto.getHomework()) || messageDto.getHomework().getId() == 0) {

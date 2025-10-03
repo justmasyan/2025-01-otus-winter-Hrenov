@@ -46,8 +46,21 @@
     <script>
         function tableForBaseInfo(lector) {
             document.getElementById("lector-table-tdUsername").innerHTML = lector.account.username
+            document.getElementById("update-username-input").value = lector.account.username
+
+            let roleOption = document.getElementById("update-role-option")
+            roleOption.value = lector.account.authority.id
+            roleOption.textContent = lector.account.authority.description
+            roleOption.selected = 'selected'
+
             document.getElementById("lector-table-tdFirstName").innerHTML = lector.firstName
+            document.getElementById("update-first-name-input").value= lector.firstName
+
             document.getElementById("lector-table-tdLastName").innerHTML = lector.lastName
+            document.getElementById("update-last-name-input").value = lector.lastName
+
+            document.getElementById("lector-table-tdJobTitle").innerHTML = lector.jobTitle
+            document.getElementById("update-job-input").value = lector.jobTitle
         }
     </script>
 
@@ -84,6 +97,9 @@
                 tdTopicTitleHref.innerHTML = lecture.lectureTopic.title
                 tdTopicTitle.appendChild(tdTopicTitleHref)
 
+                let tdUrl = document.createElement('td')
+                tdUrl.innerHTML = lecture.url
+
                 let tdStatus = document.createElement('td')
                 tdStatus.innerHTML = lecture.status.text
 
@@ -97,6 +113,7 @@
                 tdLectureTime.innerHTML = lecture.lectureTime
 
                 tr.appendChild(tdTopicTitle)
+                tr.appendChild(tdUrl)
                 tr.appendChild(tdStatus)
                 tr.appendChild(tdGroupTitle)
                 tr.appendChild(tdLectureTime)
@@ -113,8 +130,11 @@
             homeworks.forEach(function(homework) {
                 let tr = document.createElement('tr')
 
-                let tdTopicTitle = document.createElement('td')
-                tdTopicTitle.innerHTML = homework.lecture.lectureTopic.title
+                let tdHomework = document.createElement('td')
+                let tdHomeworkHref = document.createElement('a')
+                tdHomeworkHref.href = `/homeworks/${homework.id}`
+                tdHomeworkHref.innerHTML = homework.lecture.lectureTopic.title
+                tdHomework.appendChild(tdHomeworkHref)
 
                 let tdStudent = document.createElement('td')
                 tdStudent.innerHTML = `${homework.student.firstName} ${homework.student.lastName}`
@@ -125,18 +145,54 @@
                 let tdMark = document.createElement('td')
                 tdMark.innerHTML = homework.mark
 
-                let tdHomework = document.createElement('td')
-                let tdHomeworkHref = document.createElement('a')
-                tdHomeworkHref.href = `/homeworks/${homework.id}`
-                tdHomeworkHref.innerHTML = "Перейти"
-                tdHomework.appendChild(tdHomeworkHref)
-
-                tr.appendChild(tdTopicTitle)
+                tr.appendChild(tdHomework)
                 tr.appendChild(tdStudent)
                 tr.appendChild(tdStatus)
                 tr.appendChild(tdMark)
-                tr.appendChild(tdHomework)
                 tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function updateLector(accountId) {
+            const password = document.getElementById("update-password-input").value
+            const confirmPassword = document.getElementById("update-confirm-password-input").value
+
+            if(password != confirmPassword) {
+                alert("Пароли не совпадают")
+                return ;
+            }
+
+            const firstName = document.getElementById("update-first-name-input").value
+            const lastName = document.getElementById("update-last-name-input").value
+            const username = document.getElementById("update-username-input").value
+            const roleId = document.getElementById("update-role-select").value
+            const jobTitle = document.getElementById("update-job-input").value
+
+            const lector = {
+                firstName: firstName,
+                lastName: lastName,
+                jobTitle: jobTitle,
+                account: {
+                    id: accountId,
+                    username: username,
+                    password: password,
+                    authority: { id: roleId }
+                }
+            }
+
+            fetch(`/api/lectors/accounts/${accountId}`, {
+                method: 'PUT',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(lector)
+            }).then(rawResponse => rawResponse.json())
+            .then(json => {
+                alert("Вы успешно обновили данные")
+                window.location.reload()
             })
         }
     </script>
@@ -148,7 +204,7 @@
 <table border="1">
     <tbody>
     <tr>
-        <td><a href="courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a href="lector_courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
         <td><a href="account.html" th:href="@{/account}">Личный кабинет</a></td>
     </tr>
     <tbody>
@@ -162,6 +218,7 @@
         <th>Логин</th>
         <th>Имя</th>
         <th>Фамилия</th>
+        <th>Место работы</th>
     </tr>
     </thead>
     <tbody id="lector-table-tbody">
@@ -169,8 +226,54 @@
         <td id="lector-table-tdUsername"></td>
         <td id="lector-table-tdFirstName"></td>
         <td id="lector-table-tdLastName"></td>
-    </tr><tbody>
+        <td id="lector-table-tdJobTitle"></td>
+    </tr>
+    <tbody>
 </table>
+
+<h3>Форма для изменения данных</h3>
+
+<form id="update-lector-form">
+
+    <table border="1">
+        <tbody>
+        <tr>
+            <td><label for="update-username-input">Логин</label></td>
+            <td><input id="update-username-input" name="title" type="text" required/></td>
+        </tr>
+        <tr>
+            <td><label for="update-password-input">Пароль</label></td>
+            <td><input id="update-password-input" name="title" type="text" required/></td>
+        </tr>
+        <tr>
+            <td><label for="update-confirm-password-input">Подтверждение пароля</label></td>
+            <td><input id="update-confirm-password-input" name="title" type="text" required/></td>
+        </tr>
+        <tr>
+            <td><label for="update-first-name-input">Имя</label></td>
+            <td><input id="update-first-name-input" name="title" type="text" required/></td>
+        </tr>
+        <tr>
+            <td><label for="update-last-name-input">Фамилия</label></td>
+            <td><input id="update-last-name-input" name="title" type="text" required/></td>
+        </tr>
+
+        <tr>
+            <td><label for="update-role-select">Кто вы</label></td>
+            <td><select id="update-role-select" disabled required><option id="update-role-option"></option></select></td>
+        </tr>
+
+        <tr id="lector-job-row">
+            <td><label for="update-job-input">Место работы</label></td>
+            <td><input id="update-job-input" name="title" type="text" required/></td>
+        </tr>
+        <tbody>
+    </table>
+
+    <div class="row">
+        <button id="update-lector-button" type="button" th:onclick="updateLector([[${accountId}]])">Отправить</button>
+    </div>
+</form>
 
 <h3>Преподает в рамках курсов: </h3>
 
@@ -189,6 +292,7 @@
     <thead>
     <tr>
         <th>Тема лекции</th>
+        <th>Ссылка на лекцию</th>
         <th>Статус лекции</th>
         <th>Учебная группа</th>
         <th>Время начала лекции</th>
@@ -202,11 +306,10 @@
 <table border="1">
     <thead>
     <tr>
-        <th>Тема</th>
+        <th>Тема ДЗ</th>
         <th>Студент</th>
         <th>Статус ДЗ</th>
         <th>Оценка</th>
-        <th>Ссылка на дз</th>
     </tr>
     </thead>
     <tbody id="homeworks-table-tbody">

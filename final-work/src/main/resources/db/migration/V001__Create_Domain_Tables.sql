@@ -16,7 +16,7 @@ CREATE TABLE lecture_statuses (
 
 CREATE TABLE lecture_topics (
     id BIGSERIAL PRIMARY KEY,
-    title VARCHAR(255)
+    title VARCHAR(255) UNIQUE
 );
 
 CREATE TABLE accounts (
@@ -57,6 +57,7 @@ CREATE TABLE study_groups (
 
 CREATE TABLE lectures (
     id BIGSERIAL PRIMARY KEY,
+    url VARCHAR(255),
     lecture_time DATETIME,
     status_id tinyint REFERENCES lecture_statuses(id),
     topic_id BIGINT REFERENCES lecture_topics(id) ON DELETE CASCADE,

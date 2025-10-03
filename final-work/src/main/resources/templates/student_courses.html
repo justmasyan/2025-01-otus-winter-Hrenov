@@ -5,8 +5,14 @@
     <title>Courses</title>
 
     <script>
+        function onLoadPage() {
+            findAllCourses()
+        }
+    </script>
+
+    <script>
         function findAllCourses() {
-            fetch('api/courses')
+            fetch('/api/courses')
             .then(rawResponse => rawResponse.json())
             .then(courses => {
                 tableFor(courses)
@@ -37,18 +43,25 @@
             })
         }
     </script>
+
 </head>
 
-<body onload="findAllCourses();">
+<body onload="onLoadPage();">
 
 <table border="1">
     <tbody>
     <tr>
-        <td><a href="courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
-        <td><a href="account.html" th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список конкретных тем</a></td>
+        <td><a th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/authentication}">Получить токен</a></td>
     </tr>
     <tbody>
 </table>
+
+<div class="row">
+    <button id="register-account-button" type="button" onclick="createCourse()">Создать</button>
+</div>
 
 <h3>Список доступных курсов:</h3>
 

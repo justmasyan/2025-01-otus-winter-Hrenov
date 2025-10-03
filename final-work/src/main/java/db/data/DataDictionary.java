@@ -57,4 +57,9 @@ public class DataDictionary {
             "Htmlacademy.ru", "Lendwings.com", "Loftblog.ru", "Mail.ru",
             "Microsoft.com", "Techdays.ru", "Topexpert.pro"
     );
+
+    protected static final List<String> DEFAULT_LECTURE_URL = List.of(
+          "rutube.com",  "eutube.com","uktube.com","wetube.com","theytube.com","itube.com","shetube.com",
+            "hetube.com","ittube.com","foottube.com","baskettube.com","hocktube.com","letube.com","facetube.com"
+    );
 }

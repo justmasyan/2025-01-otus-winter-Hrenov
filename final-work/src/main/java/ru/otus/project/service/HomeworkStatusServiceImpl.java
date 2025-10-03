@@ -10,12 +10,13 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class HomeworkStatusServiceImpl {
+public class HomeworkStatusServiceImpl implements HomeworkStatusService {
 
     private final HomeworkStatusRepository statusRepository;
 
     private final HomeworkStatusConverter statusConverter;
 
+    @Override
     public List<HomeworkStatusDto> findAll() {
         return statusRepository.findAll().stream()
                 .map(statusConverter::entityToDto).toList();

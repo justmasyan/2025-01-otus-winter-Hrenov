@@ -19,7 +19,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-public class LectureMaterialServiceImpl {
+public class LectureMaterialServiceImpl implements LectureMaterialService{
 
     private final LectureRepository lectureRepository;
 
@@ -27,12 +27,14 @@ public class LectureMaterialServiceImpl {
 
     private final LectureMaterialsConverter materialsConverter;
 
+    @Override
     @Transactional(readOnly = true)
     public List<LectureMaterialDto> findAllByLectureId(long lectureId) {
         return materialRepository.findAllByLectureId(lectureId).stream()
                 .map(materialsConverter::entityToMinDto).toList();
     }
 
+    @Override
     @Transactional
     public LectureMaterialDto insertMaterial(LectureMaterialDto materialDto, long lectorAccountId) {
         if (materialDto.getId() != 0) {
@@ -59,6 +61,7 @@ public class LectureMaterialServiceImpl {
         return materialsConverter.entityToMinDto(savedMaterial);
     }
 
+    @Override
     @Transactional
     public void deleteMaterial(long materialId) {
         materialRepository.deleteById(materialId);

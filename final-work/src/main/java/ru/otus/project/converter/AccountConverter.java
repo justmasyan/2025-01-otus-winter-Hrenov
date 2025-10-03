@@ -21,8 +21,13 @@ public class AccountConverter {
         return new AccountDto(account.getId(), account.getUsername());
     }
 
-    public AccountDto entityToDto(Account account) {
+    public AccountDto entityToAuthorizationDto(Account account) {
         return new AccountDto(account.getId(), account.getUsername(), account.getPassword(),
+                roleConverter.entityToDto(account.getAuthority()));
+    }
+
+    public AccountDto entityToDto(Account account) {
+        return new AccountDto(account.getId(), account.getUsername(),
                 roleConverter.entityToDto(account.getAuthority()));
     }
 

@@ -44,9 +44,10 @@
 <table border="1">
     <tbody>
     <tr>
-        <td><a href="courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
-        <td><a href="authentication.html" th:href="@{/authentication}">Получить токен</a></td>
-        <td><a href="register.html" th:href="@{/register}">Зарегистрироваться</a></td>
+        <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список конкретных тем</a></td>
+        <td><a th:href="@{/authentication}">Получить токен</a></td>
+        <td><a th:href="@{/registration}">Зарегистрироваться</a></td>
     </tr>
     <tbody>
 </table>
@@ -60,7 +61,8 @@
         <th>Цена курса</th>
     </tr>
     </thead>
-    <tbody id="courses-table-tbody"><tbody>
+    <tbody id="courses-table-tbody">
+    <tbody>
 </table>
 
 </body>

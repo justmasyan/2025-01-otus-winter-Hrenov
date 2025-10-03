@@ -11,12 +11,13 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class LectureStatusServiceImpl {
+public class LectureStatusServiceImpl implements LectureStatusService{
 
     private final LectureStatusRepository statusRepository;
 
     private final LectureStatusConverter statusConverter;
 
+    @Override
     public List<LectureStatusDto> findAll() {
         return statusRepository.findAll(Sort.by(Sort.Direction.ASC, "id")).stream()
                 .map(statusConverter::entityToDto).toList();

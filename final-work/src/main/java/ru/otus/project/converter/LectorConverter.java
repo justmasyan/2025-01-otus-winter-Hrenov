@@ -21,7 +21,7 @@ public class LectorConverter {
     public LectorDto entityToDto(Lector lector) {
         return new LectorDto(lector.getId(), lector.getFirstName(),
                 lector.getLastName(), lector.getJobTitle(),
-                accountConverter.entityToBaseInfoDto(lector.getAccount()),
+                accountConverter.entityToDto(lector.getAccount()),
                 lector.getCourses().stream().map(courseConverter::entityToMinDto).toList());
     }
 }

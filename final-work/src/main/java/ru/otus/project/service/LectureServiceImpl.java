@@ -36,6 +36,7 @@ public class LectureServiceImpl implements LectureService {
 
     private final LectureStatusConverter statusConverter;
 
+    @Override
     @Transactional(readOnly = true)
     public LectureDto findById(long id) {
         return lectureRepository.findById(id)
@@ -43,20 +44,23 @@ public class LectureServiceImpl implements LectureService {
                 .orElseThrow(() -> new LectureNotFoundException("Лекция не существует"));
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<LectureDto> findAllByGroupId(long lectorId) {
         return lectureRepository.findAllByStudyGroupId(lectorId).stream()
                 .map(lectureConverter::entityToWithStatusTopicDto).toList();
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<LectureDto> findAllByLectorAccountId(long lectorAccountId) {
         return lectureRepository.findAllByLectorAccountId(lectorAccountId).stream()
-                .map(lectureConverter::entityToWithStatusTopicGroupDto).toList();
+                .map(lectureConverter::entityToDtoForLector).toList();
     }
 
+    @Override
     @Transactional
-    public LectureDto updateLectureByAccount(LectureDto lectureDto, long accountId) {
+    public LectureDto updateLectureByLector(LectureDto lectureDto, long accountId) {
         Lecture lecture = lectureRepository.findById(lectureDto.getId())
                 .orElseThrow(() -> new LectureNotFoundException("Лекция не найдена"));
 
@@ -65,6 +69,7 @@ public class LectureServiceImpl implements LectureService {
         }
 
         Lecture newLecture = new Lecture(lecture.getId(),
+                lectureDto.getUrl(),
                 lectureDto.getLectureTime(),
                 statusConverter.dtoToEntity(lectureDto.getStatus()),
                 lecture.getLectureTopic(),
@@ -74,6 +79,7 @@ public class LectureServiceImpl implements LectureService {
         return lectureConverter.entityToFullDto(updateLecture);
     }
 
+    @Override
     @Transactional
     public void createDefaultLecturesForGroup(StudyGroup studyGroup) {
         Calendar calendar = Calendar.getInstance();
@@ -82,7 +88,7 @@ public class LectureServiceImpl implements LectureService {
         List<Lector> lectors = lectorRepository.findAllByCoursesId(studyGroup.getCourse().getId());
 
         List<Lecture> lectures = studyGroup.getCourse().getLectureTopics().stream().map(lectureTopic -> {
-            Lecture newLecture = new Lecture(0L, calendar.getTime(),
+            Lecture newLecture = new Lecture(0L, "", calendar.getTime(),
                     statusConverter.enumToEntity(LectureStatusEnum.IN_FUTURE),
                     lectureTopic,
                     RandomUtils.getOneRandomFrom(lectors),
@@ -94,6 +100,7 @@ public class LectureServiceImpl implements LectureService {
         lectureRepository.saveAll(lectures);
     }
 
+    @Override
     @Transactional
     public void assignLectorOnLecture(long lectureId, long lectorAccountId) {
         Lecture lecture = lectureRepository.findById(lectureId)
@@ -111,6 +118,7 @@ public class LectureServiceImpl implements LectureService {
         }
 
         Lecture newLecture = new Lecture(lecture.getId(),
+                lecture.getUrl(),
                 lecture.getLectureTime(),
                 lecture.getStatus(),
                 lecture.getLectureTopic(),
@@ -119,6 +127,7 @@ public class LectureServiceImpl implements LectureService {
         lectureRepository.save(newLecture);
     }
 
+    @Override
     @Transactional
     public void removeLectorFromLecture(long lectureId, long lectorAccountId) {
         Lecture lecture = lectureRepository.findById(lectureId)
@@ -137,6 +146,7 @@ public class LectureServiceImpl implements LectureService {
         }
 
         Lecture newLecture = new Lecture(lecture.getId(),
+                lecture.getUrl(),
                 lecture.getLectureTime(),
                 lecture.getStatus(),
                 lecture.getLectureTopic(),
@@ -145,11 +155,13 @@ public class LectureServiceImpl implements LectureService {
         lectureRepository.save(newLecture);
     }
 
+    @Override
     @Transactional
     public void removeLectorForCourseLectures(Course course, Lector oldLector) {
         List<Lecture> lectures = lectureRepository.findAllByLectorAccountIdAndCourseId(oldLector.getAccount().getId(), course.getId());
         List<Lecture> updatedLectures = lectures.stream().map(lecture ->
-                new Lecture(lecture.getId(), lecture.getLectureTime(),
+                new Lecture(lecture.getId(), lecture.getUrl(),
+                        lecture.getLectureTime(),
                         lecture.getStatus(),
                         lecture.getLectureTopic(),
                         RandomUtils.getOneRandomFrom(course.getLectors()),

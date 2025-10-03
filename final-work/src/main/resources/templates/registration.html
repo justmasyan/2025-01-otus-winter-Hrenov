@@ -99,15 +99,14 @@
     <script>
         function loadRoles(){
             let roleSelect = document.getElementById('register-role-select');
-            fetch('/api/roles').then(response => response.json())
-                .then(json => {
+            fetch('/api/roles').then(response => response.json()).then(json => {
                     json.forEach(function(role) {
-                    let roleOption = document.createElement("option");
+                        let roleOption = document.createElement("option");
 
-                    roleOption.textContent = role.description;
-                    roleOption.value = role.id;
-                    roleSelect.appendChild(roleOption);
-                })
+                        roleOption.textContent = role.description;
+                        roleOption.value = role.id;
+                        roleSelect.appendChild(roleOption);
+                    })
             })
         }
     </script>
@@ -136,59 +135,56 @@
 <table border="1">
     <tbody>
     <tr>
-        <td><a href="courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a href="lector_courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
     </tr>
     <tbody>
 </table>
 
 <h3>Заполните данные для регистрации:</h3>
 
-<form id="register_account_form" action="authentication.html">
+<table border="1">
+    <tbody>
+    <tr>
+        <td><label for="register-username-input">Логин</label></td>
+        <td><input id="register-username-input" name="title" type="text" required/></td>
+    </tr>
+    <tr>
+        <td><label for="register-password-input">Пароль</label></td>
+        <td><input id="register-password-input" name="title" type="text" required/></td>
+    </tr>
+    <tr>
+        <td><label for="register-confirm-password-input">Подтверждение пароля</label></td>
+        <td><input id="register-confirm-password-input" name="title" type="text" required/></td>
+    </tr>
+    <tr>
+        <td><label for="register-first-name-input">Имя</label></td>
+        <td><input id="register-first-name-input" name="title" type="text" required/></td>
+    </tr>
+    <tr>
+        <td><label for="register-last-name-input">Фамилия</label></td>
+        <td><input id="register-last-name-input" name="title" type="text" required/></td>
+    </tr>
 
-    <table border="1">
-        <tbody>
-        <tr>
-            <td><label for="register-username-input">Логин</label></td>
-            <td><input id="register-username-input" name="title" type="text" required/></td>
-        </tr>
-        <tr>
-            <td><label for="register-password-input">Пароль</label></td>
-            <td><input id="register-password-input" name="title" type="text" required/></td>
-        </tr>
-        <tr>
-            <td><label for="register-confirm-password-input">Подтверждение пароля</label></td>
-            <td><input id="register-confirm-password-input" name="title" type="text" required/></td>
-        </tr>
-        <tr>
-            <td><label for="register-first-name-input">Имя</label></td>
-            <td><input id="register-first-name-input" name="title" type="text" required/></td>
-        </tr>
-        <tr>
-            <td><label for="register-last-name-input">Фамилия</label></td>
-            <td><input id="register-last-name-input" name="title" type="text" required/></td>
-        </tr>
+    <tr>
+        <td><label for="register-role-select">Кто вы</label></td>
+        <td><select id="register-role-select" onChange="showInputsBySelect(this);" required></select></td>
+    </tr>
 
-        <tr>
-            <td><label for="register-role-select">Кто вы</label></td>
-            <td><select id="register-role-select" onChange="showInputsBySelect(this);" required></select></td>
-        </tr>
+    <tr id="student-study-place-row">
+        <td><label for="register-student-study-place-input">Место учебы</label></td>
+        <td><input id="register-student-study-place-input" name="title" type="text" required/></td>
+    </tr>
 
-        <tr id="student-study-place-row">
-            <td><label for="register-student-study-place-input">Место учебы</label></td>
-            <td><input id="register-student-study-place-input" name="title" type="text" required/></td>
-        </tr>
+    <tr id="lector-job-row" style="display: none;">
+        <td><label for="register-lector-job-input">Место работы</label></td>
+        <td><input id="register-lector-job-input" name="title" type="text" required/></td>
+    </tr>
+    <tbody>
+</table>
 
-        <tr id="lector-job-row" style="display: none;">
-            <td><label for="register-lector-job-input">Место работы</label></td>
-            <td><input id="register-lector-job-input" name="title" type="text" required/></td>
-        </tr>
-        <tbody>
-    </table>
-
-    <div class="row">
-        <button id="register-account-button" type="button" onclick="registerAccount()">Save</button>
-    </div>
-</form>
+<div class="row">
+    <button id="register-account-button" type="button" onclick="registerAccount()">Отправить</button>
+</div>
 
 </body>
 </html>

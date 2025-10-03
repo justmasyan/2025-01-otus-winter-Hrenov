@@ -18,7 +18,6 @@
             .then(rawResponse => rawResponse.json())
             .then(json => {
                 tableForBaseInfo(json)
-                tableForMaterials(json)
             })
         }
     </script>
@@ -46,6 +45,7 @@
     <script>
         function tableForBaseInfo(lecture) {
             document.getElementById("lecture-table-tdTopicTitle").innerHTML = lecture.lectureTopic.title
+            document.getElementById("lecture-table-tdUrl").innerHTML = lecture.url
 
             document.getElementById("lecture-table-tdHrefGroup").href = `/groups/${lecture.studyGroup.id}`
             document.getElementById("lecture-table-tdHrefGroup").innerHTML = lecture.studyGroup.code
@@ -87,7 +87,7 @@
 <table border="1">
     <tbody>
     <tr>
-        <td><a href="courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a href="lector_courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
         <td><a href="account.html" th:href="@{/account}">Личный кабинет</a></td>
     </tr>
     <tbody>
@@ -99,6 +99,7 @@
     <thead>
     <tr>
         <th>Тема</th>
+        <th>Ссылка</th>
         <th>Учебный курс</th>
         <th>Время начала лекции</th>
         <th>Статус лекции</th>
@@ -108,6 +109,7 @@
     <tbody id="lecture-table-tbody">
     <tr>
         <td id="lecture-table-tdTopicTitle"></td>
+        <td id="lecture-table-tdUrl"></td>
         <td><a id="lecture-table-tdHrefGroup"></a></td>
         <td id="lecture-table-tdLectureTime"></td>
         <td id="lecture-table-tdStatus"></td>

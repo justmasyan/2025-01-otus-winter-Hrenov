@@ -35,6 +35,11 @@ public interface HomeworkRepository extends JpaRepository<Homework, Long> {
     })
     List<Homework> findAllByLectorAccountId(long accountId);
 
+    @EntityGraph(attributePaths = {
+            "status", "lecture.lectureTopic", "lecture.studyGroup"
+    })
+    List<Homework> findAllByStudentAccountId(long accountId);
+
     @Query("SELECT h from Homework h " +
             "JOIN h.student hs " +
             "JOIN h.lecture hl " +

@@ -17,25 +17,31 @@ public class LectureConverter {
 
     private final LectureStatusConverter statusConverter;
 
-    public LectureDto entityToMinimumDto(Lecture lecture) {
-        return new LectureDto(lecture.getId(), lecture.getLectureTime());
-    }
-
     public LectureDto entityToWithStatusTopicDto(Lecture lecture) {
-        return new LectureDto(lecture.getId(), lecture.getLectureTime(),
+        return new LectureDto(lecture.getId(), lecture.getUrl(),
+                lecture.getLectureTime(),
                 statusConverter.entityToDto(lecture.getStatus()),
                 topicConverter.entityToDto(lecture.getLectureTopic()));
     }
 
-    public LectureDto entityToWithStatusTopicGroupDto(Lecture lecture) {
-        return new LectureDto(lecture.getId(), lecture.getLectureTime(),
+    public LectureDto entityToDtoForLector(Lecture lecture) {
+        return new LectureDto(lecture.getId(), lecture.getUrl(),
+                lecture.getLectureTime(),
                 statusConverter.entityToDto(lecture.getStatus()),
                 topicConverter.entityToDto(lecture.getLectureTopic()),
                 studyGroupConverter.entityToBaseInfoDto(lecture.getStudyGroup()));
     }
 
+    public LectureDto entityToDtoForStudent(Lecture lecture) {
+        return new LectureDto(lecture.getId(), lecture.getUrl(),
+                lecture.getLectureTime(),
+                topicConverter.entityToDto(lecture.getLectureTopic()),
+                studyGroupConverter.entityToBaseInfoDto(lecture.getStudyGroup()));
+    }
+
     public LectureDto entityToFullDto(Lecture lecture) {
-        return new LectureDto(lecture.getId(), lecture.getLectureTime(),
+        return new LectureDto(lecture.getId(), lecture.getUrl(),
+                lecture.getLectureTime(),
                 statusConverter.entityToDto(lecture.getStatus()),
                 topicConverter.entityToDto(lecture.getLectureTopic()),
                 lectorConverter.entityToBaseInfoDto(lecture.getLector()),

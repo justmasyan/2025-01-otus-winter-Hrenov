@@ -26,14 +26,19 @@ public class HomeworkController {
         return homeworkService.findById(id);
     }
 
-    @GetMapping("api/homeworks/lector")
-    public List<HomeworkDto> findAllByLector(@AuthenticationPrincipal Jwt jwt) {
-        return homeworkService.findAllByLectorId(jwt.getClaim("accountId"));
-    }
-
     @GetMapping("api/homeworks/lectures/{lectureId}")
     public List<HomeworkDto> findAllByLectureId(@PathVariable long lectureId) {
         return homeworkService.findAllByLectureId(lectureId);
+    }
+
+    @GetMapping("api/homeworks/lector")
+    public List<HomeworkDto> findAllByLector(@AuthenticationPrincipal Jwt jwt) {
+        return homeworkService.findAllByLector(jwt.getClaim("accountId"));
+    }
+
+    @GetMapping("api/homeworks/student")
+    public List<HomeworkDto> findAllByStudent(@AuthenticationPrincipal Jwt jwt) {
+        return homeworkService.findAllByStudent(jwt.getClaim("accountId"));
     }
 
     @PostMapping("api/homeworks/{id}/lector")

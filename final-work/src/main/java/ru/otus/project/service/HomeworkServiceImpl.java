@@ -31,7 +31,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class HomeworkServiceImpl {
+public class HomeworkServiceImpl implements HomeworkService {
 
     private final LectureRepository lectureRepository;
 
@@ -45,6 +45,7 @@ public class HomeworkServiceImpl {
 
     private final HomeworkStatusConverter statusConverter;
 
+    @Override
     @Transactional(readOnly = true)
     public HomeworkDto findById(long id) {
         return homeworkRepository.findById(id)
@@ -52,18 +53,28 @@ public class HomeworkServiceImpl {
                 .orElseThrow(() -> new HomeworkNotFoundException("Домашняя работа не найдена"));
     }
 
-    @Transactional(readOnly = true)
-    public List<HomeworkDto> findAllByLectorId(long lectorAccountId) {
-        return homeworkRepository.findAllByLectorAccountId(lectorAccountId).stream()
-                .map(homeworkConverter::entityToDtoForLector).toList();
-    }
-
+    @Override
     @Transactional(readOnly = true)
     public List<HomeworkDto> findAllByLectureId(long lectureId) {
         return homeworkRepository.findAllByLectureId(lectureId).stream()
                 .map(homeworkConverter::entityToDtoForLecture).toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<HomeworkDto> findAllByLector(long lectorAccountId) {
+        return homeworkRepository.findAllByLectorAccountId(lectorAccountId).stream()
+                .map(homeworkConverter::entityToDtoForLector).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<HomeworkDto> findAllByStudent(long studentAccount) {
+        return homeworkRepository.findAllByStudentAccountId(studentAccount).stream()
+                .map(homeworkConverter::entityToDtoForStudent).toList();
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public HomeworkDto findByLectureIdAndStudentId(long lectureId, long studentId) {
         return homeworkRepository.findByLectureIdAndStudentAccountId(lectureId, studentId)
@@ -71,18 +82,20 @@ public class HomeworkServiceImpl {
                 .orElseThrow(() -> new HomeworkNotFoundException("Домашняя работа не найдена"));
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<HomeworkDto> findByLectureIdAndLectorId(long lectureId, long lectorId) {
         return homeworkRepository.findAllByLectureIdAndLectorId(lectureId, lectorId)
                 .stream().map(homeworkConverter::entityToWithStudentDto).toList();
     }
 
+    @Override
     @Transactional
-    public HomeworkDto updateHomework(HomeworkDto homeworkDto, long accountId){
+    public HomeworkDto updateHomework(HomeworkDto homeworkDto, long accountId) {
         Homework homework = homeworkRepository.findById(homeworkDto.getId())
                 .orElseThrow(() -> new HomeworkNotFoundException("Домашняя работа не найдена"));
 
-        if(homework.getLector().getAccount().getId() != accountId){
+        if (homework.getLector().getAccount().getId() != accountId) {
             throw new LectorNotInHomeworkException("Данный лектор не проверяет это ДЗ");
         }
 
@@ -99,6 +112,7 @@ public class HomeworkServiceImpl {
         return homeworkConverter.entityToDto(savedHomework);
     }
 
+    @Override
     @Transactional
     public void createHomeworksForNewStudent(Student student, StudyGroup studyGroup) {
         List<Lecture> lectures = lectureRepository.findAllByStudyGroupId(studyGroup.getId());
@@ -110,12 +124,14 @@ public class HomeworkServiceImpl {
         homeworkRepository.saveAll(homeworks);
     }
 
+    @Override
     @Transactional
     public void deleteHomeworksForStudentAndGroup(Student student, StudyGroup studyGroup) {
         List<Homework> homeworks = homeworkRepository.findAllByStudentAndStudyGroup(student.getId(), studyGroup.getId());
         homeworkRepository.deleteAllInBatch(homeworks);
     }
 
+    @Override
     @Transactional
     public void removeLectorForCourseHomeworks(Course course, Lector oldLector) {
         List<Homework> homeworks = homeworkRepository.findAllByLectorAndCourse(oldLector.getId(), course.getId());
@@ -129,6 +145,7 @@ public class HomeworkServiceImpl {
         homeworkRepository.saveAll(updatedHomeworks);
     }
 
+    @Override
     @Transactional
     public void assignLectorToHomework(long homeworkId, long lectorAccountId) {
         Homework homework = homeworkRepository.findById(homeworkId)
@@ -155,6 +172,7 @@ public class HomeworkServiceImpl {
         homeworkRepository.save(newHomework);
     }
 
+    @Override
     @Transactional
     public void removeLectorFromHomework(long homeworkId, long lectorAccountId) {
         Homework homework = homeworkRepository.findById(homeworkId)

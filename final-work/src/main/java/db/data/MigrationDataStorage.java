@@ -34,6 +34,7 @@ import static db.data.DataDictionary.DEFAULT_JOBS;
 import static db.data.DataDictionary.DEFAULT_LAST_NAMES;
 import static db.data.DataDictionary.DEFAULT_LECTURE_MATERIALS;
 import static db.data.DataDictionary.DEFAULT_LECTURE_TOPICS;
+import static db.data.DataDictionary.DEFAULT_LECTURE_URL;
 import static db.data.DataDictionary.DEFAULT_STUDY_PLACES;
 import static db.data.DataDictionary.DEFAULT_USERNAMES;
 import static ru.otus.project.utils.RandomUtils.getManyRandomFrom;
@@ -69,8 +70,8 @@ public class MigrationDataStorage {
     }
 
     private void prepareLectureTopics() {
-        for (int i = 1; i <= 30; i++) {
-            LECTURE_TOPICS.add(new LectureTopicDto(i, getOneRandomFrom(DEFAULT_LECTURE_TOPICS)));
+        for (int i = 1; i <= DEFAULT_LECTURE_TOPICS.size(); i++) {
+            LECTURE_TOPICS.add(new LectureTopicDto(i, DEFAULT_LECTURE_TOPICS.get(i - 1)));
         }
     }
 
@@ -171,6 +172,7 @@ public class MigrationDataStorage {
             for (LectureTopicDto topic : groupDto.getCourse().getLectureTopics()) {
                 LECTURES.add(new LectureDto(
                         lectureId++,
+                        getOneRandomFrom(DEFAULT_LECTURE_URL),
                         calendar.getTime(),
                         getOneRandomFrom(LECTURE_STATUSES),
                         topic,

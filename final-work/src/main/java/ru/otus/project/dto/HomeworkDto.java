@@ -29,6 +29,13 @@ public class HomeworkDto {
         this.status = status;
     }
 
+    public HomeworkDto(long id, long mark, HomeworkStatusDto status, LectureDto lecture) {
+        this.id = id;
+        this.mark = mark;
+        this.status = status;
+        this.lecture = lecture;
+    }
+
     public HomeworkDto(long id, long mark, HomeworkStatusDto status, StudentDto student) {
         this.id = id;
         this.mark = mark;

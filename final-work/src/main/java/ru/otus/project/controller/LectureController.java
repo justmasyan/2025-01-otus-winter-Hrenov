@@ -39,7 +39,7 @@ public class LectureController {
     @PutMapping("api/lectures/{id}")
     public LectureDto updateLecture(@AuthenticationPrincipal Jwt jwt,
                                     @RequestBody LectureDto lectureDto) {
-        return lectureService.updateLectureByAccount(lectureDto, jwt.getClaim("accountId"));
+        return lectureService.updateLectureByLector(lectureDto, jwt.getClaim("accountId"));
     }
 
     @PostMapping("api/lectures/{id}/lector")

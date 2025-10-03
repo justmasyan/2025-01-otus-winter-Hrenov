@@ -25,7 +25,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-public class StudyGroupServiceImpl {
+public class StudyGroupServiceImpl implements StudyGroupService{
 
     private final LectureServiceImpl lectureService;
 
@@ -39,6 +39,7 @@ public class StudyGroupServiceImpl {
 
     private final StudyGroupConverter studyGroupConverter;
 
+    @Override
     @Transactional(readOnly = true)
     public StudyGroupDto findById(long id) {
         return studyGroupRepository.findById(id)
@@ -46,18 +47,21 @@ public class StudyGroupServiceImpl {
                 .orElseThrow(() -> new StudyGroupNotFoundException("Учебная группа не найдена"));
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<StudyGroupDto> findAllByStudentAccountId(long accountId) {
         return studyGroupRepository.findAllByStudentsAccountId(accountId).stream()
                 .map(studyGroupConverter::entityToBaseInfoDto).toList();
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<StudyGroupDto> findAllByCourseId(long courseId) {
         return studyGroupRepository.findAllByCourseId(courseId).stream()
                 .map(studyGroupConverter::entityToBaseInfoDto).toList();
     }
 
+    @Override
     @Transactional
     public StudyGroupDto insertGroup(StudyGroupDto studyGroupDto) {
         if (studyGroupDto.getId() != 0) {
@@ -80,6 +84,7 @@ public class StudyGroupServiceImpl {
         return studyGroupConverter.entityWithCourseDto(savedGroup);
     }
 
+    @Override
     @Transactional
     public StudyGroupDto addStudentToGroup(long groupId, long studentAccountId) {
         Student student = studentRepository.findByAccountId(studentAccountId)
@@ -98,6 +103,7 @@ public class StudyGroupServiceImpl {
         return studyGroupConverter.entityToBaseInfoDto(studyGroup);
     }
 
+    @Override
     @Transactional
     public StudyGroupDto removeStudentFromGroup(long groupId, long studentAccountId) {
         Student student = studentRepository.findByAccountId(studentAccountId)

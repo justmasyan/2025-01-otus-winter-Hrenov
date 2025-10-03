@@ -6,15 +6,25 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.otus.project.converter.CourseConverter;
 import ru.otus.project.domain.Course;
 import ru.otus.project.domain.Lector;
+import ru.otus.project.domain.LectureTopic;
 import ru.otus.project.dto.CourseDto;
+import ru.otus.project.dto.LectureTopicDto;
 import ru.otus.project.exception.CourseNotFoundException;
+import ru.otus.project.exception.EmptyTopicsException;
 import ru.otus.project.exception.LectorAlreadyInCourseException;
 import ru.otus.project.exception.LectorNotFoundException;
 import ru.otus.project.exception.LectorNotInCourseException;
+import ru.otus.project.exception.NoZeroIdException;
+import ru.otus.project.exception.TopicNotFoundException;
 import ru.otus.project.repository.CourseRepository;
 import ru.otus.project.repository.LectorRepository;
+import ru.otus.project.repository.LectureTopicRepository;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +38,8 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
 
+    private final LectureTopicRepository topicRepository;
+
     private final CourseConverter courseConverter;
 
     @Override
@@ -39,11 +51,49 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CourseDto> findAllBaseInfo() {
+    public List<CourseDto> findAll() {
         return courseRepository.findAll().stream()
                 .map(courseConverter::entityToMinDto).toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<CourseDto> findAllByTopicId(long topicId) {
+        return courseRepository.findAllByLectureTopicsId(topicId).stream()
+                .map(courseConverter::entityToMinDto).toList();
+    }
+
+    @Override
+    @Transactional
+    public CourseDto createCourse(CourseDto courseDto, long lectorAccountId) {
+        if (courseDto.getId() != 0) {
+            throw new NoZeroIdException("Id должен равнять 0");
+        }
+
+        Set<Long> topicIds = courseDto.getLectureTopics().stream()
+                .map(LectureTopicDto::getId)
+                .collect(Collectors.toSet());
+
+        if (isEmpty(topicIds)) {
+            throw new EmptyTopicsException("Темы лекции не должны быть пустыми");
+        }
+
+        List<LectureTopic> topics = topicRepository.findAllById(topicIds);
+        if (isEmpty(topics) || topicIds.size() != topics.size()) {
+            throw new TopicNotFoundException("Тема лекции не найдена");
+        }
+
+        Lector lector = lectorRepository.findByAccountId(lectorAccountId)
+                .orElseThrow(() -> new LectorNotFoundException("Преподаватель не найден"));
+
+        Course course = new Course(courseDto.getId(),
+                courseDto.getTitle(), courseDto.getPrice(),
+                topics, List.of(lector));
+        Course savedCourse = courseRepository.save(course);
+        return courseConverter.entityToWithTopicDto(savedCourse);
+    }
+
+    @Override
     @Transactional
     public void addLectorToCourse(long accountId, long courseId) {
         Lector lector = lectorRepository.findByAccountId(accountId)
@@ -60,6 +110,7 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.save(course);
     }
 
+    @Override
     @Transactional
     public void deleteLectorFromCourse(long accountId, long courseId) {
         Course course = courseRepository.findById(courseId)

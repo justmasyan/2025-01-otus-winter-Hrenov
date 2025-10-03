@@ -14,7 +14,6 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -46,10 +45,10 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/courses/**", "/api/courses/**").permitAll()
+                        .requestMatchers("/", "/courses/**", "/api/courses/**","/api/lecture-topics").permitAll()
                         .requestMatchers("/api/groups/courses/**", "/api/lectors/courses/**").permitAll()
-                        .requestMatchers("/api/account/authentication", "/api/roles", "/api/students/new").permitAll()
-                        .requestMatchers("/account","/api/**","/courses/**,","/lectures/**","/groups/**","/homeworks/**").authenticated()
+                        .requestMatchers("/api/account/authentication", "/api/roles", "/api/students/new", "/api/lectors/new").permitAll()
+                        .requestMatchers("/account", "/api/**", "/courses/**,", "/lectures/**", "/groups/**", "/homeworks/**").authenticated()
                         .anyRequest().permitAll()// чтобы на неизвестные пути прилетало 404, а не 403
                 ).anonymous(AbstractHttpConfigurer::disable)
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))

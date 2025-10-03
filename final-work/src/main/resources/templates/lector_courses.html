@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Courses</title>
+
+    <script>
+        function onLoadPage() {
+            findAllCourses()
+            findAllTopicsForCreateForm()
+        }
+    </script>
+
+    <script>
+        function findAllCourses() {
+            fetch('/api/courses')
+            .then(rawResponse => rawResponse.json())
+            .then(courses => {
+                tableFor(courses)
+            })
+        }
+    </script>
+
+    <script>
+        function findAllTopicsForCreateForm() {
+            let topicSelect = document.getElementById("create-course-topics-select")
+            fetch('/api/lecture-topics').then(rawResponse => rawResponse.json()).then(json => {
+                    json.forEach(function(topic) {
+                        let topicOption = document.createElement("option")
+
+                        topicOption.textContent = topic.title
+                        topicOption.value = topic.id
+                        topicSelect.appendChild(topicOption)
+                    })
+            })
+
+        }
+    </script>
+
+    <script>
+        function tableFor(courses) {
+            let tbody = document.getElementById("courses-table-tbody");
+
+            courses.forEach(function(course) {
+                let tr = document.createElement('tr')
+
+                let tdTitle = document.createElement('td')
+                let tdTitleHref = document.createElement('a')
+                tdTitleHref.href = `/courses/${course.id}`
+                tdTitleHref.innerHTML = course.title
+                tdTitle.appendChild(tdTitleHref)
+
+                let tdPrice = document.createElement('td')
+                tdPrice.innerHTML = course.price
+
+                tr.appendChild(tdTitle)
+                tr.appendChild(tdPrice)
+
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function createCourse() {
+            const title = document.getElementById("create-course-title-input").value
+            const price = document.getElementById("create-course-price-input").value
+            const topicSelect = document.getElementById("create-course-topics-select")
+            const topicsIdArray = Array.from(topicSelect.selectedOptions).map(option => ({id: option.value}))
+
+            const course = { title: title, price: price, lectureTopics: topicsIdArray }
+
+            fetch("/api/courses/new", {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(course)
+            }).then(rawResponse => rawResponse.json())
+            .then(json => {
+                alert("Курс успешно создан")
+                window.location.reload()
+            })
+        }
+    </script>
+
+</head>
+
+<body onload="onLoadPage();">
+
+<table border="1">
+    <tbody>
+    <tr>
+        <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список конкретных тем</a></td>
+        <td><a th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/authentication}">Получить токен</a></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Создать свой курс:</h3>
+
+<table border="1">
+    <tbody>
+    <tr>
+        <td><label for="create-course-title-input">Название курса</label></td>
+        <td><input id="create-course-title-input" name="title" type="text" required/></td>
+    </tr>
+    <tr>
+        <td><label for="create-course-price-input">Стоимость обучения</label></td>
+        <td><input id="create-course-price-input" name="title" type="number" required/></td>
+    </tr>
+
+    <tr>
+        <td><label for="create-course-topics-select">Программа курса</label></td>
+        <td><select id="create-course-topics-select" multiple required></select></td>
+    </tr>
+    <tbody>
+</table>
+
+<div class="row">
+    <button id="register-account-button" type="button" onclick="createCourse()">Создать</button>
+</div>
+
+<h3>Список доступных курсов:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Название курса</th>
+        <th>Цена курса</th>
+    </tr>
+    </thead>
+    <tbody id="courses-table-tbody">
+    <tbody>
+</table>
+
+</body>
+</html>

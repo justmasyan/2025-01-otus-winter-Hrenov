@@ -17,7 +17,8 @@ public class StudentConverter {
     }
 
     public StudentDto entityToDto(Student student){
-        return new StudentDto(student.getId(), student.getFirstName(),student.getLastName(),
-                student.getStudyPlace(), accountConverter.entityToBaseInfoDto(student.getAccount()));
+        return new StudentDto(student.getId(), student.getFirstName(),
+                student.getLastName(), student.getStudyPlace(),
+                accountConverter.entityToDto(student.getAccount()));
     }
 }
