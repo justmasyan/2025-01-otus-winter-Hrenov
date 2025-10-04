@@ -30,9 +30,9 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 @RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService {
 
-    private final LectureServiceImpl lectureService;
+    private final LectureService lectureService;
 
-    private final HomeworkServiceImpl homeworkService;
+    private final HomeworkService homeworkService;
 
     private final LectorRepository lectorRepository;
 

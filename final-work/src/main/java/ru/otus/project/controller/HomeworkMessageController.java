@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.otus.project.dto.HomeworkMessageDto;
+import ru.otus.project.service.HomeworkMessageService;
 import ru.otus.project.service.HomeworkMessageServiceImpl;
 
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class HomeworkMessageController {
 
-    private final HomeworkMessageServiceImpl messageService;
+    private final HomeworkMessageService messageService;
 
     @GetMapping("api/messages/homeworks/{homeworkId}")
     public List<HomeworkMessageDto> findAllByHomeworkId(@PathVariable long homeworkId) {

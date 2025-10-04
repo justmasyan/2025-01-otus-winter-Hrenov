@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.otus.project.dto.LectureMaterialDto;
-import ru.otus.project.service.LectureMaterialServiceImpl;
+import ru.otus.project.service.LectureMaterialService;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LectureMaterialController {
 
-    private final LectureMaterialServiceImpl materialService;
+    private final LectureMaterialService materialService;
 
     @GetMapping("api/lecture-materials/lectures/{lectureId}")
     public List<LectureMaterialDto> findAllByLectureId(@PathVariable long lectureId) {
@@ -32,7 +32,8 @@ public class LectureMaterialController {
     }
 
     @DeleteMapping("api/lecture-materials/{id}")
-    public void deleteMaterial(@PathVariable long id) {
-        materialService.deleteMaterial(id);
+    public void deleteMaterial(@AuthenticationPrincipal Jwt jwt,
+                               @PathVariable long id) {
+        materialService.deleteMaterial(id, jwt.getClaim("accountId"));
     }
 }

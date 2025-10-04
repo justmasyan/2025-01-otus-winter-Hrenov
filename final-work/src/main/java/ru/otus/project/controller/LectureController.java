@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.otus.project.dto.LectureDto;
+import ru.otus.project.service.LectureService;
 import ru.otus.project.service.LectureServiceImpl;
 
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LectureController {
 
-    private final LectureServiceImpl lectureService;
+    private final LectureService lectureService;
 
     @GetMapping("api/lectures/{id}")
     public LectureDto findById(@PathVariable long id) {
@@ -36,7 +37,7 @@ public class LectureController {
         return lectureService.findAllByLectorAccountId(jwt.getClaim("accountId"));
     }
 
-    @PutMapping("api/lectures/{id}")
+    @PutMapping("api/lectures/{id}/new")
     public LectureDto updateLecture(@AuthenticationPrincipal Jwt jwt,
                                     @RequestBody LectureDto lectureDto) {
         return lectureService.updateLectureByLector(lectureDto, jwt.getClaim("accountId"));

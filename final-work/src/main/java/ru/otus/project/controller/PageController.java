@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import ru.otus.project.exception.UndefinedRoleException;
 
 import java.util.Objects;
@@ -21,6 +22,11 @@ public class PageController {
     @GetMapping("/registration")
     public String registerPage() {
         return "registration";
+    }
+
+    @PostMapping("/access_denied")
+    public String accessDeniedPage() {
+        return "access_denied";
     }
 
     @GetMapping("/authentication")
@@ -50,14 +56,19 @@ public class PageController {
 
     @GetMapping("/lecture-topics")
     public String topicsPage(@AuthenticationPrincipal Jwt jwt) {
-        return "lecture_topics";
+        if (Objects.isNull(jwt)) {
+            return "lecture_topics";
+        }
+
+        return getPageByAuthentication(jwt.getClaim("authority"),
+                "student_topics", "lector_topics");
     }
 
     @GetMapping("/groups/{id}")
     public String groupPage(@AuthenticationPrincipal Jwt jwt,
                             @PathVariable long id) {
         return getPageByAuthentication(jwt.getClaim("authority"),
-                "student_group", "study_group");
+                "student_study_group", "lector_study_group");
     }
 
     @GetMapping("/lectures/{id}")

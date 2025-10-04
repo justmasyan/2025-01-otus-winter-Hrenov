@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Application pages</title>
+    <title>Личный кабинет</title>
 
     <script>
         function onLoadPage(accountId) {
@@ -15,10 +15,18 @@
     <script>
         function findLector(accountId) {
             fetch(`/api/lectors/accounts/${accountId}`)
-            .then(rawResponse => rawResponse.json())
-            .then(json => {
-                tableForBaseInfo(json)
-                tableForCourses(json)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForBaseInfo(json)
+                        tableForCourses(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.href = "/error"
+                    })
+                }
             })
         }
     </script>
@@ -26,9 +34,16 @@
     <script>
         function findLectures() {
             fetch("api/lectures/lector")
-            .then(rawResponse => rawResponse.json())
-            .then(json => {
-                tableForLectures(json)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForLectures(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
             })
         }
     </script>
@@ -36,9 +51,16 @@
     <script>
         function findHomeworks() {
             fetch("api/homeworks/lector")
-            .then(rawResponse => rawResponse.json())
-            .then(json => {
-                tableForHomeworks(json)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForHomeworks(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
             })
         }
     </script>
@@ -189,10 +211,17 @@
                   'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(lector)
-            }).then(rawResponse => rawResponse.json())
-            .then(json => {
-                alert("Вы успешно обновили данные")
-                window.location.reload()
+            }).then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        alert("Вы успешно обновили данные")
+                        window.location.reload()
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
             })
         }
     </script>
@@ -204,8 +233,10 @@
 <table border="1">
     <tbody>
     <tr>
-        <td><a href="lector_courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
-        <td><a href="account.html" th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список конкретных тем</a></td>
+        <td><a th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/authentication}">Получить токен</a></td>
     </tr>
     <tbody>
 </table>

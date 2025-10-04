@@ -9,6 +9,7 @@ import ru.otus.project.domain.LectureMaterial;
 import ru.otus.project.dto.LectureMaterialDto;
 import ru.otus.project.exception.EmptyLectureException;
 import ru.otus.project.exception.LectorNotInLectureException;
+import ru.otus.project.exception.LectureMaterialNotFoundException;
 import ru.otus.project.exception.LectureNotFoundException;
 import ru.otus.project.exception.NoZeroIdException;
 import ru.otus.project.repository.LectureMaterialRepository;
@@ -63,7 +64,14 @@ public class LectureMaterialServiceImpl implements LectureMaterialService{
 
     @Override
     @Transactional
-    public void deleteMaterial(long materialId) {
+    public void deleteMaterial(long materialId, long lectorAccountId) {
+        LectureMaterial material = materialRepository.findById(materialId)
+                        .orElseThrow(() -> new LectureMaterialNotFoundException("Ссылка к лекции не найдена"));
+
+        if (material.getLecture().getLector().getAccount().getId() != lectorAccountId) {
+            throw new LectorNotInLectureException("Данный преподаватель не ведет эту лекцию");
+        }
+
         materialRepository.deleteById(materialId);
     }
 }

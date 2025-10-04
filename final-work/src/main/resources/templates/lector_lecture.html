@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Application pages</title>
+    <title>Лекция</title>
 
     <script>
         function onLoadPage(id) {
@@ -15,10 +15,18 @@
     <script>
         function findLecture(id) {
             fetch(`/api/lectures/${id}`)
-            .then(rawResponse => rawResponse.json())
-            .then(json => {
-                tableForBaseInfo(json)
-                updateLectureForm(json)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForBaseInfo(json)
+                        updateLectureForm(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.href = "/error"
+                    })
+                }
             })
         }
     </script>
@@ -26,9 +34,16 @@
     <script>
         function findMaterialsByLectureId(lectureId) {
             fetch(`/api/lecture-materials/lectures/${lectureId}`)
-            .then(rawResponse => rawResponse.json())
-            .then(json => {
-                tableForMaterials(json)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForMaterials(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
             })
         }
     </script>
@@ -36,9 +51,16 @@
     <script>
         function findHomeworksByLectureId(lectureId) {
             fetch(`/api/homeworks/lectures/${lectureId}`)
-            .then(rawResponse => rawResponse.json())
-            .then(json => {
-                tableForHomeworks(json)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForHomeworks(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
             })
         }
     </script>
@@ -150,7 +172,7 @@
 
             const lecture = { id: lectureId, lectureTime: lectureTime, status: { id: lectureStatusId} }
 
-            fetch(`/api/lectures/${lectureId}`, {
+            fetch(`/api/lectures/${lectureId}/new`, {
                 method: 'PUT',
                 headers: {
                   'Accept': 'application/json',
@@ -249,8 +271,10 @@
 <table border="1">
     <tbody>
     <tr>
-        <td><a href="lector_courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
-        <td><a href="account.html" th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список конкретных тем</a></td>
+        <td><a th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/authentication}">Получить токен</a></td>
     </tr>
     <tbody>
 </table>
@@ -261,7 +285,7 @@
     <thead>
     <tr>
         <th>Тема</th>
-        <th>Ссылка</th>>
+        <th>Ссылка</th>
         <th>Учебный курс</th>
         <th>Лектор</th>
         <th>Время начала лекции</th>

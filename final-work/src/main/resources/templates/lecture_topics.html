@@ -2,14 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Изучаемые темы</title>
+    <title>Темы лекций</title>
 
     <script>
         function findAllTopics() {
             fetch('/api/lecture-topics')
-            .then(rawResponse => rawResponse.json())
-            .then(json => {
-                tableForTopics(json)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForTopics(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.href = "/error"
+                    })
+                }
             })
         }
     </script>
@@ -17,9 +25,16 @@
     <script>
         function showCoursesForTopic(id) {
             fetch(`/api/courses/lecture-topics/${id}`)
-            .then(rawResponse => rawResponse.json())
-            .then(json => {
-                tableForCourses(json)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForCourses(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
             })
         }
     </script>
@@ -75,27 +90,6 @@
             })
         }
     </script>
-
-    <script>
-        function insertTopic() {
-            alert("KE")
-            let topicTitle = document.getElementById("insert-topic-title-input").value
-
-            let topic = { title: topicTitle }
-
-            fetch('/api/lecture-topics/new', {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(topic)
-            }).then(rawResponse => rawResponse.json())
-            .then(json => {
-                alert("Изучаемая тема добавлена")
-            })
-        }
-    </script>
 </head>
 
 <body onload="findAllTopics();">
@@ -103,9 +97,10 @@
 <table border="1">
     <tbody>
     <tr>
-        <td><a href="lector_courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
-        <td><a href="authentication.html" th:href="@{/authentication}">Получить токен</a></td>
-        <td><a href="registration.html" th:href="@{/registration}">Зарегистрироваться</a></td>
+        <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список конкретных тем</a></td>
+        <td><a th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/authentication}">Получить токен</a></td>
     </tr>
     <tbody>
 </table>
@@ -120,14 +115,6 @@
     </tr>
     </thead>
     <tbody id="topics-table-tbody">
-    <tr>
-        <td><input id="insert-topic-title-input" name="title" type="text"/></td>
-        <td>
-            <button id="insert-topic-title-button" type="button" onclick="insertTopic();">
-                Добавить
-            </button>
-        </td>
-    </tr>
     </tbody>
     <tbody>
 </table>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Courses</title>
+    <title>Учебные курсы</title>
 
     <script>
         function onLoadPage() {
@@ -14,9 +14,17 @@
     <script>
         function findAllCourses() {
             fetch('/api/courses')
-            .then(rawResponse => rawResponse.json())
-            .then(courses => {
-                tableFor(courses)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForCourses(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.href = "/error"
+                    })
+                }
             })
         }
     </script>
@@ -24,21 +32,29 @@
     <script>
         function findAllTopicsForCreateForm() {
             let topicSelect = document.getElementById("create-course-topics-select")
-            fetch('/api/lecture-topics').then(rawResponse => rawResponse.json()).then(json => {
-                    json.forEach(function(topic) {
-                        let topicOption = document.createElement("option")
+            fetch('/api/lecture-topics')
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        json.forEach(function(topic) {
+                            let topicOption = document.createElement("option")
 
-                        topicOption.textContent = topic.title
-                        topicOption.value = topic.id
-                        topicSelect.appendChild(topicOption)
+                            topicOption.textContent = topic.title
+                            topicOption.value = topic.id
+                            topicSelect.appendChild(topicOption)
+                        })
                     })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
             })
-
         }
     </script>
 
     <script>
-        function tableFor(courses) {
+        function tableForCourses(courses) {
             let tbody = document.getElementById("courses-table-tbody");
 
             courses.forEach(function(course) {
@@ -77,10 +93,17 @@
                   'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(course)
-            }).then(rawResponse => rawResponse.json())
-            .then(json => {
-                alert("Курс успешно создан")
-                window.location.reload()
+            }).then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        alert("Курс успешно создан")
+                        window.location.reload()
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
             })
         }
     </script>

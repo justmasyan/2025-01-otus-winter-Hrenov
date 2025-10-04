@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Application pages</title>
+    <title>Получить токен</title>
 
     <script>
-        async function authenticate() {
+        function authenticate() {
             const username = document.getElementById("auth-username-input").value
             const password = document.getElementById("auth-password-input").value
 
@@ -48,9 +48,10 @@
 <table border="1">
     <tbody>
     <tr>
-        <td><a href="lector_courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
-        <td><a href="account.html" th:href="@{/account}">Личный кабинет</a></td>
-        <td><a href="registration.html" th:href="@{/registration}">Зарегистрироваться</a></td>
+        <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список тем лекций</a></td>
+        <td><a th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/registration}">Зарегистрироваться</a></td>
     </tr>
     <tbody>
 </table>

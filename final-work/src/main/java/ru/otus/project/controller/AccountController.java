@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.otus.project.dto.AccountDto;
 import ru.otus.project.dto.AuthRequestDto;
 import ru.otus.project.dto.AuthResponseDto;
-import ru.otus.project.service.JwtAuthServiceImpl;
+import ru.otus.project.service.JwtAuthService;
 
 @RestController
 @RequiredArgsConstructor
 public class AccountController {
 
-    private final JwtAuthServiceImpl authenticationService;
+    private final JwtAuthService authenticationService;
 
     private final AuthenticationManager authenticationManager;
 

@@ -2,11 +2,13 @@ package ru.otus.project.exception_handler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import ru.otus.project.dto.ErrorResponseDto;
 import ru.otus.project.exception.AccountNotInHomeworkException;
@@ -20,6 +22,7 @@ import ru.otus.project.exception.LectorNotFoundException;
 import ru.otus.project.exception.LectorNotInCourseException;
 import ru.otus.project.exception.LectorNotInHomeworkException;
 import ru.otus.project.exception.LectorNotInLectureException;
+import ru.otus.project.exception.LectureMaterialNotFoundException;
 import ru.otus.project.exception.NoAvailableLectorsException;
 import ru.otus.project.exception.NoZeroIdException;
 import ru.otus.project.exception.RoleNotFoundException;
@@ -60,10 +63,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ErrorResponseDto("Некорректный токен", new Date()), HttpStatus.UNAUTHORIZED);
     }
 
-    //отдельно должен обрабатываться
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<?> httpMessageNotReadableException(HttpMessageNotReadableException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Неправильное тело запроса", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<?> noResourceFoundException(NoResourceFoundException e) {
-        return new ResponseEntity<>(new ErrorResponseDto("Страница не найдена", new Date()), HttpStatus.NOT_FOUND);
+    public ModelAndView noResourceFoundException(NoResourceFoundException e) {
+        return new ModelAndView("error_page");
     }
 
     @ExceptionHandler(LectorNotInLectureException.class)
@@ -84,6 +91,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(LectorNotInHomeworkException.class)
     public ResponseEntity<?> lectorNotInHomeworkException(LectorNotInHomeworkException e) {
         return new ResponseEntity<>(new ErrorResponseDto("Преподаватель не проверяет это ДЗ", new Date()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(LectureMaterialNotFoundException.class)
+    public ResponseEntity<?> lectureMaterialNotFoundException(LectureMaterialNotFoundException e) {
+        return new ResponseEntity<>(new ErrorResponseDto("Ссылка к лекции не была найдена", new Date()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(EmptyHomeworkException.class)

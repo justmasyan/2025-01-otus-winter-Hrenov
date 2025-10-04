@@ -17,7 +17,7 @@ import ru.otus.project.repository.StudentRepository;
 @RequiredArgsConstructor
 public class StudentServiceImpl implements StudentService{
 
-    private final AccountServiceImpl accountService;
+    private final AccountService accountService;
 
     private final StudentRepository studentRepository;
 

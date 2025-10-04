@@ -10,5 +10,5 @@ public interface LectureMaterialService {
 
     LectureMaterialDto insertMaterial(LectureMaterialDto materialDto, long lectorAccountId);
 
-    void deleteMaterial(long materialId);
+    void deleteMaterial(long materialId, long lectorAccountId);
 }

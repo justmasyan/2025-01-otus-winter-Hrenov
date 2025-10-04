@@ -2,20 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Courses</title>
+    <title>Страница курсов</title>
 
     <script>
         function findAllCourses() {
             fetch('api/courses')
-            .then(rawResponse => rawResponse.json())
-            .then(courses => {
-                tableFor(courses)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForCourses(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.href = "/error"
+                    })
+                }
             })
         }
     </script>
 
     <script>
-        function tableFor(courses) {
+        function tableForCourses(courses) {
             let tbody = document.getElementById("courses-table-tbody");
 
             courses.forEach(function(course) {
@@ -45,7 +53,7 @@
     <tbody>
     <tr>
         <td><a th:href="@{/courses}">Список доступных курсов</a></td>
-        <td><a th:href="@{/lecture-topics}">Список конкретных тем</a></td>
+        <td><a th:href="@{/lecture-topics}">Список тем лекций</a></td>
         <td><a th:href="@{/authentication}">Получить токен</a></td>
         <td><a th:href="@{/registration}">Зарегистрироваться</a></td>
     </tr>

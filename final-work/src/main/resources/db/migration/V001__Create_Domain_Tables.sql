@@ -51,15 +51,15 @@ CREATE TABLE courses (
 CREATE TABLE study_groups (
     id BIGSERIAL PRIMARY KEY,
     code VARCHAR(255),
-    start_date DATETIME,
+    start_date TIMESTAMP,
     course_id BIGINT REFERENCES courses(id) ON DELETE CASCADE
 );
 
 CREATE TABLE lectures (
     id BIGSERIAL PRIMARY KEY,
     url VARCHAR(255),
-    lecture_time DATETIME,
-    status_id tinyint REFERENCES lecture_statuses(id),
+    lecture_time TIMESTAMP,
+    status_id SMALLINT REFERENCES lecture_statuses(id),
     topic_id BIGINT REFERENCES lecture_topics(id) ON DELETE CASCADE,
     lector_id BIGINT REFERENCES lectors(id),
     group_id BIGINT REFERENCES study_groups(id) ON DELETE CASCADE
@@ -73,8 +73,8 @@ CREATE TABLE lecture_materials (
 
 CREATE TABLE homeworks (
     id BIGSERIAL PRIMARY KEY,
-    mark tinyint,
-    status_id tinyint REFERENCES homework_statuses(id),
+    mark SMALLINT,
+    status_id SMALLINT REFERENCES homework_statuses(id),
     lecture_id BIGINT REFERENCES lectures(id) ON DELETE CASCADE,
     lector_id BIGINT REFERENCES lectors(id),
     student_id BIGINT REFERENCES students(id) ON DELETE CASCADE
@@ -82,7 +82,7 @@ CREATE TABLE homeworks (
 
 CREATE TABLE messages (
     id BIGSERIAL PRIMARY KEY,
-    send_time DATETIME,
+    send_time TIMESTAMP,
     text VARCHAR(256),
     sender_desc VARCHAR(256),
     sender_id BIGINT REFERENCES accounts(id),

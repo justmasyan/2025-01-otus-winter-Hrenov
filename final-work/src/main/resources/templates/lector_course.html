@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Application pages</title>
+    <title>Учебный курс</title>
 
     <script>
         function onLoadPage(id) {
@@ -15,11 +15,19 @@
     <script>
         function findCourse(id) {
             fetch(`/api/courses/${id}`)
-            .then(rawResponse => rawResponse.json())
-            .then(json => {
-                tableForCourse(json)
-                tableForTopics(json)
-                tableForLectors(json)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForCourse(json)
+                        tableForTopics(json)
+                        tableForLectors(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.href = "/error"
+                    })
+                }
             })
         }
     </script>
@@ -27,9 +35,16 @@
     <script>
         function findLectorsByCourseId(id) {
             fetch(`/api/lectors/courses/${id}`)
-            .then(rawResponse => rawResponse.json())
-            .then(json => {
-                tableForLectors(json)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForLectors(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
             })
         }
     </script>
@@ -37,9 +52,16 @@
     <script>
         function findGroupsByCourseId(id) {
             fetch(`/api/groups/courses/${id}`)
-            .then(rawResponse => rawResponse.json())
-            .then(json => {
-                tableForGroups(json)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForGroups(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
             })
         }
     </script>
@@ -191,7 +213,9 @@
     <tbody>
     <tr>
         <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список конкретных тем</a></td>
         <td><a th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/authentication}">Получить токен</a></td>
     </tr>
     <tbody>
 </table>

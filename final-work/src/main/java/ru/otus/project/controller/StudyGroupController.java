@@ -9,10 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import ru.otus.project.domain.StudyGroup;
-import ru.otus.project.dto.AccountDto;
 import ru.otus.project.dto.StudyGroupDto;
-import ru.otus.project.service.StudyGroupServiceImpl;
+import ru.otus.project.service.StudyGroupService;
 
 import java.util.List;
 
@@ -20,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudyGroupController {
 
-    private final StudyGroupServiceImpl studyGroupService;
+    private final StudyGroupService studyGroupService;
 
     @GetMapping("api/groups/{id}")
     public StudyGroupDto findById(@PathVariable long id) {
@@ -38,8 +36,9 @@ public class StudyGroupController {
     }
 
     @PostMapping("api/groups/new")
-    public StudyGroupDto addStudentToGroup(@RequestBody StudyGroupDto studyGroupDto) {
-        return studyGroupService.insertGroup(studyGroupDto);
+    public StudyGroupDto addStudentToGroup(@AuthenticationPrincipal Jwt jwt,
+                                           @RequestBody StudyGroupDto studyGroupDto) {
+        return studyGroupService.insertGroup(studyGroupDto, jwt.getClaim("accountId"));
     }
 
     @PostMapping("api/groups/{id}/student")
@@ -50,7 +49,7 @@ public class StudyGroupController {
 
     @DeleteMapping("api/groups/{id}/student")
     public StudyGroupDto removeStudentFromGroup(@AuthenticationPrincipal Jwt jwt,
-                                           @PathVariable long id) {
+                                                @PathVariable long id) {
         return studyGroupService.removeStudentFromGroup(id, jwt.getClaim("accountId"));
     }
 }

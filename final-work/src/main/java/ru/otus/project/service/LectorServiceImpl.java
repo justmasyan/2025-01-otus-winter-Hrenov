@@ -21,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LectorServiceImpl implements LectorService{
 
-    private final AccountServiceImpl accountService;
+    private final AccountService accountService;
 
     private final LectorRepository lectorRepository;
 

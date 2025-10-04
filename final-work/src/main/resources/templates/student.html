@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Application pages</title>
+    <title>Личный кабинет</title>
 
     <script>
         function onLoadPage(accountId) {
@@ -15,9 +15,17 @@
     <script>
         function findStudentByAccount(accountId) {
             fetch(`/api/students/accounts/${accountId}`)
-            .then(rawResponse => rawResponse.json())
-            .then(json => {
-                tableForBaseInfo(json)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForBaseInfo(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.href = "/error"
+                    })
+                }
             })
         }
     </script>
@@ -25,9 +33,16 @@
     <script>
         function findStudentGroupsByAccount(accountId) {
             fetch(`api/groups/students/accounts/${accountId}`)
-            .then(rawResponse => rawResponse.json())
-            .then(json => {
-                tableForGroups(json)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForGroups(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
             })
         }
     </script>
@@ -35,9 +50,16 @@
     <script>
         function findHomeworks() {
             fetch("api/homeworks/student")
-            .then(rawResponse => rawResponse.json())
-            .then(json => {
-                tableForHomeworks(json)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForHomeworks(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
             })
         }
     </script>
@@ -156,17 +178,24 @@
                 }
             }
 
-            fetch(`/api/students/accounts/${accountId}`, {
+            fetch(`/api/students/accounts/${accountId}/new`, {
                 method: 'PUT',
                 headers: {
                   'Accept': 'application/json',
                   'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(student)
-            }).then(rawResponse => rawResponse.json())
-            .then(json => {
-                alert("Вы успешно обновили данные")
-                window.location.reload()
+            }).then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        alert("Вы успешно обновили данные")
+                        window.location.reload()
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
             })
         }
     </script>
@@ -178,8 +207,10 @@
 <table border="1">
     <tbody>
     <tr>
-        <td><a href="lector_courses.html" th:href="@{/courses}">Список доступных курсов</a></td>
-        <td><a href="account.html" th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список конкретных тем</a></td>
+        <td><a th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/authentication}">Получить токен</a></td>
     </tr>
     <tbody>
 </table>

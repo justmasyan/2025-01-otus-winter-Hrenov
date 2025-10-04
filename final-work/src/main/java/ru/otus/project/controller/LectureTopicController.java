@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.otus.project.dto.LectureTopicDto;
-import ru.otus.project.service.LectureTopicServiceImpl;
+import ru.otus.project.service.LectureTopicService;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LectureTopicController {
 
-    private final LectureTopicServiceImpl topicService;
+    private final LectureTopicService topicService;
 
     @GetMapping("api/lecture-topics")
     public List<LectureTopicDto> findAll() {

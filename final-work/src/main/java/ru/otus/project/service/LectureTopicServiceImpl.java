@@ -14,17 +14,19 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class LectureTopicServiceImpl {
+public class LectureTopicServiceImpl implements LectureTopicService {
 
     private final LectureTopicRepository topicRepository;
 
     private final LectureTopicConverter topicConverter;
 
+    @Override
     public List<LectureTopicDto> findAll() {
         return topicRepository.findAll().stream()
                 .map(topicConverter::entityToDto).toList();
     }
 
+    @Override
     @Transactional
     public LectureTopicDto insert(LectureTopicDto topicDto) {
         if (topicDto.getId() != 0) {

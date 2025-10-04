@@ -45,7 +45,7 @@ public class HomeworkConverter {
         return new HomeworkDto(homework.getId(), homework.getMark(),
                 statusConverter.entityToDto(homework.getStatus()),
                 studentConverter.entityToBaseInfoDto(homework.getStudent()),
-                lectorConverter.entityToDto(homework.getLector()));
+                lectorConverter.entityToBaseInfoDto(homework.getLector()));
     }
 
     public HomeworkDto entityToDto(Homework homework) {

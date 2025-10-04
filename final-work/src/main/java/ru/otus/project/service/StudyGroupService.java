@@ -12,7 +12,7 @@ public interface StudyGroupService {
 
     List<StudyGroupDto> findAllByCourseId(long courseId);
 
-    StudyGroupDto insertGroup(StudyGroupDto studyGroupDto);
+    StudyGroupDto insertGroup(StudyGroupDto studyGroupDto, long lectorAccountId);
 
     StudyGroupDto addStudentToGroup(long groupId, long studentAccountId);
 

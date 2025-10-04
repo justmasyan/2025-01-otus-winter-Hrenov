@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.otus.project.dto.CourseDto;
-import ru.otus.project.service.CourseServiceImpl;
+import ru.otus.project.service.CourseService;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CourseController {
 
-    private final CourseServiceImpl courseService;
+    private final CourseService courseService;
 
     @GetMapping("api/courses/{id}")
     public CourseDto findById(@PathVariable long id) {
@@ -27,7 +27,7 @@ public class CourseController {
 
     @GetMapping("api/courses")
     public List<CourseDto> findAll() {
-        return courseService.findAllBaseInfo();
+        return courseService.findAll();
     }
 
     @GetMapping("api/courses/lecture-topics/{topicId}")
@@ -38,7 +38,7 @@ public class CourseController {
     @PostMapping("api/courses/new")
     public CourseDto findAllByTopicId(@AuthenticationPrincipal Jwt jwt,
                                       @RequestBody CourseDto courseDto) {
-        return courseService.createCourse(courseDto,jwt.getClaim("accountId"));
+        return courseService.createCourse(courseDto, jwt.getClaim("accountId"));
     }
 
     @PostMapping("api/courses/{courseId}/lector")

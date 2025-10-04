@@ -23,9 +23,9 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
-import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import ru.otus.project.security.AuthenticationEntryPointImpl;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -45,18 +45,50 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/courses/**", "/api/courses/**","/api/lecture-topics").permitAll()
-                        .requestMatchers("/api/groups/courses/**", "/api/lectors/courses/**").permitAll()
-                        .requestMatchers("/api/account/authentication", "/api/roles", "/api/students/new", "/api/lectors/new").permitAll()
-                        .requestMatchers("/account", "/api/**", "/courses/**,", "/lectures/**", "/groups/**", "/homeworks/**").authenticated()
-                        .anyRequest().permitAll()// чтобы на неизвестные пути прилетало 404, а не 403
+                        .requestMatchers("/account", "/lectures/**", "/groups/**", "/homeworks/**").authenticated()
+
+                        .requestMatchers("/api/courses/new", "/api/courses/*/lector").hasRole("LECTOR")
+
+                        .requestMatchers("/api/homeworks/*/lector", "/api/homeworks/*/new").hasRole("LECTOR")
+                        .requestMatchers("/api/homeworks/**").authenticated()
+
+                        .requestMatchers("/api/messages/**").authenticated()
+
+                        .requestMatchers("/api/homework-statuses/**").authenticated()
+
+                        .requestMatchers("/api/lectors/new", "/api/lectors/courses/*").permitAll()
+                        .requestMatchers("/api/lectors/accounts/*/new").hasRole("LECTOR")
+                        .requestMatchers("/api/lectors/**").authenticated()
+
+                        .requestMatchers("/api/lectures/*/lector", "/api/lectures/*/new").hasRole("LECTOR")
+                        .requestMatchers("/api/lectures/**").authenticated()
+
+                        .requestMatchers("/api/lecture-materials/*").hasRole("LECTOR")
+                        .requestMatchers("/api/lecture-materials/**").authenticated()
+
+                        .requestMatchers("/api/lecture-statuses/**").authenticated()
+
+                        .requestMatchers("/api/lecture-topics/new").hasRole("LECTOR")
+                        .requestMatchers("/api/lecture-topics/**").permitAll()
+
+                        .requestMatchers("/api/students/new").permitAll()
+                        .requestMatchers("/api/students/accounts/*/new").hasRole("STUDENT")
+                        .requestMatchers("/api/students/**").authenticated()
+
+                        .requestMatchers("/api/groups/new").hasRole("LECTOR")
+                        .requestMatchers("/api/groups/*/student").hasRole("STUDENT")
+                        .requestMatchers("/api/groups/courses/*").permitAll()
+                        .requestMatchers("/api/groups/**").authenticated()
+                        .anyRequest().permitAll()
                 ).anonymous(AbstractHttpConfigurer::disable)
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling((exceptions) -> exceptions
-                        .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
-                );
+                .exceptionHandling((exceptions) -> {
+                    AccessDeniedHandlerImpl deniedHandler = new AccessDeniedHandlerImpl();
+                    deniedHandler.setErrorPage("/access_denied");
+                    exceptions.authenticationEntryPoint(new AuthenticationEntryPointImpl())
+                            .accessDeniedHandler(deniedHandler);
+                });
 
         return http.build();
     }

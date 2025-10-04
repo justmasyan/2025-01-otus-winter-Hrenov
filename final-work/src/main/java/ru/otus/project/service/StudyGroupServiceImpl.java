@@ -5,10 +5,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.project.converter.StudyGroupConverter;
 import ru.otus.project.domain.Course;
+import ru.otus.project.domain.Lector;
 import ru.otus.project.domain.Student;
 import ru.otus.project.domain.StudyGroup;
 import ru.otus.project.dto.StudyGroupDto;
 import ru.otus.project.exception.CourseNotFoundException;
+import ru.otus.project.exception.LectorNotFoundException;
+import ru.otus.project.exception.LectorNotInCourseException;
 import ru.otus.project.exception.NoZeroIdException;
 import ru.otus.project.exception.StudentAlreadyInGroupException;
 import ru.otus.project.exception.StudentNotFoundException;
@@ -16,6 +19,7 @@ import ru.otus.project.exception.StudentNotInGroupException;
 import ru.otus.project.exception.StudentsExistWhenGroupCreateException;
 import ru.otus.project.exception.StudyGroupNotFoundException;
 import ru.otus.project.repository.CourseRepository;
+import ru.otus.project.repository.LectorRepository;
 import ru.otus.project.repository.StudentRepository;
 import ru.otus.project.repository.StudyGroupRepository;
 
@@ -25,15 +29,17 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-public class StudyGroupServiceImpl implements StudyGroupService{
+public class StudyGroupServiceImpl implements StudyGroupService {
 
-    private final LectureServiceImpl lectureService;
+    private final LectureService lectureService;
 
-    private final HomeworkServiceImpl homeworkService;
+    private final HomeworkService homeworkService;
 
     private final StudyGroupRepository studyGroupRepository;
 
     private final StudentRepository studentRepository;
+
+    private final LectorRepository lectorRepository;
 
     private final CourseRepository courseRepository;
 
@@ -63,7 +69,7 @@ public class StudyGroupServiceImpl implements StudyGroupService{
 
     @Override
     @Transactional
-    public StudyGroupDto insertGroup(StudyGroupDto studyGroupDto) {
+    public StudyGroupDto insertGroup(StudyGroupDto studyGroupDto, long lectorAccountId) {
         if (studyGroupDto.getId() != 0) {
             throw new NoZeroIdException("Id должен равняться нулю");
         }
@@ -74,6 +80,13 @@ public class StudyGroupServiceImpl implements StudyGroupService{
 
         Course course = courseRepository.findById(studyGroupDto.getCourse().getId())
                 .orElseThrow(() -> new CourseNotFoundException("Курс не найден"));
+
+        Lector lector = lectorRepository.findByAccountId(lectorAccountId)
+                .orElseThrow(() -> new LectorNotFoundException("Лектор не найден"));
+
+        if (!course.getLectors().contains(lector)) {
+            throw new LectorNotInCourseException("Данного преподавателя нет на курсе");
+        }
 
         StudyGroup studyGroup = new StudyGroup(studyGroupDto.getId(),
                 studyGroupDto.getCode(), studyGroupDto.getStartDate(),

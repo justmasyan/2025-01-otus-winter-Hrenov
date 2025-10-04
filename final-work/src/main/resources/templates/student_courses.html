@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Courses</title>
+    <title>Учебные курсы</title>
 
     <script>
         function onLoadPage() {
@@ -13,15 +13,23 @@
     <script>
         function findAllCourses() {
             fetch('/api/courses')
-            .then(rawResponse => rawResponse.json())
-            .then(courses => {
-                tableFor(courses)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForCourses(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.href = "/error"
+                    })
+                }
             })
         }
     </script>
 
     <script>
-        function tableFor(courses) {
+        function tableForCourses(courses) {
             let tbody = document.getElementById("courses-table-tbody");
 
             courses.forEach(function(course) {
@@ -58,10 +66,6 @@
     </tr>
     <tbody>
 </table>
-
-<div class="row">
-    <button id="register-account-button" type="button" onclick="createCourse()">Создать</button>
-</div>
 
 <h3>Список доступных курсов:</h3>
 

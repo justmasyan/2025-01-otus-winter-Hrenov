@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.otus.project.dto.HomeworkStatusDto;
+import ru.otus.project.service.HomeworkStatusService;
 import ru.otus.project.service.HomeworkStatusServiceImpl;
 
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class HomeworkStatusController {
 
-    private final HomeworkStatusServiceImpl statusService;
+    private final HomeworkStatusService statusService;
 
     @GetMapping("api/homework-statuses")
     public List<HomeworkStatusDto> findAll() {

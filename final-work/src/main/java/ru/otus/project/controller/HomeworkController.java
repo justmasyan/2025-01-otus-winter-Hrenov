@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.otus.project.dto.HomeworkDto;
+import ru.otus.project.service.HomeworkService;
 import ru.otus.project.service.HomeworkServiceImpl;
 
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class HomeworkController {
 
-    private final HomeworkServiceImpl homeworkService;
+    private final HomeworkService homeworkService;
 
     @GetMapping("api/homeworks/{id}")
     public HomeworkDto findById(@PathVariable long id) {
@@ -41,6 +42,12 @@ public class HomeworkController {
         return homeworkService.findAllByStudent(jwt.getClaim("accountId"));
     }
 
+    @GetMapping("api/homeworks/lectures/{lectureId}/student")
+    public HomeworkDto findByLectureIdForStudent(@AuthenticationPrincipal Jwt jwt,
+                                                 @PathVariable long lectureId) {
+        return homeworkService.findByLectureIdAndStudentId(lectureId, jwt.getClaim("accountId"));
+    }
+
     @PostMapping("api/homeworks/{id}/lector")
     public void assignLectorToHomework(@AuthenticationPrincipal Jwt jwt,
                                        @PathVariable long id) {
@@ -53,21 +60,9 @@ public class HomeworkController {
         homeworkService.removeLectorFromHomework(id, jwt.getClaim("accountId"));
     }
 
-    @PutMapping("api/homeworks/{id}")
+    @PutMapping("api/homeworks/{id}/new")
     public HomeworkDto updateHomework(@AuthenticationPrincipal Jwt jwt,
                                       @RequestBody HomeworkDto homeworkDto) {
         return homeworkService.updateHomework(homeworkDto, jwt.getClaim("accountId"));
-    }
-
-    @GetMapping("api/homeworks/lectures/{lectureId}/student")
-    public HomeworkDto findByLectureIdForStudent(@AuthenticationPrincipal Jwt jwt,
-                                                 @PathVariable long lectureId) {
-        return homeworkService.findByLectureIdAndStudentId(lectureId, jwt.getClaim("accountId"));
-    }
-
-    @GetMapping("api/homeworks/lectures/{lectureId}/lector")
-    public List<HomeworkDto> findAllByLectureIdForLector(@AuthenticationPrincipal Jwt jwt,
-                                                         @PathVariable long lectureId) {
-        return homeworkService.findByLectureIdAndLectorId(lectureId, jwt.getClaim("accountId"));
     }
 }
