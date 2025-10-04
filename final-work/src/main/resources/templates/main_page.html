@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Приветствие</title>
+</head>
+
+<body>
+
+<table border="1">
+    <tbody>
+    <tr>
+        <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список тем лекций</a></td>
+        <td><a th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/registration}">Зарегистрироваться</a></td>
+    </tr>
+    <tbody>
+</table>
+
+<p>
+<h3>Добро пожаловать в нашу онлайн-школу</h3>
+<h3><a href="lector_courses.html" th:href="@{/courses}">Список доступных курсов</a></h3>
+<h3><a href="account.html" th:href="@{/account}">Войти в личный кабинет по токену</a></h3>
+</p>
+
+</body>
+</html>

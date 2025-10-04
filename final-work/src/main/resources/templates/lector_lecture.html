@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Лекция</title>
+
+    <script>
+        function onLoadPage(id) {
+            findLecture(id)
+            findMaterialsByLectureId(id)
+            findHomeworksByLectureId(id)
+        }
+    </script>
+
+    <script>
+        function findLecture(id) {
+            fetch(`/api/lectures/${id}`)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForBaseInfo(json)
+                        updateLectureForm(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.href = "/error"
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function findMaterialsByLectureId(lectureId) {
+            fetch(`/api/lecture-materials/lectures/${lectureId}`)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForMaterials(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function findHomeworksByLectureId(lectureId) {
+            fetch(`/api/homeworks/lectures/${lectureId}`)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForHomeworks(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function tableForBaseInfo(lecture) {
+            document.getElementById("lecture-table-tdTopicTitle").innerHTML = lecture.lectureTopic.title
+            document.getElementById("lecture-table-tdUrl").innerHTML = lecture.url
+
+            document.getElementById("lecture-table-tdHrefGroup").href = `/groups/${lecture.studyGroup.id}`
+            document.getElementById("lecture-table-tdHrefGroup").innerHTML = lecture.studyGroup.code
+
+            document.getElementById("lecture-table-tdStatus").innerHTML = lecture.status.text
+            document.getElementById("lecture-table-tdLectureTime").innerHTML = lecture.lectureTime
+            document.getElementById("lecture-table-tdLector").innerHTML = `${lecture.lector.firstName} ${lecture.lector.lastName}`
+        }
+    </script>
+
+    <script>
+        function tableForMaterials(materials) {
+            let tbody = document.getElementById("materials-table-tbody");
+
+            materials.forEach(function(material) {
+                let tr = document.createElement('tr')
+
+                let tdUrl = document.createElement('td')
+                tdUrl.innerHTML = material.url
+
+                let tdRemoveMaterial = document.createElement('td')
+                let removeMaterialButton = document.createElement('button');
+                removeMaterialButton.type = 'button'
+                removeMaterialButton.textContent = 'Удалить';
+                removeMaterialButton.addEventListener('click', function() {
+                    deleteMaterial(material.id)
+                });
+                tdRemoveMaterial.appendChild(removeMaterialButton);
+
+                tr.appendChild(tdUrl)
+                tr.appendChild(tdRemoveMaterial)
+                tbody.prepend(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function tableForHomeworks(homeworks) {
+            let tbody = document.getElementById("homeworks-table-tbody");
+
+            homeworks.forEach(function(homework) {
+                let tr = document.createElement('tr')
+
+                let tdStudent = document.createElement('td')
+                tdStudent.innerHTML = `${homework.student.firstName} ${homework.student.lastName}`
+
+                let tdLector = document.createElement('td')
+                tdLector.innerHTML = `${homework.lector.firstName} ${homework.lector.lastName}`
+
+                let tdStatus = document.createElement('td')
+                tdStatus.innerHTML = homework.status.text
+
+                let tdMark = document.createElement('td')
+                tdMark.innerHTML = homework.mark
+
+                let tdHomework = document.createElement('td')
+                let tdHomeworkHref = document.createElement('a')
+                tdHomeworkHref.href = `/homeworks/${homework.id}`
+                tdHomeworkHref.innerHTML = "Перейти"
+                tdHomework.appendChild(tdHomeworkHref)
+
+                tr.appendChild(tdStudent)
+                tr.appendChild(tdLector)
+                tr.appendChild(tdStatus)
+                tr.appendChild(tdMark)
+                tr.appendChild(tdHomework)
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function updateLectureForm(lecture) {
+            document.getElementById("update-lecture-url-input").value = lecture.url
+            document.getElementById("update-lecture-time-input").value = new Date(lecture.lectureTime)
+                .toISOString().slice(0,16)
+            const statusSelect = document.getElementById("update-lecture-status-select")
+
+            fetch('/api/lecture-statuses')
+            .then(response => response.json())
+            .then(json => {
+                json.forEach(function(status) {
+                    let statusOption = document.createElement("option");
+
+                    if(status.id == lecture.status.id){
+                        statusOption.selected = 'selected'
+                    }
+
+                    statusOption.textContent = status.text;
+                    statusOption.value = status.id;
+                    statusSelect.appendChild(statusOption);
+                })
+            })
+        }
+    </script>
+
+    <script>
+        function updateLecture(lectureId) {
+            const lectureTime = document.getElementById("update-lecture-time-input").value;
+            const lectureStatusId = document.getElementById("update-lecture-status-select").value
+
+            const lecture = { id: lectureId, lectureTime: lectureTime, status: { id: lectureStatusId} }
+
+            fetch(`/api/lectures/${lectureId}/new`, {
+                method: 'PUT',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(lecture)
+            }).then(function(rawResponse) {
+                if (!rawResponse.ok) {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                } else {
+                    alert("Лекция изменена")
+                    window.location.reload()
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function insertMaterialForLecture(lectureId) {
+            const url = document.getElementById("insert-material-url-input").value;
+
+            const material = { url: url, lecture: { id: lectureId } }
+
+            fetch(`/api/lecture-materials/new`, {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(material)
+            }).then(function(rawResponse) {
+                if (!rawResponse.ok) {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                } else {
+                    alert("Вы успешно добавили ссылку")
+                    window.location.reload()
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function deleteMaterial(materialId) {
+            fetch(`/api/lecture-materials/${materialId}`, {
+                method: 'DELETE',
+            }).then(function(rawResponse) {
+                if (!rawResponse.ok) {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                } else {
+                    alert("Ссылка удалена")
+                    window.location.reload()
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function assignLectorToLecture(lectureId) {
+            fetch(`/api/lectures/${lectureId}/lector`, {
+                method: 'POST'
+            }).then(function(rawResponse) {
+                if (!rawResponse.ok) {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                } else {
+                    alert("Вы успешно записались на проведение лекции")
+                    window.location.reload()
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function removeLectorFromLecture(lectureId) {
+            fetch(`/api/lectures/${lectureId}/lector`, {
+                method: 'DELETE'
+            }).then(function(rawResponse) {
+                if (!rawResponse.ok) {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                } else {
+                    alert("Успех! На проведение лекции назначен другой преподаватель")
+                    window.location.reload()
+                }
+            })
+        }
+    </script>
+
+</head>
+
+<body th:onload="onLoadPage([[${id}]])">
+
+<table border="1">
+    <tbody>
+    <tr>
+        <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список конкретных тем</a></td>
+        <td><a th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/authentication}">Получить токен</a></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Информация о лекции:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Тема</th>
+        <th>Ссылка</th>
+        <th>Учебный курс</th>
+        <th>Лектор</th>
+        <th>Время начала лекции</th>
+        <th>Статус лекции</th>
+    </tr>
+    </thead>
+    <tbody id="lecture-table-tbody">
+    <tr>
+        <td id="lecture-table-tdTopicTitle"></td>
+        <td id="lecture-table-tdUrl"></td>
+        <td><a id="lecture-table-tdHrefGroup"></a></td>
+        <td id="lecture-table-tdLector"></td>
+        <td id="lecture-table-tdLectureTime"></td>
+        <td id="lecture-table-tdStatus"></td>
+    </tr>
+    <tbody>
+</table>
+
+<p>
+    <button id="assign-lector-to-lecture-button" type="button" th:onclick="assignLectorToLecture([[${id}]])">
+        Вести лекцию
+    </button>
+    <button id="remove-lector-from-lecture-button" type="button" th:onclick="removeLectorFromLecture([[${id}]])">
+        Отказаться от лекции
+    </button>
+</p>
+
+<h3>Изменить лекцию:</h3>
+
+<form id="update-lecture-form" action="authentication.html">
+
+    <table border="1">
+        <tbody>
+        <tr>
+            <td><label for="update-lecture-url-input">Новая ссылка</label></td>
+            <td><input id="update-lecture-url-input" name="title" type="text" required/></td>
+        </tr>
+
+        <tr>
+            <td><label for="update-lecture-time-input">Новое время лекции</label></td>
+            <td><input id="update-lecture-time-input" name="title" type="datetime-local" required/></td>
+        </tr>
+
+        <tr>
+            <td><label for="update-lecture-status-select">Статус лекции</label></td>
+            <td><select id="update-lecture-status-select" required></select></td>
+        </tr>
+    </table>
+
+    <div class="row">
+        <button id="update-lecture-button" type="button" th:onclick="updateLecture([[${id}]])">Сохранить</button>
+    </div>
+</form>
+
+<h3>Материалы к лекции:</h3>
+
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Ссылка</th>
+        <th>Действие</th>
+    </tr>
+    </thead>
+    <tbody id="materials-table-tbody">
+
+    <tr>
+        <td><input id="insert-material-url-input" name="title" type="text"/></td>
+        <td>
+            <button id="insert-material-url-button" type="button" th:onclick="insertMaterialForLecture([[${id}]])">
+                Добавить
+            </button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<h3>Домашние задания в рамках лекции:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Студент</th>
+        <th>Проверяющий</th>
+        <th>Статус ДЗ</th>
+        <th>Оценка</th>
+        <th>Ссылка на дз</th>
+    </tr>
+    </thead>
+    <tbody id="homeworks-table-tbody">
+</table>
+
+</body>
+</html>

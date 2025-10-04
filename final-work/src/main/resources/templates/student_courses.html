@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Учебные курсы</title>
+
+    <script>
+        function onLoadPage() {
+            findAllCourses()
+        }
+    </script>
+
+    <script>
+        function findAllCourses() {
+            fetch('/api/courses')
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForCourses(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.href = "/error"
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function tableForCourses(courses) {
+            let tbody = document.getElementById("courses-table-tbody");
+
+            courses.forEach(function(course) {
+                let tr = document.createElement('tr')
+
+                let tdTitle = document.createElement('td')
+                let tdTitleHref = document.createElement('a')
+                tdTitleHref.href = `/courses/${course.id}`
+                tdTitleHref.innerHTML = course.title
+                tdTitle.appendChild(tdTitleHref)
+
+                let tdPrice = document.createElement('td')
+                tdPrice.innerHTML = course.price
+
+                tr.appendChild(tdTitle)
+                tr.appendChild(tdPrice)
+
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+</head>
+
+<body onload="onLoadPage();">
+
+<table border="1">
+    <tbody>
+    <tr>
+        <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список конкретных тем</a></td>
+        <td><a th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/authentication}">Получить токен</a></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Список доступных курсов:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Название курса</th>
+        <th>Цена курса</th>
+    </tr>
+    </thead>
+    <tbody id="courses-table-tbody">
+    <tbody>
+</table>
+
+</body>
+</html>

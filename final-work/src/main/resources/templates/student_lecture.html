@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Лекция</title>
+
+    <script>
+        function onLoadPage(id) {
+            findLecture(id)
+            findLectureMaterialsByLecture(id)
+            findHomeworkByLectureForStudent(id)
+        }
+    </script>
+
+    <script>
+        function findLecture(id) {
+            fetch(`/api/lectures/${id}`)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForBaseInfo(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.href = "/error"
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function findLectureMaterialsByLecture(lectureId) {
+            fetch(`/api/lecture-materials/lectures/${lectureId}`)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForMaterials(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function findHomeworkByLectureForStudent(id) {
+            fetch(`/api/homeworks/lectures/${id}/student`)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForHomework(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function tableForBaseInfo(lecture) {
+            document.getElementById("lecture-table-tdTopicTitle").innerHTML = lecture.lectureTopic.title
+            document.getElementById("lecture-table-tdUrl").innerHTML = lecture.url
+
+            document.getElementById("lecture-table-tdHrefGroup").href = `/groups/${lecture.studyGroup.id}`
+            document.getElementById("lecture-table-tdHrefGroup").innerHTML = lecture.studyGroup.code
+
+            document.getElementById("lecture-table-tdStatus").innerHTML = lecture.status.text
+            document.getElementById("lecture-table-tdLectureTime").innerHTML = lecture.lectureTime
+            document.getElementById("lecture-table-tdLector").innerHTML = `${lecture.lector.firstName} ${lecture.lector.lastName}`
+        }
+    </script>
+
+    <script>
+        function tableForMaterials(materials) {
+            let tbody = document.getElementById("materials-table-tbody");
+
+            materials.forEach(function(material) {
+                let tr = document.createElement('tr')
+
+                let tdUrl = document.createElement('td')
+                tdUrl.innerHTML = material.url
+
+                tr.appendChild(tdUrl)
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function tableForHomework(homework) {
+            document.getElementById("homework-table-tdStatus").innerHTML = homework.status.text
+            document.getElementById("homework-table-tdMark").innerHTML = homework.mark
+            document.getElementById("homework-table-tdHomeworkHref").href = `/homeworks/${homework.id}`
+        }
+    </script>
+
+</head>
+
+<body th:onload="onLoadPage([[${id}]])">
+
+<table border="1">
+    <tbody>
+    <tr>
+        <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список конкретных тем</a></td>
+        <td><a th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/authentication}">Получить токен</a></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Информация о лекции:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Тема</th>
+        <th>Ссылка</th>
+        <th>Учебный курс</th>
+        <th>Время начала лекции</th>
+        <th>Статус лекции</th>
+        <th>Лектор</th>
+    </tr>
+    </thead>
+    <tbody id="lecture-table-tbody">
+    <tr>
+        <td id="lecture-table-tdTopicTitle"></td>
+        <td id="lecture-table-tdUrl"></td>
+        <td><a id="lecture-table-tdHrefGroup"></a></td>
+        <td id="lecture-table-tdLectureTime"></td>
+        <td id="lecture-table-tdStatus"></td>
+        <td id="lecture-table-tdLector"></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Материалы к лекции:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Ссылка на материал</th>
+    </tr>
+    </thead>
+    <tbody id="materials-table-tbody">
+</table>
+
+<h3>Домашнее задание</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Статус ДЗ</th>
+        <th>Оценка</th>
+        <th>Ссылка на ДЗ</th>
+    </tr>
+    </thead>
+    <tbody id="homework-table-tbody">
+    <tr>
+        <td id="homework-table-tdStatus"></td>
+        <td id="homework-table-tdMark"></td>
+        <td><a id="homework-table-tdHomeworkHref">Перейти</a></td>
+    </tr>
+    <tbody>
+</table>
+
+</body>
+</html>

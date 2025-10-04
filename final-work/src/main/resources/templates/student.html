@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Личный кабинет</title>
+
+    <script>
+        function onLoadPage(accountId) {
+            findStudentByAccount(accountId)
+            findStudentGroupsByAccount(accountId)
+            findHomeworks()
+        }
+    </script>
+
+    <script>
+        function findStudentByAccount(accountId) {
+            fetch(`/api/students/accounts/${accountId}`)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForBaseInfo(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.href = "/error"
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function findStudentGroupsByAccount(accountId) {
+            fetch(`api/groups/students/accounts/${accountId}`)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForGroups(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function findHomeworks() {
+            fetch("api/homeworks/student")
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForHomeworks(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function tableForBaseInfo(student) {
+            document.getElementById("student-table-tdUsername").innerHTML = student.account.username
+            document.getElementById("update-username-input").value = student.account.username
+
+            let roleOption = document.getElementById("update-role-option")
+            roleOption.value = student.account.authority.id
+            roleOption.textContent = student.account.authority.description
+            roleOption.selected = 'selected'
+
+            document.getElementById("student-table-tdFirstName").innerHTML = student.firstName
+            document.getElementById("update-first-name-input").value= student.firstName
+
+            document.getElementById("student-table-tdLastName").innerHTML = student.lastName
+            document.getElementById("update-last-name-input").value = student.lastName
+
+            document.getElementById("student-table-tdStudyPlace").innerHTML = student.studyPlace
+            document.getElementById("update-study-place-input").value = student.studyPlace
+        }
+    </script>
+
+    <script>
+        function tableForGroups(groups) {
+
+            if (groups.length == 0){
+                document.getElementById("groups-table-header").innerHTML = "Вы не состоите ни в одной учебной группе."
+                document.getElementById("groups-table").style.display = "none"
+                return
+            }
+
+            let tbody = document.getElementById("groups-table-tbody");
+
+            groups.forEach(function(group) {
+                let tr = document.createElement('tr')
+
+                let tdCode = document.createElement('td')
+                let tdCodeHref = document.createElement('a')
+                tdCodeHref.href = `/groups/${group.id}`
+                tdCodeHref.innerHTML = group.code
+                tdCode.appendChild(tdCodeHref)
+
+                let tdStartDate = document.createElement('td')
+                tdStartDate.innerHTML = group.startDate
+
+                tr.appendChild(tdCode)
+                tr.appendChild(tdStartDate)
+
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function tableForHomeworks(homeworks) {
+            let tbody = document.getElementById("homeworks-table-tbody");
+
+            homeworks.forEach(function(homework) {
+                let tr = document.createElement('tr')
+
+                let tdHomework = document.createElement('td')
+                let tdHomeworkHref = document.createElement('a')
+                tdHomeworkHref.href = `/homeworks/${homework.id}`
+                tdHomeworkHref.innerHTML = homework.lecture.lectureTopic.title
+                tdHomework.appendChild(tdHomeworkHref)
+
+                let tdGroup = document.createElement('td')
+                let tdGroupHref = document.createElement('a')
+                tdGroupHref.href = `/groups/${homework.lecture.studyGroup.id}`
+                tdGroupHref.innerHTML = homework.lecture.studyGroup.code
+                tdGroup.appendChild(tdGroupHref)
+
+                let tdStatus = document.createElement('td')
+                tdStatus.innerHTML = homework.status.text
+
+                let tdMark = document.createElement('td')
+                tdMark.innerHTML = homework.mark
+
+                tr.appendChild(tdHomework)
+                tr.appendChild(tdGroup)
+                tr.appendChild(tdStatus)
+                tr.appendChild(tdMark)
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function updateStudent(accountId) {
+            const password = document.getElementById("update-password-input").value
+            const confirmPassword = document.getElementById("update-confirm-password-input").value
+
+            if(password != confirmPassword) {
+                alert("Пароли не совпадают")
+                return ;
+            }
+
+            const firstName = document.getElementById("update-first-name-input").value
+            const lastName = document.getElementById("update-last-name-input").value
+            const username = document.getElementById("update-username-input").value
+            const roleId = document.getElementById("update-role-select").value
+            const studyPlace = document.getElementById("update-study-place-input").value
+
+            const student = {
+                firstName: firstName,
+                lastName: lastName,
+                studyPlace: studyPlace,
+                account: {
+                    id: accountId,
+                    username: username,
+                    password: password,
+                    authority: { id: roleId }
+                }
+            }
+
+            fetch(`/api/students/accounts/${accountId}/new`, {
+                method: 'PUT',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(student)
+            }).then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        alert("Вы успешно обновили данные")
+                        window.location.reload()
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
+            })
+        }
+    </script>
+
+</head>
+
+<body th:onload="onLoadPage([[${accountId}]])">
+
+<table border="1">
+    <tbody>
+    <tr>
+        <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список конкретных тем</a></td>
+        <td><a th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/authentication}">Получить токен</a></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Общая информация:</h3>
+
+<table id="student-table" border="1">
+    <thead>
+    <tr>
+        <th>Логин</th>
+        <th>Имя</th>
+        <th>Фамилия</th>
+        <th>Учебное заведение</th>
+    </tr>
+    </thead>
+    <tbody id="student-table-tbody">
+    <tr>
+        <td id="student-table-tdUsername"></td>
+        <td id="student-table-tdFirstName"></td>
+        <td id="student-table-tdLastName"></td>
+        <td id="student-table-tdStudyPlace"></td>
+    </tr><tbody>
+</table>
+
+<h3>Форма для изменения данных</h3>
+
+<form id="update-student-form">
+
+    <table border="1">
+        <tbody>
+        <tr>
+            <td><label for="update-username-input">Логин</label></td>
+            <td><input id="update-username-input" name="title" type="text" required/></td>
+        </tr>
+        <tr>
+            <td><label for="update-password-input">Пароль</label></td>
+            <td><input id="update-password-input" name="title" type="text" required/></td>
+        </tr>
+        <tr>
+            <td><label for="update-confirm-password-input">Подтверждение пароля</label></td>
+            <td><input id="update-confirm-password-input" name="title" type="text" required/></td>
+        </tr>
+        <tr>
+            <td><label for="update-first-name-input">Имя</label></td>
+            <td><input id="update-first-name-input" name="title" type="text" required/></td>
+        </tr>
+        <tr>
+            <td><label for="update-last-name-input">Фамилия</label></td>
+            <td><input id="update-last-name-input" name="title" type="text" required/></td>
+        </tr>
+
+        <tr>
+            <td><label for="update-role-select">Кто вы</label></td>
+            <td><select id="update-role-select" disabled required><option id="update-role-option"></option></select></td>
+        </tr>
+
+        <tr>
+            <td><label for="update-study-place-input">Учебное заведение</label></td>
+            <td><input id="update-study-place-input" name="title" type="text" required/></td>
+        </tr>
+        <tbody>
+    </table>
+
+    <div class="row">
+        <button id="update-student-button" type="button" th:onclick="updateStudent([[${accountId}]])">Отправить</button>
+    </div>
+</form>
+
+<h3 id="groups-table-header">Список учебных групп:</h3>
+
+<table id="groups-table" border="1">
+    <thead>
+    <tr>
+        <th>Название группы</th>
+        <th>Дата начала обучения</th>
+    </tr>
+    </thead>
+    <tbody id="groups-table-tbody">
+</table>
+
+<h3>Домашние задания:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Тема дз</th>
+        <th>Учебная группа</th>
+        <th>Статус ДЗ</th>
+        <th>Оценка</th>
+    </tr>
+    </thead>
+    <tbody id="homeworks-table-tbody">
+</table>
+
+</body>
+</html>

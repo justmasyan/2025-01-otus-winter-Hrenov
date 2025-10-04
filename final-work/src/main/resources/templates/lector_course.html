@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Учебный курс</title>
+
+    <script>
+        function onLoadPage(id) {
+            findCourse(id)
+            findLectorsByCourseId(id)
+            findGroupsByCourseId(id)
+        }
+    </script>
+
+    <script>
+        function findCourse(id) {
+            fetch(`/api/courses/${id}`)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForCourse(json)
+                        tableForTopics(json)
+                        tableForLectors(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.href = "/error"
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function findLectorsByCourseId(id) {
+            fetch(`/api/lectors/courses/${id}`)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForLectors(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function findGroupsByCourseId(id) {
+            fetch(`/api/groups/courses/${id}`)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForGroups(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function tableForCourse(course) {
+            document.getElementById("course-title-input").value = course.title
+
+            let tbody = document.getElementById("course-table-tbody");
+            let tr = document.createElement('tr')
+
+            let tdTitle = document.createElement('td')
+            tdTitle.innerHTML = course.title
+            tr.appendChild(tdTitle)
+            let tdPrice = document.createElement('td')
+            tdPrice.innerHTML = course.price
+            tr.appendChild(tdPrice)
+            //Начало следующей группы
+
+            tbody.appendChild(tr)
+        }
+    </script>
+
+    <script>
+        function tableForTopics(course) {
+            let tbody = document.getElementById("topics-table-tbody");
+
+            course.lectureTopics.forEach(function(topic){
+                let tr = document.createElement('tr')
+
+                let tdTitle = document.createElement('td')
+                tdTitle.innerHTML = topic.title
+                tr.appendChild(tdTitle)
+
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function tableForLectors(lectors) {
+            let tbody = document.getElementById("lectors-table-tbody");
+
+            lectors.forEach(function(lector){
+                let tr = document.createElement('tr')
+                let lectorFirstName = document.createElement('td')
+                lectorFirstName.innerHTML = lector.firstName
+                tr.appendChild(lectorFirstName)
+
+                let lectorLastName = document.createElement('td')
+                lectorLastName.innerHTML = lector.lastName
+                tr.appendChild(lectorLastName)
+
+                let lectorTitleJob = document.createElement('td')
+                lectorTitleJob.innerHTML = lector.jobTitle
+                tr.appendChild(lectorTitleJob)
+
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function tableForGroups(groups) {
+            let tbody = document.getElementById("groups-table-tbody");
+            groups.forEach(function(group) {
+                let tr = document.createElement('tr')
+
+                let tdCode = document.createElement('td')
+                let tdCodeHref = document.createElement('a')
+                tdCodeHref.href = `/groups/${group.id}`
+                tdCodeHref.innerHTML = group.code
+                tdCode.appendChild(tdCodeHref)
+
+                let tdStartDate = document.createElement('td')
+                tdStartDate.innerHTML = group.startDate
+
+                tr.appendChild(tdCode)
+                tr.appendChild(tdStartDate)
+
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function createNewGroupForCourse(courseId) {
+           const startDate = document.getElementById("group-start-date-input").value
+           const courseTitle = document.getElementById("course-title-input").value
+
+           const groupCode = `${courseTitle}: ${startDate.split('T')[0]}`
+           const group = { startDate : startDate, code: groupCode, course: { id: courseId } }
+
+           fetch('/api/groups/new', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(group)
+            }).then(function(rawResponse) {
+                if (!rawResponse.ok) {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                } else {
+                    alert("Вы успешно создали новую группу")
+                    window.location.reload()
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function moveLectorToCourse(courseId) {
+            fetch(`/api/courses/${courseId}/lector`, {
+                method: 'POST'
+            }).then(function(rawResponse) {
+                if (!rawResponse.ok) {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                } else {
+                    alert("Вы успешно стали преподавателем курса")
+                    window.location.reload()
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function deleteLectorFromCourse(courseId) {
+            fetch(`/api/courses/${courseId}/lector`, {
+                method: 'DELETE'
+            }).then(function(rawResponse) {
+                if (!rawResponse.ok) {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                } else {
+                    alert("Вы больше не преподаете на этом курсе")
+                    window.location.reload()
+                }
+            })
+        }
+    </script>
+</head>
+
+<body th:onload="onLoadPage([[${id}]])">
+
+<table border="1">
+    <tbody>
+    <tr>
+        <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список конкретных тем</a></td>
+        <td><a th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/authentication}">Получить токен</a></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Общая информация о курсе:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Название курса</th>
+        <th>Стоимость курса</th>
+    </tr>
+    </thead>
+    <tbody id="course-table-tbody"><tbody>
+</table>
+
+<h3>Программа курса:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Название темы</th>
+    </tr>
+    </thead>
+    <tbody id="topics-table-tbody"><tbody>
+</table>
+
+<h3>Список преподавателей:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Имя</th>
+        <th>Фамилия</th>
+        <th>Место работы</th>
+    </tr>
+    </thead>
+    <tbody id="lectors-table-tbody"><tbody>
+</table>
+
+<p>
+    <button id="move-lector-to-course-button" type="button" th:onclick="moveLectorToCourse([[${id}]])">Преподавать на курсе</button>
+    <button id="delete-lector-from-course-button" type="button" th:onclick="deleteLectorFromCourse([[${id}]])">Уйти с курса</button>
+</p>
+
+<h3>Запустить новую учебную группу:</h3>
+
+<form id="create-new-group-form" action="authentication.html">
+
+    <table border="1">
+        <thead>
+        <tr>
+            <th><label for="course-title-input">Название курса</label></th>
+            <th><label for="group-start-date-input">Время начала группы</label></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><input id="course-title-input" name="title" type="text" disabled/></td>
+            <td><input id="group-start-date-input" name="title" type="datetime-local"/></td>
+        </tr>
+        <tbody>
+    </table>
+
+    <div class="row">
+        <button id="register-account-button" type="button" th:onclick="createNewGroupForCourse([[${id}]])">Создать</button>
+    </div>
+</form>
+
+<h3>Учебные группы по курсу:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Название группы</th>
+        <th>Дата начала обучения</th>
+    </tr>
+    </thead>
+    <tbody id="groups-table-tbody">
+</table>
+
+</body>
+</html>

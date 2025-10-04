@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Домашняя работа</title>
+
+    <script>
+        function onLoadPage(id) {
+            findHomework(id)
+            findMessagesForHomework(id)
+        }
+    </script>
+
+    <script>
+        function findHomework(id) {
+            fetch(`/api/homeworks/${id}`)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForBaseInfo(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.href = "/error"
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function findMessagesForHomework(id) {
+            fetch(`/api/messages/homeworks/${id}`)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForMessages(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function tableForBaseInfo(homework) {
+            document.getElementById("homework-table-tdTopicHref").innerHTML = homework.lecture.lectureTopic.title
+            document.getElementById("homework-table-tdTopicHref").href = `/lectures/${homework.lecture.id}`
+
+            document.getElementById("homework-table-tdMark").innerHTML = homework.mark
+            document.getElementById("homework-table-tdStatus").innerHTML = homework.status.text
+            document.getElementById("homework-table-tdStudent").innerHTML = `${homework.student.firstName} ${homework.student.lastName}`
+            document.getElementById("homework-table-tdLector").innerHTML = `${homework.lector.firstName} ${homework.lector.lastName}`
+        }
+    </script>
+
+    <script>
+        function tableForMessages(messages) {
+            let tbody = document.getElementById("messages-table-tbody");
+
+            messages.forEach(function(message) {
+                let tr = document.createElement('tr')
+
+                let tdSender = document.createElement('td')
+                tdSender.innerHTML = message.senderDesc
+
+                let tdText = document.createElement('td')
+                tdText.innerHTML = message.text
+
+                let tdTime = document.createElement('td')
+                tdTime.innerHTML = message.sendTime
+
+                tr.appendChild(tdSender)
+                tr.appendChild(tdText)
+                tr.appendChild(tdTime)
+
+                tbody.prepend(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function insertMessage(homeworkId) {
+            const text = document.getElementById("insert-message-text-input").value
+
+            const message = { text: text, homework: { id: homeworkId} }
+
+            fetch("/api/messages/new", {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(message)
+            }).then(function(rawResponse) {
+                if (!rawResponse.ok) {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                } else {
+                    alert("Сообщение отправлено")
+                    window.location.reload()
+                }
+            })
+        }
+    </script>
+
+</head>
+
+<body th:onload="onLoadPage([[${id}]])">
+
+<table border="1">
+    <tbody>
+    <tr>
+        <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список конкретных тем</a></td>
+        <td><a th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/authentication}">Получить токен</a></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Общая информация о ДЗ</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Тема</th>
+        <th>Статус ДЗ</th>
+        <th>Оценка</th>
+        <th>ФИО студента</th>
+        <th>ФИО лектора</th>
+    </tr>
+    </thead>
+    <tbody id="homework-table-tbody">
+    <tr>
+        <td><a id="homework-table-tdTopicHref"></a></td>
+        <td id="homework-table-tdStatus"></td>
+        <td id="homework-table-tdMark"></td>
+        <td id="homework-table-tdStudent"></td>
+        <td id="homework-table-tdLector"></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Обсуждение ДЗ</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Логин</th>
+        <th>Текст сообщения</th>
+        <th>Время отправления</th>
+    </tr>
+    </thead>
+    <tbody id="messages-table-tbody">
+    <tr>
+        <td><label for="insert-message-text-input">Вы</label></td>
+        <td><input id="insert-message-text-input" name="title" type="text"/></td>
+        <td>
+            <button id="insert-message-button" type="button" th:onclick="insertMessage([[${id}]])">
+                Отправить сообщение
+            </button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

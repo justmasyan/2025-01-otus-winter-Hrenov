@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Темы лекций</title>
+
+    <script>
+        function findAllTopics() {
+            fetch('/api/lecture-topics')
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForTopics(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.href = "/error"
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function showCoursesForTopic(id) {
+            fetch(`/api/courses/lecture-topics/${id}`)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForCourses(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function tableForTopics(topics) {
+            let tbody = document.getElementById("topics-table-tbody");
+
+            topics.forEach(function(topic) {
+                let tr = document.createElement('tr')
+
+                let tdTitle = document.createElement('td')
+                tdTitle.innerHTML = topic.title
+                
+                let tdShowCourses = document.createElement('td')
+                let showCoursesButton = document.createElement('button');
+                showCoursesButton.type = 'button'
+                showCoursesButton.textContent = 'Показать';
+                showCoursesButton.addEventListener('click', function() {
+                    showCoursesForTopic(topic.id)
+                });
+                tdShowCourses.appendChild(showCoursesButton);
+
+                tr.appendChild(tdTitle)
+                tr.appendChild(tdShowCourses)
+
+                tbody.prepend(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function tableForCourses(courses) {
+            let tbody = document.getElementById("courses-table-tbody");
+            tbody.innerHTML = ""
+
+            courses.forEach(function(course) {
+                let tr = document.createElement('tr')
+
+                let tdTitle = document.createElement('td')
+                let tdTitleHref = document.createElement('a')
+                tdTitleHref.href = `/courses/${course.id}`
+                tdTitleHref.innerHTML = course.title
+                tdTitle.appendChild(tdTitleHref)
+
+                let tdPrice = document.createElement('td')
+                tdPrice.innerHTML = course.price
+
+                tr.appendChild(tdTitle)
+                tr.appendChild(tdPrice)
+
+                tbody.appendChild(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function insertTopic() {
+            let topicTitle = document.getElementById("insert-topic-title-input").value
+
+            let topic = { title: topicTitle }
+
+            fetch('/api/lecture-topics/new', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(topic)
+            }).then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        alert("Изучаемая тема добавлена")
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.reload()
+                    })
+                }
+            })
+        }
+    </script>
+</head>
+
+<body onload="findAllTopics();">
+
+<table border="1">
+    <tbody>
+    <tr>
+        <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список тем лекций</a></td>
+        <td><a th:href="@{/authentication}">Получить токен</a></td>
+        <td><a th:href="@{/registration}">Зарегистрироваться</a></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Изучаемые темы:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Тема</th>
+        <th>Курсы</th>
+    </tr>
+    </thead>
+    <tbody id="topics-table-tbody">
+    <tr>
+        <td><input id="insert-topic-title-input" name="title" type="text"/></td>
+        <td>
+            <button id="insert-topic-title-button" type="button" onclick="insertTopic();">
+                Добавить
+            </button>
+        </td>
+    </tr>
+    </tbody>
+    <tbody>
+</table>
+
+<h3>Список курсов, включающих данную тему:</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Название курса</th>
+        <th>Цена курса</th>
+    </tr>
+    </thead>
+    <tbody id="courses-table-tbody">
+    <tbody>
+</table>
+
+</body>
+</html>

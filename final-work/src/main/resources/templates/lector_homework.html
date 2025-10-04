@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Домашняя работа</title>
+
+    <script>
+        function onLoadPage(id) {
+            findHomework(id)
+            findMessagesForHomework(id)
+        }
+    </script>
+
+    <script>
+        function findHomework(id) {
+            fetch(`/api/homeworks/${id}`)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForBaseInfo(json)
+                        formUpdateHomework(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.href = "/error"
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function findMessagesForHomework(id) {
+            fetch(`/api/messages/homeworks/${id}`)
+            .then(function(rawResponse) {
+                if (rawResponse.ok) {
+                    rawResponse.json().then(function(json) {
+                        tableForMessages(json)
+                    })
+                } else {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function tableForBaseInfo(homework) {
+            document.getElementById("homework-table-tdTopicHref").innerHTML = homework.lecture.lectureTopic.title
+            document.getElementById("homework-table-tdTopicHref").href = `/lectures/${homework.lecture.id}`
+
+            document.getElementById("homework-table-tdMark").innerHTML = homework.mark
+            document.getElementById("homework-table-tdStatus").innerHTML = homework.status.text
+            document.getElementById("homework-table-tdStudent").innerHTML = `${homework.student.firstName} ${homework.student.lastName}`
+            document.getElementById("homework-table-tdLector").innerHTML = `${homework.lector.firstName} ${homework.lector.lastName}`
+        }
+    </script>
+
+    <script>
+        function formUpdateHomework(homework) {
+            document.getElementById("update-homework-mark-input").value = homework.mark
+            const statusSelect = document.getElementById("update-homework-status-select")
+
+            fetch('/api/homework-statuses')
+            .then(response => response.json())
+            .then(json => {
+                json.forEach(function(status) {
+                    let statusOption = document.createElement("option");
+
+                    if(status.id == homework.status.id) {
+                        statusOption.selected = 'selected'
+                    }
+
+                    statusOption.textContent = status.text;
+                    statusOption.value = status.id;
+                    statusSelect.appendChild(statusOption);
+                })
+            })
+        }
+    </script>
+
+    <script>
+        function tableForMessages(messages) {
+            let tbody = document.getElementById("messages-table-tbody");
+
+            messages.forEach(function(message) {
+                let tr = document.createElement('tr')
+
+                let tdSender = document.createElement('td')
+                tdSender.innerHTML = message.senderDesc
+
+                let tdText = document.createElement('td')
+                tdText.innerHTML = message.text
+
+                let tdTime = document.createElement('td')
+                tdTime.innerHTML = message.sendTime
+
+                tr.appendChild(tdSender)
+                tr.appendChild(tdText)
+                tr.appendChild(tdTime)
+
+                tbody.prepend(tr)
+            })
+        }
+    </script>
+
+    <script>
+        function updateHomework(id) {
+            const mark = document.getElementById("update-homework-mark-input").value
+            const statusId = document.getElementById("update-homework-status-select").value
+
+            const homework = { id: id, mark: mark, status: { id: statusId } }
+
+            fetch(`/api/homeworks/${id}/new`, {
+                method: 'PUT',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(homework)
+            }).then(function(rawResponse) {
+                if (!rawResponse.ok) {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                } else {
+                    alert("Вы оценили домашнее задание")
+                    window.location.reload()
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function insertMessage(homeworkId) {
+            const text = document.getElementById("insert-message-text-input").value
+
+            const message = { text: text, homework: { id: homeworkId} }
+
+            fetch("/api/messages/new", {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(message)
+            }).then(function(rawResponse) {
+                if (!rawResponse.ok) {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                } else {
+                    alert("Сообщение отправлено")
+                    window.location.reload()
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function assignLectorToHomework(homeworkId) {
+            fetch(`/api/homeworks/${homeworkId}/lector`, {
+                method: 'POST'
+            }).then(function(rawResponse) {
+                if (!rawResponse.ok) {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                } else {
+                    alert("Вы успешно записались на проверку ДЗ")
+                    window.location.reload()
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function removeLectorFromHomework(homeworkId) {
+            fetch(`/api/homeworks/${homeworkId}/lector`, {
+                method: 'DELETE'
+            }).then(function(rawResponse) {
+                if (!rawResponse.ok) {
+                    rawResponse.json().then(function(errorResponse) {
+                        alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                    })
+                } else {
+                    alert("Успех! На проверку ДЗ назначен другой преподаватель")
+                    window.location.reload()
+                }
+            })
+        }
+    </script>
+
+</head>
+
+<body th:onload="onLoadPage([[${id}]])">
+
+<table border="1">
+    <tbody>
+    <tr>
+        <td><a th:href="@{/courses}">Список доступных курсов</a></td>
+        <td><a th:href="@{/lecture-topics}">Список конкретных тем</a></td>
+        <td><a th:href="@{/account}">Личный кабинет</a></td>
+        <td><a th:href="@{/authentication}">Получить токен</a></td>
+    </tr>
+    <tbody>
+</table>
+
+<h3>Общая информация о ДЗ</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Тема</th>
+        <th>Статус ДЗ</th>
+        <th>Оценка</th>
+        <th>ФИО студента</th>
+        <th>ФИО лектора</th>
+    </tr>
+    </thead>
+    <tbody id="homework-table-tbody">
+    <tr>
+        <td><a id="homework-table-tdTopicHref"></a></td>
+        <td id="homework-table-tdStatus"></td>
+        <td id="homework-table-tdMark"></td>
+        <td id="homework-table-tdStudent"></td>
+        <td id="homework-table-tdLector"></td>
+    </tr>
+    <tbody>
+</table>
+
+<p>
+    <button id="assign-lector-to-homework-button" type="button" th:onclick="assignLectorToHomework([[${id}]])">
+        Стать проверяющим ДЗ
+    </button>
+    <button id="remove-lector-from-homework-button" type="button" th:onclick="removeLectorFromHomework([[${id}]])">
+        Отказаться от ДЗ
+    </button>
+</p>
+
+<h3>Оценить домашнее задание:</h3>
+
+<form id="update-homework-form">
+
+    <table border="1">
+        <tbody>
+        <tr>
+            <td><label for="update-homework-mark-input">Оценка</label></td>
+            <td><input id="update-homework-mark-input" type="number" value="0" min="0" max="10" step="1"></td>
+        </tr>
+
+        <tr>
+            <td><label for="update-homework-status-select">Статус ДЗ</label></td>
+            <td><select id="update-homework-status-select" required></select></td>
+        </tr>
+    </table>
+
+    <div class="row">
+        <button id="update-homework-button" type="button" th:onclick="updateHomework([[${id}]])">Оценить</button>
+    </div>
+</form>
+
+
+<h3>Обсуждение ДЗ</h3>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Логин</th>
+        <th>Текст сообщения</th>
+        <th>Время отправления</th>
+    </tr>
+    </thead>
+    <tbody id="messages-table-tbody">
+    <tr>
+        <td><label for="insert-message-text-input">Вы</label></td>
+        <td><input id="insert-message-text-input" name="title" type="text"/></td>
+        <td>
+            <button id="insert-message-button" type="button" th:onclick="insertMessage([[${id}]])">
+                Отправить сообщение
+            </button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
