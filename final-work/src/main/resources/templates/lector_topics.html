@@ -112,6 +112,7 @@
                 } else {
                     rawResponse.json().then(function(errorResponse) {
                         alert(`Ошибка!!! ${errorResponse.message}. Время ${errorResponse.moment}`)
+                        window.location.reload()
                     })
                 }
             })
